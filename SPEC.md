@@ -74,6 +74,7 @@ npm run lint         # eslint .
 npm test             # vitest run (136 tests at time of writing)
 npm run build        # typecheck → client build → SSR build → prerender into dist/index.html
 npm run preview      # serve dist/
+npm run preview:lan  # serve dist/ on the local network (open the printed Network URL on a phone on the same Wi-Fi)
 npm run rasters      # macOS only: re-render og-image / favicons from the live dev server (swift)
 ```
 
