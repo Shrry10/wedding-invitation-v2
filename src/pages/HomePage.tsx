@@ -4,7 +4,7 @@ import { FloralSpray } from '../components/art/Florals'
 import { EmbossedCard, ScallopedOval } from '../components/art/Paper'
 import { Cartouche, DoveEmblem, InviteCard } from '../components/art/Ornament'
 import { OPEN_ENVELOPE_SEAL, OpenEnvelope, Polaroid } from '../components/art/Maroon'
-import { PhotoStandIn } from '../components/art/PhotoStandIn'
+import { PrintFill } from '../components/PrintFill'
 import { PlaylistSleeve } from '../components/art/Vinyl'
 import { AntiqueKey, PearlEarrings, SilverTray, WaxSeal } from '../components/art/Metal'
 import { FactValue } from '../components/a11y/FactValue'
@@ -13,7 +13,7 @@ import { arrivalThrow } from '../lib/arrival'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 import { useStagedReveal } from '../hooks/useStagedReveal'
 import type { PageId } from '../routes'
-import type { InvitationContent, PlaylistConfig } from '../data/types'
+import type { GalleryImage, HomePhotoSlot, InvitationContent, PlaylistConfig } from '../data/types'
 
 /**
  * The invitation is an absolute canvas, as the reference is.
@@ -145,6 +145,11 @@ interface HomePageProps {
 
 export function HomePage({ content, names, monogram, navigate }: HomePageProps) {
   const { couple, hero, countdown, footer, playlist } = content
+  const gallery = new Map(content.gallery.map((image) => [image.id, image]))
+  const photo = (slot: HomePhotoSlot): GalleryImage | undefined => {
+    const id = content.homePhotos[slot]
+    return id === undefined ? undefined : gallery.get(id)
+  }
   const canvasRef = useRef<HTMLDivElement | null>(null)
   const reducedMotion = useReducedMotion()
   useStagedReveal(canvasRef, !reducedMotion)
@@ -198,7 +203,7 @@ export function HomePage({ content, names, monogram, navigate }: HomePageProps) 
         {/* A photograph propped against the invitation card. */}
         <Piece style={at(28.1, 13.7, 19.6)}>
           <Polaroid tilt={-3}>
-            <PhotoStandIn seed={2} />
+            <PrintFill image={photo('invitation')} seed={2} eager />
           </Polaroid>
         </Piece>
         <Piece style={at(51.1, 11.2, 23.4)}>
@@ -239,17 +244,17 @@ export function HomePage({ content, names, monogram, navigate }: HomePageProps) 
         </Piece>
         <Piece style={at(57.0, 25.2, 13.5)}>
           <Polaroid tilt={11}>
-            <PhotoStandIn seed={3} />
+            <PrintFill image={photo('details-1')} seed={3} />
           </Polaroid>
         </Piece>
         <Piece style={at(60.0, 29.2, 13.5)}>
           <Polaroid tilt={-7}>
-            <PhotoStandIn seed={4} />
+            <PrintFill image={photo('details-2')} seed={4} />
           </Polaroid>
         </Piece>
         <Piece style={at(53.5, 33.0, 13.5)}>
           <Polaroid tilt={4}>
-            <PhotoStandIn seed={5} />
+            <PrintFill image={photo('details-3')} seed={5} />
           </Polaroid>
         </Piece>
         <button
@@ -284,17 +289,17 @@ export function HomePage({ content, names, monogram, navigate }: HomePageProps) 
         </button>
         <Piece style={at(27.0, 46.5, 21.5)}>
           <Polaroid caption="Once" tilt={-4}>
-            <PhotoStandIn seed={6} />
+            <PrintFill image={photo('story-1')} seed={6} />
           </Polaroid>
         </Piece>
         <Piece style={at(41.8, 47.3, 21.5)}>
           <Polaroid caption="Upon" tilt={2}>
-            <PhotoStandIn seed={7} />
+            <PrintFill image={photo('story-2')} seed={7} />
           </Polaroid>
         </Piece>
         <Piece style={at(56.2, 48.4, 21.5)}>
           <Polaroid caption="A time" tilt={7}>
-            <PhotoStandIn seed={8} />
+            <PrintFill image={photo('story-3')} seed={8} />
           </Polaroid>
         </Piece>
         {/* The sprigs are laid down last, over the photographs, and a little
@@ -333,7 +338,7 @@ export function HomePage({ content, names, monogram, navigate }: HomePageProps) 
         </Piece>
         <Piece style={at(28.0, 67.3, 19.5)}>
           <Polaroid tilt={-2}>
-            <PhotoStandIn seed={9} />
+            <PrintFill image={photo('save-the-date')} seed={9} />
           </Polaroid>
         </Piece>
 

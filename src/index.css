@@ -1577,10 +1577,11 @@ html.js .details__written {
   stroke-width: 1.9px;
 }
 
-/* The well itself. A photograph and the drawn stand-in that holds its place
-   until it arrives are the same object here, filling the same box the same way,
-   so swapping one for the other changes nothing about the layout. */
-.route__fill {
+/* The well itself, on the story route and on the home page alike. A
+   photograph and the drawn stand-in that holds its place are the same object
+   here, filling the same box the same way, so swapping one for the other
+   changes nothing about the layout. */
+.print-fill {
   display: block;
   width: 100%;
   height: 100%;

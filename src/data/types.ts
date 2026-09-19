@@ -195,6 +195,11 @@ export interface StoryBeat {
 
 export interface GalleryImage {
   id: string
+  /**
+   * The file, as a path from the repository root, under
+   * `src/assets/images/photos/`. Not a URL: the bundler fingerprints the file,
+   * and `photoUrl()` turns this path into what the page loads.
+   */
   src: string
   srcSet?: string
   /** Intrinsic pixels, so the grid can reserve space before the image loads. */
@@ -256,6 +261,21 @@ export interface InvitationMessageContent {
   message: MaybePending<string>
 }
 
+/**
+ * The polaroids on the home page, top to bottom: the one propped against the
+ * invitation card, the three under the tray, the three on the story strip
+ * ("Once", "Upon", "A time"), and the one beside Save the Date.
+ */
+export type HomePhotoSlot =
+  | 'invitation'
+  | 'details-1'
+  | 'details-2'
+  | 'details-3'
+  | 'story-1'
+  | 'story-2'
+  | 'story-3'
+  | 'save-the-date'
+
 export interface InvitationContent {
   couple: Couple
   invitation: InvitationMessageContent
@@ -266,7 +286,12 @@ export interface InvitationContent {
   story: StoryContent
   events: WeddingEvent[]
   venues: Venue[]
-  /** May be empty. An empty gallery omits the section entirely. */
+  /** Every photograph on the site. May be empty. */
   gallery: GalleryImage[]
+  /**
+   * Which gallery photograph fills each home-page polaroid, by image id. A
+   * slot left out keeps its drawn stand-in.
+   */
+  homePhotos: Partial<Record<HomePhotoSlot, string>>
   footer: FooterContent
 }

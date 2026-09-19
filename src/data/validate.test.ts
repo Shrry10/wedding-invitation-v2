@@ -44,6 +44,7 @@ function baseContent(): InvitationContent {
     ],
     story: { heading: 'Our Story', beats: [], closingMessage: PENDING },
     gallery: [],
+    homePhotos: {},
     footer: { message: PENDING, hostedByLines: PENDING },
   }
 }
@@ -79,10 +80,45 @@ describe('referential integrity', () => {
     expect(fieldsFailing(content)).toContain('story.beats[0].imageId')
   })
 
+  it('rejects a home photograph pointing at an image that does not exist', () => {
+    const content = baseContent()
+    content.homePhotos = { 'story-2': 'ghost' }
+    expect(fieldsFailing(content)).toContain('homePhotos.story-2')
+  })
+
   it('rejects a hero image that does not exist', () => {
     const content = baseContent()
     content.hero.imageId = 'ghost'
     expect(fieldsFailing(content)).toContain('hero.imageId')
+  })
+})
+
+describe('gallery files', () => {
+  const photo = {
+    id: 'shore',
+    src: 'src/assets/images/photos/shore.jpg',
+    width: 720,
+    height: 733,
+    alt: 'Two hands held at the shore',
+  }
+
+  it('accepts a photograph that is in the photo folder and on disk', () => {
+    const content = baseContent()
+    content.gallery = [photo]
+    expect(validateContent(content, { assetExists: () => true })).toEqual([])
+  })
+
+  it('rejects a photograph that is not on disk', () => {
+    const content = baseContent()
+    content.gallery = [photo]
+    const fields = validateContent(content, { assetExists: () => false }).map((f) => f.field)
+    expect(fields).toContain('gallery[0].src')
+  })
+
+  it('rejects a photograph outside the photo folder, which would never be bundled', () => {
+    const content = baseContent()
+    content.gallery = [{ ...photo, src: 'public/shore.jpg' }]
+    expect(fieldsFailing(content)).toContain('gallery[0].src')
   })
 })
 

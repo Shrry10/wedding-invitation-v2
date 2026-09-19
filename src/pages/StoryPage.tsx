@@ -11,7 +11,7 @@ import {
   photoRouteNodes,
   photoRouteViewBox,
 } from '../components/art/Paths'
-import { PhotoStandIn } from '../components/art/PhotoStandIn'
+import { PrintFill } from '../components/PrintFill'
 import { FactValue } from '../components/a11y/FactValue'
 import { arrivalThrow } from '../lib/arrival'
 import { useReducedMotion } from '../hooks/useReducedMotion'
@@ -45,33 +45,6 @@ function StoryIcon({ emblem }: { emblem: PlaceEmblem }) {
     return <LineIcon name="ring-hand" size={EMBLEM_SIZE} className="route__emblem" />
   }
   return <PlaceIcon name={EMBLEM_ICONS[emblem]} size={EMBLEM_SIZE} className="route__emblem" />
-}
-
-/**
- * What goes in one mount.
- *
- * A beat names its photograph by id, so the photographs arrive by being added
- * to the gallery and named here — no change to this page. Until one arrives the
- * mount holds the same drawn stand-in the rest of the site uses, which is a
- * picture rather than an empty frame, and the real photograph then drops into
- * the identical well at the identical size.
- */
-function StoryPrint({ image, seed }: { image: GalleryImage | undefined; seed: number }) {
-  if (image === undefined) {
-    return <PhotoStandIn seed={seed} className="route__fill" />
-  }
-  return (
-    <img
-      className="route__fill"
-      src={image.src}
-      {...(image.srcSet === undefined ? {} : { srcSet: image.srcSet })}
-      width={image.width}
-      height={image.height}
-      alt={image.alt}
-      loading="lazy"
-      decoding="async"
-    />
-  )
 }
 
 interface StoryPageProps {
@@ -162,7 +135,7 @@ export function StoryPage({
                   {/* Tilted the other way at every other stop, so seven prints
                       read as laid out by hand rather than as a printed grid. */}
                   <Polaroid className="route__print" tilt={index % 2 === 0 ? -1.6 : 1.6}>
-                    <StoryPrint
+                    <PrintFill
                       image={beat.imageId === undefined ? undefined : byId.get(beat.imageId)}
                       seed={index * 3 + 2}
                     />

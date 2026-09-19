@@ -171,6 +171,7 @@ export const content: InvitationContent = {
     beats: [
       {
         id: 'college',
+        imageId: 'ourstory-1',
         label: 'Before',
         heading: 'Same college',
         place: 'Same college',
@@ -179,6 +180,7 @@ export const content: InvitationContent = {
       },
       {
         id: 'reply',
+        imageId: 'ourstory-2',
         label: 'A story, a reply',
         heading: 'An Instagram story, and a reply',
         year: 'Six years later',
@@ -187,6 +189,7 @@ export const content: InvitationContent = {
       },
       {
         id: 'common-ground',
+        imageId: 'ourstory-3',
         label: 'Common ground',
         heading: 'Travel, and Formula 1',
         place: 'Travel & F1',
@@ -195,6 +198,7 @@ export const content: InvitationContent = {
       },
       {
         id: 'proposal',
+        imageId: 'ourstory-4',
         label: 'The question',
         heading: 'The proposal, at Marina Bay',
         place: 'Marina Bay',
@@ -203,6 +207,7 @@ export const content: InvitationContent = {
       },
       {
         id: 'london',
+        imageId: 'ourstory-5',
         label: 'Christmas',
         heading: 'Christmas in Covent Garden',
         place: 'Covent Garden',
@@ -211,6 +216,7 @@ export const content: InvitationContent = {
       },
       {
         id: 'edinburgh',
+        imageId: 'ourstory-6',
         label: 'New Year',
         heading: 'Hogmanay in Edinburgh',
         place: 'Edinburgh',
@@ -219,6 +225,7 @@ export const content: InvitationContent = {
       },
       {
         id: 'engagement',
+        imageId: 'ourstory-7',
         label: 'Engaged',
         heading: 'Engaged',
         year: '26 January 2026',
@@ -228,8 +235,130 @@ export const content: InvitationContent = {
     ],
   },
 
-  // Empty by default. The gallery removes itself entirely below six images.
-  gallery: [],
+  // Every photograph on the site. Each file is cropped to the polaroid well
+  // (492 : 501) at 720 px wide before it is added, so what shows is the crop
+  // that was chosen rather than whatever `object-fit` leaves. The story beats
+  // name theirs above; the home page's are placed by `homePhotos` below.
+  gallery: [
+    {
+      id: 'home-invitation',
+      src: 'src/assets/images/photos/home-invitation.jpg',
+      width: 720,
+      height: 733,
+      alt: 'A heart-shaped cake iced with \u201cSave the date 13.12.26\u201d',
+    },
+    {
+      id: 'home-details-1',
+      src: 'src/assets/images/photos/home-details-1.jpg',
+      width: 720,
+      height: 733,
+      alt: 'Hands dipping into bowls of turmeric paste',
+    },
+    {
+      id: 'home-details-2',
+      src: 'src/assets/images/photos/home-details-2.jpg',
+      width: 720,
+      height: 733,
+      alt: 'A brass tray of henna cones wrapped in coral, pink, gold and mint, beside bowls of rose petals',
+    },
+    {
+      id: 'home-details-3',
+      src: 'src/assets/images/photos/home-details-3.jpg',
+      width: 720,
+      height: 733,
+      alt: 'A crowd dancing under a neon #SreeKoMilaBhav sign',
+    },
+    {
+      id: 'home-ourstory-1',
+      src: 'src/assets/images/photos/home-ourstory-1.jpg',
+      width: 720,
+      height: 733,
+      alt: 'The two of them walking down a leafy lane under a rainbow umbrella',
+    },
+    {
+      id: 'home-ourstory-2',
+      src: 'src/assets/images/photos/home-ourstory-2.jpg',
+      width: 720,
+      height: 733,
+      alt: 'Two selfies taken on the same train, one of each of them',
+    },
+    {
+      id: 'home-ourstory-3',
+      src: 'src/assets/images/photos/home-ourstory-3.jpg',
+      width: 720,
+      height: 733,
+      alt: 'Him on one knee before her at the edge of a lake',
+    },
+    {
+      id: 'home-below-savethedate',
+      src: 'src/assets/images/photos/home-below-savethedate.jpg',
+      width: 720,
+      height: 733,
+      alt: 'The two of them by a pond, she in a silk sari',
+    },
+    {
+      id: 'ourstory-1',
+      src: 'src/assets/images/photos/ourstory-1.jpg',
+      width: 720,
+      height: 733,
+      alt: 'Two hands held at the water\u2019s edge',
+    },
+    {
+      id: 'ourstory-2',
+      src: 'src/assets/images/photos/ourstory-2.jpg',
+      width: 720,
+      height: 733,
+      alt: 'The two of them at a picnic on the grass',
+    },
+    {
+      id: 'ourstory-3',
+      src: 'src/assets/images/photos/ourstory-3.jpg',
+      width: 720,
+      height: 733,
+      alt: 'A mirror selfie in a lift, in Ferrari and Mercedes team shirts',
+    },
+    {
+      id: 'ourstory-4',
+      src: 'src/assets/images/photos/ourstory-4.jpg',
+      width: 720,
+      height: 733,
+      alt: 'The two of them on a boat at night, fireworks over the water',
+    },
+    {
+      id: 'ourstory-5',
+      src: 'src/assets/images/photos/ourstory-5.jpg',
+      width: 720,
+      height: 733,
+      alt: 'The two of them under the Christmas tree in Covent Garden',
+    },
+    {
+      id: 'ourstory-6',
+      src: 'src/assets/images/photos/ourstory-6.jpg',
+      width: 720,
+      height: 733,
+      alt: 'A New Year selfie under the fireworks in Edinburgh',
+    },
+    {
+      id: 'ourstory-7',
+      src: 'src/assets/images/photos/ourstory-7.jpg',
+      width: 720,
+      height: 733,
+      alt: 'Her hennaed hands on his face, both of them laughing',
+    },
+  ],
+
+  // The polaroids on the home page, top to bottom. A slot left out keeps its
+  // drawn stand-in.
+  homePhotos: {
+    invitation: 'home-invitation',
+    'details-1': 'home-details-1',
+    'details-2': 'home-details-2',
+    'details-3': 'home-details-3',
+    'story-1': 'home-ourstory-1',
+    'story-2': 'home-ourstory-2',
+    'story-3': 'home-ourstory-3',
+    'save-the-date': 'home-below-savethedate',
+  },
 
   footer: {
     message: 'Can\u2019t wait to celebrate with you',

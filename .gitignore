@@ -11,6 +11,8 @@ resc/website-ss/
 resc/flower/
 resc/background-hand.jpg
 resc/.obsidian/
+# The client's original photographs. The cropped copies in src/assets/images/photos ship.
+website-pics/
 
 # Per-user Claude Code settings
 .claude/settings.local.json

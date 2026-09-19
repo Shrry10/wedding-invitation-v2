@@ -47,6 +47,15 @@ const checkReferentialIntegrity: Check = (content) => {
     }
   })
 
+  for (const [slot, imageId] of Object.entries(content.homePhotos)) {
+    if (imageId !== undefined && !imageIds.has(imageId)) {
+      failures.push({
+        field: `homePhotos.${slot}`,
+        message: `Home photograph "${slot}" references image "${imageId}", which does not exist.`,
+      })
+    }
+  }
+
   if (content.hero.imageId !== undefined && !imageIds.has(content.hero.imageId)) {
     failures.push({
       field: 'hero.imageId',
@@ -77,8 +86,8 @@ const checkIdentifierUniqueness: Check = (content) => {
 /**
  * Required collections and image descriptions.
  *
- * An empty gallery is explicitly allowed: it omits the section, which is a
- * supported configuration rather than a failure.
+ * An empty gallery is explicitly allowed: every polaroid then shows its drawn
+ * stand-in, which is a supported configuration rather than a failure.
  */
 const checkCollectionsAndAltText: Check = (content) => {
   const failures: ValidationFailure[] = []
@@ -265,6 +274,38 @@ const checkSignatureAssets =
     }))
   }
 
+/** Where the page looks for photographs: `photoUrl()` bundles this folder and no other. */
+export const PHOTO_FOLDER = 'src/assets/images/photos/'
+
+/**
+ * Every photograph is a file in the photo folder, and it is there.
+ *
+ * A photograph outside the folder is never bundled, and a missing one would
+ * ship as a broken image in the middle of the story, so both stop the build.
+ */
+const checkGalleryFiles =
+  (assetExists: (relativePath: string) => boolean): Check =>
+  (content) =>
+    content.gallery.flatMap((image, index) => {
+      if (!image.src.startsWith(PHOTO_FOLDER)) {
+        return [
+          {
+            field: `gallery[${index}].src`,
+            message: `Image "${image.id}" must live in ${PHOTO_FOLDER}, not ${image.src}.`,
+          },
+        ]
+      }
+      if (!assetExists(image.src)) {
+        return [
+          {
+            field: `gallery[${index}].src`,
+            message: `Image "${image.id}" points at ${image.src}, which is not on disk.`,
+          },
+        ]
+      }
+      return []
+    })
+
 /** The hero counter and the wedding card must agree about when the wedding is. */
 const checkCountdownMatchesWeddingEvent: Check = (content) => {
   const target = content.countdown.targetInstant
@@ -400,6 +441,7 @@ export function validateContent(
     checkCountdownOffset,
     checkSignatureAssignment,
     checkSignatureAssets(assetExists),
+    checkGalleryFiles(assetExists),
     checkCountdownMatchesWeddingEvent,
     checkStoryBeats,
     ...(options.resolveToken === undefined ? [] : [checkPaletteContrast(resolveToken)]),
