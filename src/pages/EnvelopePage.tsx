@@ -61,7 +61,7 @@ export function EnvelopePage({ names, monogram, onOpened }: EnvelopePageProps) {
               against its containing block — so it gets one its own width. */}
           <span className="envelope-scene__stamp-slot">
             <DeckleStamp className="envelope-scene__stamp">
-              <span className="t-label t-label--tight">Tap to open</span>
+              <span className="t-label t-label--tight envelope-scene__cue">Tap to open</span>
             </DeckleStamp>
           </span>
         </button>

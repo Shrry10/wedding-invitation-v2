@@ -676,6 +676,9 @@ button {
   text-align: center;
 }
 
+/* Every instruction to the guest — "Click here", "Tap to open", "Back to …"
+   — is set in the maroon of the countdown's "yes", so the things to press read
+   as one family against the ink of the text around them. */
 .back-link {
   appearance: none;
   border: 0;
@@ -688,11 +691,14 @@ button {
   letter-spacing: 0.16em;
   text-indent: 0.16em;
   text-transform: uppercase;
-  color: var(--color-ink);
+  color: var(--color-maroon);
 }
 
+/* Already maroon at rest, so hover underlines instead of changing colour. */
 .back-link:hover {
-  color: var(--color-maroon);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
 }
 
 /* ---------------------------------------------------------------------------
@@ -867,6 +873,10 @@ html:not(.js) .countdown__units {
 .envelope-scene__stamp {
   display: block;
   width: 100%;
+}
+
+.envelope-scene__cue {
+  color: var(--color-maroon);
 }
 
 .envelope-scene__stamp-slot {
@@ -1879,7 +1889,7 @@ html.js .details__written {
   font-size: 0.86cqw;
   letter-spacing: 0.2em;
   text-indent: 0.2em;
-  color: var(--color-ink-soft);
+  color: var(--color-maroon);
 }
 
 .card__kicker {
@@ -1954,7 +1964,7 @@ html.js .details__written {
   font-size: 0.92cqw;
   letter-spacing: 0.18em;
   text-indent: 0.18em;
-  color: var(--color-ink-soft);
+  color: var(--color-maroon);
 }
 
 .oval__date {
