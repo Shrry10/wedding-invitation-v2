@@ -396,7 +396,7 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 
 ## 10. Change log
 
-### 2026-09-19: the couple's photographs and the closing message (branch `photographs`)
+### 2026-09-19: the couple's photographs and the closing message (branch `photographs`, merged into `main`)
 
 **Every polaroid now holds a real photograph** (`content.ts`, `types.ts`,
 `HomePage.tsx`, `StoryPage.tsx`, `PrintFill.tsx`, `lib/photoUrl.ts`,
