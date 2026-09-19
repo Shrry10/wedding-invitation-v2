@@ -1,0 +1,16 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# Large reference material and local captures: kept on disk, out of history.
+# resc/docs (the original brief, spec, plan and handover) is committed.
+recording/
+resc/support/
+resc/website-ss/
+resc/flower/
+resc/background-hand.jpg
+resc/.obsidian/
+
+# Per-user Claude Code settings
+.claude/settings.local.json

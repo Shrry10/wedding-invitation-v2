@@ -1,0 +1,2248 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Typefaces. Five open-licence faces, vendored into the repository and served
+   from this origin. No font CDN. See src/assets/fonts/LICENSES.md.
+
+   Fonts are a progressive enhancement: if these files are absent the fallback
+   stacks below still render the page correctly, Devanagari included.
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Marcellus';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/marcellus-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('./assets/fonts/cormorant-garamond-variable-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Great Vibes';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/great-vibes-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Pinyon Script';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/pinyon-script-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Tiro Devanagari Hindi';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/tiro-devanagari-hindi-400-latin-subset.woff2') format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC,
+    U+A830-A839, U+A8E0-A8FF;
+}
+
+/* ---------------------------------------------------------------------------
+   Fallback metric overrides.
+
+   Each fallback is tuned so that swapping from it to the real face changes no
+   line box. Without this the swap reflows the page and costs layout stability.
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Marcellus Fallback';
+  src: local('Hoefler Text'), local('Baskerville'), local('Times New Roman'), local('Georgia');
+  size-adjust: 102%;
+  ascent-override: 92%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+/* Digits only. Cormorant's figures are old-style — the 4 and 9 drop below
+   the line, the 1 and 0 shrink to x-height — which reads as uneven in the
+   countdown and the dates. Cinzel's are even-height and engraved, and sit
+   beside Cormorant's letters without looking borrowed. Every stack that
+   starts with Cormorant starts with this first, and the unicode-range hands
+   everything but 0–9 straight on to Cormorant. */
+@font-face {
+  font-family: 'Cinzel Figures';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('./assets/fonts/cinzel-variable-latin.woff2') format('woff2');
+  unicode-range: U+0030-0039;
+  size-adjust: 94%;
+}
+
+@font-face {
+  font-family: 'Cormorant Fallback';
+  src: local('Hoefler Text'), local('Georgia'), local('Times New Roman');
+  size-adjust: 88%;
+  ascent-override: 105%;
+  descent-override: 32%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Tiro Devanagari Fallback';
+  src: local('Noto Serif Devanagari'), local('Kohinoor Devanagari'),
+    local('Devanagari Sangam MN'), local('Nirmala UI');
+  size-adjust: 100%;
+  ascent-override: 105%;
+  descent-override: 35%;
+  line-gap-override: 0%;
+}
+
+/* ---------------------------------------------------------------------------
+   Palette.
+   This block is the only place in the project where a colour hex literal
+   appears. Everything else — components, artwork, Tailwind utilities —
+   references these custom properties, so a palette change is a one-line edit.
+   --------------------------------------------------------------------------- */
+:root {
+  /* ---------------------------------------------------------------------
+     Palette, taken from the reference screenshots in resc/website-ss.
+     White page, black type, maroon paper, gold wax, silver plate, white
+     flowers on green. Everything else in the project references these.
+     --------------------------------------------------------------------- */
+
+  /* Page and type. */
+  --color-paper: #ffffff;
+  --color-ink: #17161a;
+  --color-ink-soft: #4a4850;
+
+  /* Maroon: envelopes, polaroid borders, ornate frames. */
+  --color-maroon: #5b1a22;
+  --color-maroon-deep: #3f1016;
+  --color-maroon-light: #7b2d35;
+
+  /* Gold: wax seals and struck detail. */
+  --color-gold: #c19a3f;
+  --color-gold-light: #e7cf92;
+  --color-gold-deep: #8d6a1e;
+
+  /* Cream: cards, labels, stamps, embossed paper. */
+  --color-cream: #f7f4ec;
+  --color-cream-deep: #e6e0d2;
+  --color-cream-shade: #d3ccba;
+
+  /* Silver: the tray and the key. */
+  --color-silver: #d9d9d6;
+  --color-silver-light: #f2f2ef;
+  --color-silver-deep: #a6a6a1;
+
+  /* Foliage and blooms: white ranunculus, eucalyptus, astilbe. */
+  --color-leaf: #7d9068;
+  --color-leaf-deep: #55684a;
+  --color-leaf-light: #a8bb95;
+  --color-bloom: #fbfaf4;
+  --color-bloom-shade: #e4dfd0;
+  --color-bloom-core: #efe6c8;
+
+  /* The illustrated stand-in that fills a photo frame until real pictures
+     arrive, matching the sky-over-a-green-rise the reference uses. */
+  --color-sky: #cfe6f2;
+  --color-sky-deep: #a9d2e8;
+  --color-meadow: #8fbf63;
+
+  /* -----------------------------------------------------------------
+     The four functions' own colours, for the dress code and the panels.
+
+     The marriage deck prints its palette with names and hex values, and
+     those are used verbatim. The other three decks are photographs, so
+     each of these was measured off the page named — a dominant-colour
+     count over the photograph, not a guess — and only lifted where the
+     material was in shadow, which is noted where it was done.
+     ----------------------------------------------------------------- */
+
+  /* Mehndi — decor deck p23–25: green leaf wall, wooden swing wrapped in
+     warm-tone florals, white linen, marigold. */
+  --color-mehndi-canopy: #1f3a1e; /* the leaf wall, deepened to a ground and pulled off olive */
+  --color-mehndi-foliage: #63733b; /* the lit leaf wall, measured */
+  --color-mehndi-marigold: #e0902f; /* the swing's marigold strings, lifted out of shadow */
+  --color-mehndi-rose: #8a0a1b; /* the swing's roses, measured */
+  --color-mehndi-cream: #f1ead9; /* the linen, warmed for type on the canopy */
+
+  /* Haldi — decor deck p3, p4, p7, p9: pink, orange and yellow organza,
+     sunflowers, a peach-and-rouge canopy, marigold petals. */
+  --color-haldi-turmeric: #eeae2b; /* the yellow organza, between the neon and the marigold */
+  --color-haldi-sunflower: #f6d45a; /* sunflower petals, lifted out of shadow */
+  --color-haldi-marigold: #ec7b03; /* the orange organza, measured */
+  --color-haldi-rouge: #f3536b; /* the rouge organza, measured */
+  --color-haldi-orchid: #ab628b; /* the purple carpet, measured */
+  --color-haldi-ink: #3f1d0f; /* type on turmeric */
+
+  /* Sangeet — decor deck p15–22 and cover: velvet green, fairy lights, warm
+     paper lamps, rose-gold chains, cream sofas, black table covers. */
+  --color-sangeet-night: #0d2114; /* the velvet after dark, a hair greener than the black it measures as */
+  --color-sangeet-forest: #0b431a; /* the cover's velvet, measured */
+  --color-sangeet-peach: #dbaa93; /* the lamp glow on the seating, measured */
+  --color-sangeet-cream: #ebdbc3; /* the sofas, measured; type on the night */
+  --color-sangeet-rose-gold: #c99a7c; /* the chains and piping, between two measured bins */
+  --color-sangeet-bulb: #f3ac5b; /* an old warm bulb, measured */
+
+  /* Marriage — moodboard, printed on the deck. */
+  --color-marriage-maroon: #8b1e1e;
+  --color-deep-red: #c0392b;
+  --color-mauli-orange: #f97316;
+  --color-antique-gold: #d4af37;
+  --color-ivory: #f7efe2;
+  --color-sand-beige: #eadcc3;
+
+  /* -----------------------------------------------------------------
+     The dress code: what the couple asked guests to wear, one row of
+     five per function. These are named colours chosen by the couple,
+     not measured off the decor — so they are kept apart from the panel
+     tokens above, which still carry each function's ground and text.
+
+     Tokens are named for the hue; the guest-facing names, drawn from
+     flowers, stones and fruit, live with the swatches.
+     ----------------------------------------------------------------- */
+
+  /* Mehndi — green, sage, pink, red, blue. */
+  --color-dress-mehndi-green: #2f6b3a;
+  --color-dress-mehndi-sage: #9caf88;
+  --color-dress-mehndi-pink: #e58fac;
+  --color-dress-mehndi-red: #b01e2f;
+  --color-dress-mehndi-blue: #2c5aa0;
+
+  /* Haldi — two yellows and an orange, then blue in two weights: the one
+     colour that sits opposite turmeric. */
+  --color-dress-haldi-yellow: #f5c518;
+  --color-dress-haldi-mustard: #cf9a1b;
+  --color-dress-haldi-orange: #f07f1e;
+  --color-dress-haldi-sky: #a8cdea;
+  --color-dress-haldi-cerulean: #3d85c6;
+
+  /* Sangeet — champagne gold, silver, purple, red, emerald. */
+  --color-dress-sangeet-champagne: #e3cf9f;
+  --color-dress-sangeet-silver: #c3c6cb;
+  --color-dress-sangeet-purple: #5e2b87;
+  --color-dress-sangeet-red: #a8182e;
+  --color-dress-sangeet-emerald: #0e7a52;
+
+  /* Marriage — off-white, then pastels: yellow, blue, lilac, green. */
+  --color-dress-marriage-off-white: #f6f2e7;
+  --color-dress-marriage-yellow: #f7e59b;
+  --color-dress-marriage-blue: #9dbbe0;
+  --color-dress-marriage-lilac: #c8a8d8;
+  --color-dress-marriage-green: #9cc5a1;
+
+  /* How much of the photograph behind every page shows through. Present
+     enough to be seen as the two of them, not a wash — at 0.11 it read as
+     dirty paper — and still faint enough that the type on top keeps over
+     ten to one against the darkest grey under the hands.
+
+     Checkpoint: 0.2 was approved as "great" before this last step up. To go
+     back, set this to 0.2 and nothing else. The steps taken: 0.11 → 0.2 →
+     0.25. Contrast against the ink at each: 14.4, 11.9, 10.6 to one. */
+  --backdrop-opacity: 0.25;
+
+  /* Illustration: three stroke weights, and nothing between them. */
+  --stroke-hairline: 0.75px;
+  --stroke-standard: 1.5px;
+  --stroke-emphasis: 3px;
+
+  /* Illustration: four opacity steps, and nothing between them. */
+  --opacity-background: 0.12;
+  --opacity-mid: 0.34;
+  --opacity-foreground: 0.6;
+  --opacity-focal: 1;
+
+
+  /* Font stacks. Each ends in a real system serif so nothing depends on a
+     downloaded file arriving. */
+  --font-display: 'Cinzel Figures', 'Cormorant Garamond', 'Cormorant Fallback', 'Hoefler Text', Georgia,
+    'Times New Roman', serif;
+  --font-devanagari: 'Tiro Devanagari Hindi', 'Tiro Devanagari Fallback',
+    'Noto Serif Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Nirmala UI', serif;
+  --font-body: 'Cinzel Figures', 'Cormorant Garamond', 'Cormorant Fallback', 'Hoefler Text', Georgia,
+    'Times New Roman', serif;
+  /* The flowing hand every heading on the reference is set in. Falls back to
+     whatever cursive the system has, then to the body serif. */
+  --font-script: 'Great Vibes', 'Snell Roundhand', 'Apple Chancery',
+    'Segoe Script', 'Brush Script MT', cursive, var(--font-body);
+  --font-script-alt: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive,
+    var(--font-body);
+
+  /* Layout. */
+  --content-max-width: 1120px;
+  --gutter-compact: 20px;
+  --gutter-regular: 32px;
+  --gutter-wide: 48px;
+  --rhythm-compact: 72px;
+  --rhythm-regular: 120px;
+  --radius-card: 4px;
+
+  /* Safe areas: content clears the notch and the home indicator. */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: light;
+}
+
+/* ---------------------------------------------------------------------------
+   Tailwind theme: points at the custom properties above rather than
+   restating any value.
+   --------------------------------------------------------------------------- */
+@theme inline {
+  --color-paper: var(--color-paper);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-maroon: var(--color-maroon);
+  --color-maroon-deep: var(--color-maroon-deep);
+  --color-maroon-light: var(--color-maroon-light);
+  --color-gold: var(--color-gold);
+  --color-gold-light: var(--color-gold-light);
+  --color-gold-deep: var(--color-gold-deep);
+  --color-cream: var(--color-cream);
+  --color-cream-deep: var(--color-cream-deep);
+  --color-cream-shade: var(--color-cream-shade);
+  --color-silver: var(--color-silver);
+  --color-silver-light: var(--color-silver-light);
+  --color-silver-deep: var(--color-silver-deep);
+  --color-leaf: var(--color-leaf);
+  --color-leaf-deep: var(--color-leaf-deep);
+  --color-leaf-light: var(--color-leaf-light);
+  --color-bloom: var(--color-bloom);
+  --color-bloom-shade: var(--color-bloom-shade);
+  --color-bloom-core: var(--color-bloom-core);
+  --color-sky: var(--color-sky);
+  --color-sky-deep: var(--color-sky-deep);
+  --color-meadow: var(--color-meadow);
+  --color-mehndi-canopy: var(--color-mehndi-canopy);
+  --color-mehndi-foliage: var(--color-mehndi-foliage);
+  --color-mehndi-marigold: var(--color-mehndi-marigold);
+  --color-mehndi-rose: var(--color-mehndi-rose);
+  --color-mehndi-cream: var(--color-mehndi-cream);
+  --color-haldi-turmeric: var(--color-haldi-turmeric);
+  --color-haldi-sunflower: var(--color-haldi-sunflower);
+  --color-haldi-marigold: var(--color-haldi-marigold);
+  --color-haldi-rouge: var(--color-haldi-rouge);
+  --color-haldi-orchid: var(--color-haldi-orchid);
+  --color-haldi-ink: var(--color-haldi-ink);
+  --color-sangeet-night: var(--color-sangeet-night);
+  --color-sangeet-forest: var(--color-sangeet-forest);
+  --color-sangeet-peach: var(--color-sangeet-peach);
+  --color-sangeet-cream: var(--color-sangeet-cream);
+  --color-sangeet-rose-gold: var(--color-sangeet-rose-gold);
+  --color-sangeet-bulb: var(--color-sangeet-bulb);
+  --color-marriage-maroon: var(--color-marriage-maroon);
+  --color-deep-red: var(--color-deep-red);
+  --color-mauli-orange: var(--color-mauli-orange);
+  --color-antique-gold: var(--color-antique-gold);
+  --color-ivory: var(--color-ivory);
+  --color-sand-beige: var(--color-sand-beige);
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* ---------------------------------------------------------------------------
+   Reset.
+   --------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+svg {
+  display: block;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   Fluid type scale. Each role interpolates between its mobile and desktop
+   bound; nothing steps at a breakpoint.
+   --------------------------------------------------------------------------- */
+:root {
+  --text-display: clamp(2.5rem, 1.55rem + 4.75vw, 4.5rem);
+  --text-countdown: clamp(2rem, 1.4rem + 3vw, 3.5rem);
+  --text-countdown-label: clamp(0.6875rem, 0.66rem + 0.12vw, 0.75rem);
+  --text-section: clamp(1.75rem, 1.39rem + 1.8vw, 2.5rem);
+  --text-card-title: clamp(1.25rem, 1.13rem + 0.6vw, 1.5rem);
+  --text-eyebrow: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+  --text-body: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  --text-meta: clamp(0.9375rem, 0.91rem + 0.12vw, 1rem);
+}
+
+.type-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.type-devanagari {
+  font-family: var(--font-devanagari);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.type-countdown {
+  font-family: var(--font-display);
+  font-size: var(--text-countdown);
+  font-weight: 400;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.type-countdown-label {
+  font-family: var(--font-body);
+  font-size: var(--text-countdown-label);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.type-section {
+  font-family: var(--font-display);
+  font-size: var(--text-section);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.type-card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.type-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.type-body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.65;
+  max-width: 68ch;
+}
+
+.type-meta {
+  font-family: var(--font-body);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Layout primitives.
+   --------------------------------------------------------------------------- */
+.site-container {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter-compact);
+}
+
+@media (min-width: 640px) {
+  .site-container {
+    padding-inline: var(--gutter-regular);
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-container {
+    padding-inline: var(--gutter-wide);
+  }
+}
+
+.site-section {
+  padding-block: var(--rhythm-compact);
+}
+
+@media (min-width: 768px) {
+  .site-section {
+    padding-block: var(--rhythm-regular);
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 50%;
+  translate: -50% -200%;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-maroon);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: var(--text-meta);
+  text-decoration: none;
+  border-radius: var(--radius-card);
+  transition: translate 150ms ease-out;
+}
+
+.skip-link:focus-visible {
+  translate: -50% calc(env(safe-area-inset-top, 0px) + 0.5rem);
+}
+
+/* ---------------------------------------------------------------------------
+   Focus. Every focusable element shows a visible indicator; nothing removes
+   an outline without replacing it.
+   --------------------------------------------------------------------------- */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-maroon);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Typography, as the reference sets it.
+
+   Three voices and nothing else: a flowing script for names and section
+   headings, a high-contrast garalde in letterspaced capitals for titles and
+   labels, and the same garalde in lower case for running text.
+   --------------------------------------------------------------------------- */
+.t-script {
+  font-family: var(--font-script);
+  font-weight: 400;
+  line-height: 1.24;
+  /* Great Vibes sits high in its em box; this pulls it back onto the baseline
+     of whatever it is stacked with. */
+  padding-bottom: 0.12em;
+}
+
+.t-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 1.2rem + 3.6vw, 3.25rem);
+  letter-spacing: 0.07em;
+  text-indent: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.t-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(0.72rem, 0.68rem + 0.18vw, 0.82rem);
+  letter-spacing: 0.17em;
+  text-indent: 0.17em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.t-label--tight {
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
+}
+
+.t-date {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(0.78rem, 0.74rem + 0.2vw, 0.9rem);
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.t-prose {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.05rem);
+  line-height: 1.7;
+}
+
+/* ---------------------------------------------------------------------------
+   Page shell. Every page is a centred column on white, with nothing behind it.
+   --------------------------------------------------------------------------- */
+.page {
+  position: relative;
+  min-height: 100svh;
+  /* Objects arrive from off the page. `clip` keeps that from raising a
+     horizontal scrollbar, and unlike `hidden` it does not make the page a
+     scroll container, so vertical overflow is untouched. */
+  overflow-x: clip;
+  /* No ground of its own: the paper is the body's, and the photograph behind
+     every page shows through it. */
+  background: transparent;
+  color: var(--color-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------------------
+   The photograph behind every page. See Backdrop.tsx for why it is placed by
+   the point where the hands meet rather than by object-fit.
+   --------------------------------------------------------------------------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.backdrop img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* Large enough that, with the focal point this far off the image's middle,
+     no edge of the viewport is ever left bare: the near side needs 46.1% of
+     the width to reach the edge and the top needs 47.3% of the height. */
+  width: auto;
+  height: auto;
+  min-width: 110vw;
+  min-height: 108vh;
+  max-width: none;
+  /* The hands' meeting point, as measured, brought to the viewport's centre. */
+  transform: translate(-53.9%, -47.3%);
+  opacity: var(--backdrop-opacity);
+}
+
+@media print {
+  .backdrop {
+    display: none;
+  }
+}
+
+.page__column {
+  width: 100%;
+  max-width: 760px;
+  padding: clamp(40px, 8vw, 88px) clamp(20px, 5vw, 40px) clamp(56px, 10vw, 104px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.back-link {
+  appearance: none;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 12px 16px;
+  min-height: 44px;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.back-link:hover {
+  color: var(--color-maroon);
+}
+
+/* ---------------------------------------------------------------------------
+   Countdown, set as the reference sets it: four numerals separated by colons,
+   each over a small letterspaced label.
+   --------------------------------------------------------------------------- */
+.countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.countdown__heading {
+  display: none;
+}
+
+.countdown__units {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+}
+
+.countdown__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-inline: clamp(6px, 2vw, 13px);
+  position: relative;
+}
+
+/* Colons belong between the numerals, not after the last one. */
+.countdown__unit + .countdown__unit::before {
+  content: ':';
+  position: absolute;
+  left: calc(-0.5ch - 1px);
+  top: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-countdown);
+  line-height: 1;
+  color: var(--color-ink);
+}
+
+.countdown__value {
+  font-family: var(--font-display);
+  font-size: var(--text-countdown);
+  line-height: 1;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.countdown__label {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(0.52rem, 0.49rem + 0.14vw, 0.6rem);
+  letter-spacing: 0.15em;
+  text-indent: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+.countdown__fallback,
+.countdown__completed {
+  margin: 0;
+  font-family: var(--font-display);
+  color: var(--color-ink);
+}
+
+/* Without scripting the prerendered numerals are frozen at build time, which
+   looks live and is not. The date above them carries the information instead. */
+html:not(.js) .countdown__units {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   The envelope page.
+   One centred group on white: a line, the names, the envelope, the stamp.
+   --------------------------------------------------------------------------- */
+.page--envelope {
+  justify-content: center;
+}
+
+.envelope-scene {
+  width: 100%;
+  max-width: 620px;
+  padding: clamp(40px, 9vh, 88px) 24px clamp(48px, 9vh, 96px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: opacity 620ms ease, transform 620ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.page--envelope[data-leaving] .envelope-scene {
+  opacity: 0;
+  transform: translateY(-14px) scale(1.03);
+}
+
+.envelope-scene__kicker {
+  margin: 0 0 clamp(10px, 2.1vh, 24px);
+}
+
+.envelope-scene__names {
+  margin: 0 0 clamp(2px, 0.5vh, 10px);
+  font-size: clamp(2.4rem, 1.3rem + 5vw, 4.1rem);
+  /* Two given names run long on a phone; letting them wrap at the ampersand is
+     how the reference sets them. */
+  max-width: 11ch;
+}
+
+.envelope-scene__open {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.envelope-scene__open:focus-visible {
+  outline: 2px solid var(--color-maroon);
+  outline-offset: 12px;
+  border-radius: 4px;
+}
+
+.envelope-scene__paper {
+  position: relative;
+  display: block;
+  /* The reference sets the envelope at 24.6% of the page width. Below about a
+     tablet that would be too small to read, so a floor takes over. */
+  width: min(82%, max(304px, 25.6vw));
+}
+
+.envelope-scene__envelope {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Placed over the point of the flap, where the wax would have been poured. */
+.envelope-scene__seal {
+  position: absolute;
+  /* Matches SEALED_ENVELOPE_SEAL in Maroon.tsx — the envelope states where its
+     own flap point is, so the seal cannot drift off it. */
+  /* Tuned so the visible wax — not the SVG's padded box — lands on the flap
+     point, measured at 67% of the envelope's height in the reference. */
+  left: 50.5%;
+  top: 65%;
+  width: 20.5%;
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+
+.envelope-scene__floral {
+  position: absolute;
+  /* The spray's own drawing carries air above the blooms, so it is hung higher
+     than the point where the flowers should sit. */
+  left: 8%;
+  top: 47%;
+  width: 47%;
+  height: auto;
+}
+
+.envelope-scene__stamp {
+  display: block;
+  width: 100%;
+}
+
+.envelope-scene__stamp-slot {
+  /* The posy hangs about a third of the envelope's height below it; the stamp
+     starts below that rather than behind it. */
+  display: block;
+  margin-top: clamp(34px, 7vw, 106px);
+  width: min(39%, max(145px, 12.1vw));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .envelope-scene {
+    transition: opacity 140ms linear;
+  }
+
+  .page--envelope[data-leaving] .envelope-scene {
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Shared section furniture: a script heading, a small drawing, a flourish and
+   a seal. These recur on both inner pages.
+   --------------------------------------------------------------------------- */
+/* Lets a drawing arrive. Carries nothing but the attribute: the drawings inside
+   keep their own margins, and this only has to be as wide as they expect. */
+.column__block {
+  width: 100%;
+}
+
+.section__script {
+  margin: clamp(38px, 7vw, 72px) 0 clamp(14px, 3vw, 24px);
+  font-size: clamp(1.9rem, 1.2rem + 3vw, 3rem);
+}
+
+.section__icon {
+  display: block;
+  margin: 0 auto 10px;
+  color: var(--color-ink);
+}
+
+.section__flourish {
+  display: block;
+  width: min(42%, 180px);
+  margin: clamp(26px, 5vw, 48px) auto clamp(14px, 3vw, 22px);
+}
+
+.section__seal {
+  display: block;
+  width: 46px;
+  height: auto;
+  margin: 0 auto clamp(8px, 2vw, 14px);
+}
+
+/* --- Details ------------------------------------------------------------------ */
+/* The envelope: the same object the invitation page lays on its table, at the
+   size the reference gives it here. Depth is mostly not in the drawing — a
+   maroon shape with nothing inside it and no shadow is a flat rectangle
+   however carefully its folds are shaded. It is the card rising out of the
+   pocket, the seal pressed over the notch, the spray at the corner, and the two
+   shadows the canvas casts. */
+.details__envelope {
+  width: min(78%, 420px);
+  margin: clamp(8px, 2vw, 18px) auto clamp(28px, 5vw, 46px);
+}
+
+.details__card {
+  display: block;
+  width: 66%;
+  margin: 0 auto;
+}
+
+.details__spray {
+  position: absolute;
+  left: -6%;
+  top: 12%;
+  width: 40%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* The caption to the envelope just opened, so it is set as one: the body
+   face, upright, at a size between the prose and the script headings, held
+   between two gold hairlines that open outward from it the way the flap
+   does. Always one line: the size scales with the viewport down to the
+   narrowest phone rather than letting the phrase break. */
+.details__message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2.4vw, 22px);
+  margin: 0;
+  max-width: 100%;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(1.1rem, 0.62rem + 2.4vw, 2.2rem);
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-align: center;
+  color: var(--color-ink);
+}
+
+.details__message::before,
+.details__message::after {
+  content: '';
+  flex: 0 0 clamp(18px, 7vw, 72px);
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-gold-deep));
+}
+
+.details__message::after {
+  background: linear-gradient(to left, transparent, var(--color-gold-deep));
+}
+
+.details__note {
+  margin: 0 0 clamp(20px, 4vw, 34px);
+  max-width: 46ch;
+  text-align: center;
+  color: var(--color-ink-soft);
+}
+
+/* --- A function's name, wherever it appears ------------------------------------ */
+.function-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.function-name--left {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.function-name__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(0.98rem, 0.88rem + 0.45vw, 1.2rem);
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  /* A three-word name in a narrow column breaks as two words and one; balanced
+     it breaks evenly, and reads as set rather than as overflowed. */
+  text-wrap: balance;
+}
+
+/* Four abreast, the columns are narrow. Every name stays on one line: it
+   takes its usual size where the column has room, and shrinks with the
+   column (1cqi is 1% of it) where it has not. The longest name, "Touched by
+   Turmeric", sets about 9.2 times its size, so at 11.5cqi it runs a few
+   pixels into the gutter each side — centred, and never into its
+   neighbour's name. */
+.functions__item .function-name__title {
+  font-size: min(clamp(0.92rem, 0.84rem + 0.35vw, 1.08rem), 11.5cqi);
+  white-space: nowrap;
+}
+
+.function-name__trad {
+  font-size: clamp(0.62rem, 0.6rem + 0.12vw, 0.7rem);
+  color: var(--color-ink-soft);
+}
+
+.function-name__native {
+  font-family: var(--font-devanagari);
+  text-transform: none;
+  letter-spacing: 0;
+  text-indent: 0;
+  margin-left: 0.5em;
+}
+
+/* --- Date and location: one column per function -------------------------------- */
+.functions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 5vw, 44px) clamp(14px, 3vw, 28px);
+}
+
+@media (min-width: 720px) {
+  .functions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Each column is a subgrid of the row it sits in, so its five parts — drawing,
+   name, traditional name, date and time, venue — line up with the same parts
+   of every other column. A name that takes two lines then makes the name row
+   two lines tall for all four, rather than pushing its own column's date down
+   past its neighbours'. */
+.functions__item {
+  container-type: inline-size;
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 6;
+  row-gap: 4px;
+  justify-items: center;
+  text-align: center;
+  color: var(--color-ink);
+}
+
+/* The name's two parts join the column's grid directly, so they occupy rows
+   of their own and align across the columns. */
+.functions__item .function-name {
+  display: contents;
+}
+
+/* Bottom-aligned in its row: a one-line name then sits directly over its
+   traditional name, as a two-line name does, instead of leaving a gap. */
+.functions__item .function-name__title {
+  align-self: end;
+}
+
+.functions__icon {
+  margin-bottom: 8px;
+}
+
+.functions__when,
+.functions__where,
+.functions__address {
+  margin: 0;
+  font-size: clamp(0.8rem, 0.76rem + 0.2vw, 0.9rem);
+  line-height: 1.55;
+}
+
+.functions__when {
+  margin-top: 12px;
+}
+
+/* Full ink, not the soft grey the venues section set it in: this line is now
+   the way to the map, and something a guest can act on should not be the
+   quietest thing in its column. */
+.functions__where {
+  margin-top: 6px;
+}
+
+.functions__address {
+  font-size: clamp(0.74rem, 0.71rem + 0.16vw, 0.82rem);
+  color: var(--color-ink-soft);
+}
+
+/* The venue name, which is also the way to the map. Underlined rather than
+   coloured: the page has one accent and it belongs to the paper, so an
+   underline is the only mark here that reads as a link without inventing a
+   second one. The negative margin cancels the padding, so the hit area grows
+   to a thumb's width without moving the line. */
+.venue-link {
+  display: inline-block;
+  padding: 5px 6px;
+  margin: -5px -6px;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-ink) 38%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+.venue-link:hover,
+.venue-link:focus-visible {
+  color: var(--color-maroon);
+  text-decoration-color: currentColor;
+}
+
+/* --- Dress code: each function's own colours ----------------------------------- */
+.palettes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  gap: clamp(24px, 4vw, 36px);
+}
+
+.palette {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+@media (min-width: 720px) {
+  .palette {
+    /* Wide enough that the longest name, beside its drawing, stays on one
+       line: three names on one line and one on two reads as a mistake. */
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+.palette__event {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--color-ink);
+}
+
+@media (min-width: 720px) {
+  .palette__event {
+    justify-content: flex-start;
+  }
+}
+
+/* Five equal columns, never wrapping: the chips size themselves to the room
+   there is, so a fifth colour can never drop to a second line — which it did
+   once the name column was widened, ten pixels short. */
+.palette__swatches {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 16px);
+}
+
+.palette__swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+/* A round chip rather than the reference's square: five per row, four rows,
+   and squares that close read as a grid of tiles rather than as colours. */
+.palette__chip {
+  display: block;
+  width: min(100%, 48px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 14%, transparent),
+    0 2px 5px color-mix(in srgb, var(--color-ink) 18%, transparent);
+}
+
+.palette__label {
+  font-size: clamp(0.56rem, 0.54rem + 0.1vw, 0.62rem);
+  letter-spacing: 0.14em;
+  text-indent: 0.14em;
+  text-align: center;
+}
+
+/* Five across on a phone leaves 64px a column, and SUNFLOWER letterspaced at
+   0.14em is 66px. Closing the tracking a little keeps it inside. */
+@media (max-width: 719px) {
+  .palette__label {
+    letter-spacing: 0.1em;
+    text-indent: 0.1em;
+  }
+}
+
+/* --- Timeline: the four functions down one line --------------------------------
+
+   Two layouts from one markup, as the story's route has. Narrow: one column,
+   the line running down the left. Wide: the drawn route, each stop pulled up
+   so its drawing sits level with its heart.
+   ------------------------------------------------------------------------------ */
+.schedule {
+  position: relative;
+  width: 100%;
+  margin: clamp(22px, 4vw, 38px) 0 clamp(18px, 4vw, 36px);
+}
+
+.schedule__line {
+  display: none;
+}
+
+.schedule__path {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.schedule__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  display: grid;
+  row-gap: clamp(24px, 5vw, 36px);
+}
+
+.schedule__rail {
+  position: absolute;
+  left: 15.5px;
+  inset-block: 0;
+  width: 3px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--color-ink) 0 10px,
+    transparent 10px 14px
+  );
+}
+
+.schedule__stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-areas:
+    'mark icon'
+    '.    name'
+    '.    when'
+    '.    where';
+  column-gap: 16px;
+  text-align: left;
+}
+
+.schedule__mark {
+  grid-area: mark;
+  justify-self: center;
+  align-self: center;
+}
+
+.schedule__icon {
+  grid-area: icon;
+  color: var(--color-ink);
+}
+
+.schedule__name {
+  grid-area: name;
+  margin-top: 10px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.schedule__when {
+  grid-area: when;
+  margin: 6px 0 0;
+}
+
+.schedule__where {
+  grid-area: where;
+  margin: 2px 0 0;
+  font-size: clamp(0.76rem, 0.72rem + 0.2vw, 0.85rem);
+  color: var(--color-ink-soft);
+}
+
+@media (min-width: 700px) {
+  .schedule {
+    aspect-ratio: var(--route-ratio);
+  }
+
+  .schedule__line {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .schedule__rail,
+  .schedule__mark {
+    display: none;
+  }
+
+  .schedule__list {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .schedule__stop {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    top: var(--stop-y);
+    /* Pulled up by half the drawing, so the heart on the line sits level with
+       the drawing rather than with the middle of the type under it. */
+    margin-top: calc(var(--schedule-icon) / -2);
+    width: var(--schedule-card);
+    --from-x: var(--stop-from-x);
+  }
+
+  /* Each stop keeps to the side of its card nearest the line, as the reference
+     holds its drawings just off the line rather than out at the page's edge;
+     the inset is the air between the heart and the drawing. */
+  .schedule__stop[data-side='left'] {
+    left: 0;
+    align-items: flex-end;
+    text-align: right;
+    padding-right: 6%;
+  }
+
+  .schedule__stop[data-side='right'] {
+    right: 0;
+    align-items: flex-start;
+    text-align: left;
+    padding-left: 6%;
+  }
+
+  .schedule__stop[data-side='left'] .schedule__name {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .schedule__stop[data-side='right'] .schedule__name {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+/* --- Our story: photographs tied to a winding line -----------------------------
+
+   Two layouts from one markup. Narrow: a single column, the line running down
+   the left of the prints, everything in normal flow. Wide: the drawn route,
+   each print pulled up onto its own heart. The switch is where a column 28% of
+   the content width stops holding a label such as FIRST TIME ABROAD on one
+   line — below that the wide layout is not cramped, it is broken.
+   ------------------------------------------------------------------------------ */
+.route {
+  position: relative;
+  width: 100%;
+  margin: clamp(26px, 5vw, 54px) 0 clamp(18px, 4vw, 36px);
+}
+
+.route__line {
+  display: none;
+}
+
+.route__path {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.route__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  display: grid;
+  row-gap: clamp(26px, 6vw, 44px);
+}
+
+/* The line, where there is no room to wind it. Same dash, same rhythm; it runs
+   past the first and last hearts for the same reason the washing line runs off
+   both edges of its box. */
+.route__rail {
+  position: absolute;
+  left: 15.5px;
+  inset-block: 0;
+  width: 3px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--color-ink) 0 15px,
+    transparent 15px 18px
+  );
+}
+
+.route__stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-areas:
+    'mark print'
+    '.    label'
+    '.    when'
+    '.    story';
+  column-gap: 16px;
+  /* The line and its heart take 50px off the left of every row, so without a
+     matching gutter here the print sits hard against the right edge of the
+     screen while the left keeps the page's own margin. */
+  padding-right: clamp(8px, 4vw, 22px);
+  text-align: left;
+}
+
+.route__mark {
+  grid-area: mark;
+  justify-self: center;
+  /* The heart marks the print, not the caption under it. */
+  align-self: center;
+}
+
+.route__print {
+  grid-area: print;
+  width: 100%;
+}
+
+.route__label {
+  grid-area: label;
+  margin: 12px 0 0;
+}
+
+/* The place's own drawing, beside the line that names it. Darker than the label
+   above, as the reference sets it: the label names the milestone, the line
+   under it is the fact. */
+.route__when {
+  grid-area: when;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 0;
+}
+
+/* The sentence under the print. Upright, not italic: the vendored Cormorant
+   has no italic face and a synthetic slant on a garalde looks cheap; it is set
+   apart by size and by the softer ink instead. */
+.route__story {
+  grid-area: story;
+  margin: 8px 0 0;
+  max-width: 34ch;
+  font-size: clamp(0.8rem, 0.76rem + 0.18vw, 0.9rem);
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+}
+
+.route__emblem {
+  flex: none;
+  color: var(--color-ink);
+  /* Beaten up from the 1.5 the icons carry as a presentation attribute: drawn
+     at a third of their usual size they have to hold against letterspaced caps
+     rather than sit alone above them. */
+  stroke-width: 1.9px;
+}
+
+/* The well itself. A photograph and the drawn stand-in that holds its place
+   until it arrives are the same object here, filling the same box the same way,
+   so swapping one for the other changes nothing about the layout. */
+.route__fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-cream);
+}
+
+@media (min-width: 700px) {
+  /* The box is the drawn route's own box, so the curve fits it with no
+     letterboxing and a node's fraction is a usable CSS percentage. */
+  .route {
+    aspect-ratio: var(--route-ratio);
+  }
+
+  .route__line {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .route__rail,
+  .route__mark {
+    display: none;
+  }
+
+  .route__list {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .route__stop {
+    position: absolute;
+    display: block;
+    padding: 0;
+    top: var(--stop-y);
+    /* A percentage margin resolves against the containing block's width — the
+       same width --route-card is a percentage of — so half a mount's height is
+       expressible here, and the print centres on its own heart at any size. */
+    margin: calc(-1 * var(--route-photo-half)) 0 0;
+    width: var(--route-card);
+    text-align: center;
+  }
+
+  .route__stop {
+    --from-x: var(--stop-from-x);
+  }
+
+  .route__stop[data-side='left'] {
+    left: 0;
+  }
+
+  .route__stop[data-side='right'] {
+    right: 0;
+  }
+
+  .route__label {
+    margin: 14px 0 0;
+  }
+
+  .route__when {
+    justify-content: center;
+  }
+
+  .route__story {
+    margin: 8px auto 0;
+  }
+}
+
+/* --- The story's closing ------------------------------------------------------- */
+
+.story__message {
+  width: 100%;
+  margin: clamp(30px, 6vw, 56px) 0 clamp(26px, 5vw, 44px);
+}
+
+.story__message-title {
+  margin: 0 0 10px;
+  font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2rem);
+}
+
+.story__message-text {
+  margin: 0;
+  font-size: clamp(0.62rem, 0.58rem + 0.2vw, 0.74rem);
+  line-height: 1.9;
+  color: var(--color-ink);
+}
+
+.story__with-love {
+  margin: 0 0 4px;
+  font-size: clamp(1.1rem, 0.9rem + 1vw, 1.6rem);
+}
+
+.story__names {
+  margin: 0;
+  font-size: clamp(1.7rem, 1.2rem + 2.2vw, 2.6rem);
+}
+
+/* ---------------------------------------------------------------------------
+   Paper objects. The drawn plate sits behind, the words sit on top, and the
+   height comes from the words — so a longer label grows its own label.
+   --------------------------------------------------------------------------- */
+.paper {
+  position: relative;
+  display: block;
+  isolation: isolate;
+}
+
+.paper__plate {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+
+.paper__content {
+  display: block;
+  position: relative;
+}
+
+.paper--stamp {
+  display: inline-grid;
+  place-items: center;
+  padding: 13px 22px;
+}
+
+.paper--oval {
+  display: inline-grid;
+  place-items: center;
+  padding: 22px 30px;
+  text-align: center;
+}
+
+.paper--card .paper__content {
+  padding: clamp(34px, 8vw, 54px) clamp(20px, 6vw, 38px) clamp(24px, 6vw, 38px);
+  text-align: center;
+}
+
+.paper--box .paper__content {
+  padding: clamp(24px, 5vw, 40px) clamp(22px, 5vw, 44px);
+  text-align: center;
+}
+
+.paper--invitation .paper__content {
+  padding: clamp(18px, 4vw, 32px) clamp(14px, 3vw, 24px);
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   The invitation page: an absolute canvas.
+
+   Objects overlap, tilt and sit at unrelated heights, so they share one
+   coordinate space rather than being stacked. Type is sized in container-query
+   units so the arrangement scales as a single drawing.
+   --------------------------------------------------------------------------- */
+.page--home {
+  /* The countdown is the last thing on the page and sits flush with its foot,
+     as the reference does — no trailing space below it. */
+  padding: clamp(20px, 4vw, 52px) 0 0;
+}
+
+.canvas {
+  position: relative;
+  width: min(100%, 1664px);
+  margin-inline: auto;
+  aspect-ratio: var(--canvas-ratio);
+  container-type: inline-size;
+}
+
+/*
+ * On a narrow screen the canvas is widened past the viewport.
+ *
+ * The objects occupy only the middle 57% of the coordinate space — the rest is
+ * the margin the reference leaves around its collage — so on a phone nearly
+ * half the screen is empty and everything in it is half the size it could be.
+ * Widening the canvas pushes that empty margin off both edges, where `.page`
+ * clips it, and the objects come up to fill the screen.
+ *
+ * Nothing is rescaled by hand and no proportion changes: the type is sized in
+ * container-query units against this same width, so it grows with the objects
+ * it sits on. The ramp runs from 900px down to 600px so a window being resized
+ * does not jump; below 600px it is constant, and the objects fill the screen at
+ * every phone width.
+ */
+@media (max-width: 899px) {
+  .canvas {
+    width: clamp(100%, calc(100% + (900px - 100vw) * 1.3), 165%);
+    /* Zeroed so the page's own centring applies: an auto inline margin with no
+       free space to absorb computes to zero and pins the canvas to the start,
+       which hangs the whole overflow off one edge. */
+    margin-inline: 0;
+    /* The objects sit 2.2% right of the coordinate space's middle, so centring
+       the space leaves them off centre by that much. It is the objects that
+       should be centred, not the space they are drawn in. */
+    transform: translateX(-2.3%);
+  }
+}
+
+.piece,
+.canvas > .door {
+  position: absolute;
+  margin: 0;
+}
+
+/* --- The plate that turns ------------------------------------------------------ */
+.piece.piece--turning {
+  filter: none;
+}
+
+/* The plate's own shadow, still, in the plate's exact proportions: its rim is
+   an ellipse from 13.5% to 86.5% of the box across and 13% to 83.4% down. The
+   two layers are the page's two — a tight one where it touches, a soft wide
+   one from the room. */
+.plate-shadow {
+  position: absolute;
+  left: 13.5%;
+  top: 13%;
+  width: 73%;
+  height: 70.4%;
+  border-radius: 50%;
+  box-shadow:
+    0 2px 3px color-mix(in srgb, var(--color-ink) 30%, transparent),
+    0 9px 11px color-mix(in srgb, var(--color-ink) 26%, transparent);
+}
+
+.turning {
+  display: block;
+  width: 100%;
+  /* The plate's centre in its drawing, (100, 97) of 200 by 196. Anything else
+     and the plate wobbles instead of turning. */
+  transform-origin: 50% 49.49%;
+  animation: plate-turn 36s linear infinite;
+}
+
+@keyframes plate-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* A decorative object takes no pointer events, so a spray laid over a door
+   cannot swallow the click. Anything genuinely interactive inside one — the
+   countdown card carries a button — takes them back. */
+.piece {
+  pointer-events: none;
+}
+
+.piece a,
+.piece button {
+  pointer-events: auto;
+}
+
+.piece > *,
+.canvas > .door > * {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.canvas > .door {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.canvas > .door:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.canvas > .door:focus-visible {
+  outline: 2px solid var(--color-maroon);
+  outline-offset: 6px;
+}
+
+/* --- Type on the canvas -------------------------------------------------------- */
+
+.sleeve__title {
+  display: block;
+  font-size: 3.1cqw;
+  line-height: 1.05;
+}
+
+.sleeve__cue {
+  display: block;
+  margin-top: 0.7cqw;
+  font-size: 0.86cqw;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  color: var(--color-ink-soft);
+}
+
+
+.card__kicker {
+  margin: 0 0 0.5cqw;
+  font-size: 1.95cqw;
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+}
+
+.card__sub {
+  margin: 0 0 1.6cqw;
+  font-size: 1.05cqw;
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
+  color: var(--color-ink-soft);
+}
+
+.card__names {
+  margin: 0 0 1.6cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2cqw;
+}
+
+.card__name {
+  font-family: var(--font-display);
+  font-size: 2.35cqw;
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.card__amp {
+  font-family: var(--font-display);
+  font-size: 1.7cqw;
+}
+
+.card__when {
+  margin: 0 0 0.5cqw;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25cqw;
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
+  text-transform: uppercase;
+}
+
+.card__where {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05cqw;
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+.oval__title {
+  display: block;
+  font-size: 2.9cqw;
+  line-height: 1.1;
+}
+
+.oval__cue {
+  display: block;
+  margin-top: 0.3cqw;
+  font-size: 0.92cqw;
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  color: var(--color-ink-soft);
+}
+
+.oval__date {
+  display: block;
+  margin-top: 0.4cqw;
+  font-size: 1.15cqw;
+}
+
+/* --- The countdown card --------------------------------------------------------- */
+
+.countdown__title {
+  margin: 0 0 1cqw;
+  font-size: 3.6cqw;
+}
+
+.canvas .countdown__value {
+  font-size: 3.1cqw;
+}
+
+.canvas .countdown__unit + .countdown__unit::before {
+  font-size: 3.1cqw;
+}
+
+.canvas .countdown__label {
+  margin-top: 0.7cqw;
+  font-size: 0.78cqw;
+}
+
+.countdown__sub {
+  margin: 0.9cqw 0 2cqw;
+  font-family: var(--font-body);
+  font-size: 1.25cqw;
+  color: var(--color-ink-soft);
+}
+
+/* The word the whole countdown is counting down to. Set in the script
+   hand, in the envelope's maroon, and large enough to be the line's
+   subject; `line-height: 0` keeps the taller face from pushing the line
+   apart. */
+.countdown__emphasis {
+  font-style: normal;
+  font-size: 1.9em;
+  line-height: 0;
+  padding: 0 0.04em;
+  color: var(--color-maroon);
+}
+
+.countdown__gratitude {
+  margin: 0 0 0.3cqw;
+  font-size: 2.5cqw;
+}
+
+.countdown__signoff {
+  margin: 0 0 1.6cqw;
+  font-family: var(--font-display);
+  font-size: 1.7cqw;
+  letter-spacing: 0.04em;
+}
+
+.countdown__contact {
+  margin: 0 0 1.4cqw;
+  font-family: var(--font-display);
+  font-size: 0.86cqw;
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.9;
+  color: var(--color-ink-soft);
+}
+
+.countdown__seal {
+  display: block;
+  width: 9%;
+  margin: 0 auto 0.8cqw;
+}
+
+.countdown__seal > * {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.canvas .back-link {
+  padding: 0.8cqw;
+  min-height: 0;
+  font-size: 0.92cqw;
+  letter-spacing: 0.14em;
+  text-indent: 0.14em;
+}
+
+/* The bouquet sitting inside the opened envelope. */
+.envelope__filling {
+  display: block;
+}
+
+.envelope__filling > * {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* "Save the Date" is four words where the other labels are two, so it takes a
+   smaller setting to stay on one line in the same oval. */
+.oval__title--wide {
+  font-size: 2.1cqw;
+  white-space: nowrap;
+}
+
+/* The card tucked into the envelope that stands where the reference put its
+   RSVP; ours simply carries the couple's names. */
+.envelope__card {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 6% 8%;
+  background: var(--color-cream);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-ink) 32%, transparent);
+}
+
+.envelope__card-names {
+  font-size: 3.2cqw;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--color-ink);
+}
+
+/* The embossed card centres its own child box but not the words inside it. */
+.countdown-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+/* The bed of roses lining the open envelope. Three sprays overlapping fill the
+   triangular opening the way the reference's photographed liner does. */
+.envelope-liner {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.envelope-liner__spray {
+  position: absolute;
+  height: auto;
+}
+
+.envelope-liner__spray--a {
+  left: -6%;
+  top: 2%;
+  width: 62%;
+}
+
+.envelope-liner__spray--b {
+  left: 42%;
+  top: 0;
+  width: 64%;
+}
+
+.envelope-liner__spray--c {
+  left: 24%;
+  top: 16%;
+  width: 52%;
+}
+
+/* The doves pressed below the label on the details medallion. */
+.oval__doves {
+  display: block;
+  width: 64%;
+  height: auto;
+  margin-top: 0.8cqw;
+}
+
+/* The countdown card carries more words than the drawn plate was proportioned
+   for, so its content was overflowing the arch at the top. The plate's aspect
+   ratio is set inline by the component, which is why this has to outrank it. */
+.countdown-plate {
+  aspect-ratio: 260 / 372 !important;
+}
+
+.envelope-liner__spray--d {
+  left: 8%;
+  top: 22%;
+  width: 34%;
+}
+
+.envelope-liner__spray--e {
+  left: 58%;
+  top: 20%;
+  width: 34%;
+}
+
+.envelope-liner__spray--f {
+  left: 4%;
+  top: 30%;
+  width: 44%;
+}
+
+/* Three more, filling where the flap's opening still showed through: the middle
+   between the two bouquets, the left shoulder, and the right. The lower half of
+   every one of these is behind the envelope's front pocket, so they are placed
+   by where their heads sit, not by their boxes. */
+.envelope-liner__spray--g {
+  left: 30%;
+  top: 4%;
+  width: 42%;
+}
+
+.envelope-liner__spray--h {
+  left: 16%;
+  top: 8%;
+  width: 30%;
+}
+
+.envelope-liner__spray--i {
+  left: 54%;
+  top: 12%;
+  width: 44%;
+}
+
+/* ---------------------------------------------------------------------------
+   Objects arriving.
+
+   Scoped to [data-piece] rather than to the invitation canvas, because the
+   story page stages its arrival the same way: one rule, so the two pages cannot
+   drift into two different arrivals.
+
+   The settled state is the default, so an object is never invisible because
+   script did not run. Only once scripting is present is the offset applied,
+   and only until the object has been reached.
+   --------------------------------------------------------------------------- */
+html.js [data-piece]:not([data-shown]) {
+  opacity: 0;
+  transform: translate(var(--from-x, 0), 1.3rem);
+}
+
+html.js [data-piece][data-shown] {
+  animation: piece-settle 720ms var(--settle-delay, 0ms) cubic-bezier(0.16, 0.86, 0.3, 1) backwards;
+  /* Opacity only, never transform. `will-change: transform` promotes the piece
+     to a composited layer rasterised to its border box, which clips the bleed
+     of any SVG filter inside it — that is what was slicing the shoulder off the
+     countdown card while it moved. Verified against a real Chromium compositor:
+     with transform in the hint the card is cut at 450ms, without it it is not. */
+  will-change: opacity;
+}
+
+/* Small accents carrying blur filters — the wax seals — fade rather than
+   travel. Re-filtering a blurred element on every frame of a move is what made
+   their arrival stutter, and at this size the movement read as noise anyway. */
+html.js [data-piece][data-fade]:not([data-shown]) {
+  transform: none;
+}
+
+html.js [data-piece][data-fade][data-shown] {
+  animation-name: piece-fade;
+}
+
+@keyframes piece-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dropped the moment the object stops moving. Promoting it permanently was
+   tried and is not an option: a composited layer is rasterised to its own
+   bounds and the element's drop shadows are lost with it — measured, 209,155
+   pixels changed and every object on the page came back flat. */
+html.js [data-piece][data-settled] {
+  will-change: auto;
+}
+
+/* Translation only, never rotation: a rotating element whose SVG contains a
+   Gaussian blur has to be re-filtered every frame, which both stutters and
+   clips the filter region — that is what was cutting the top off the
+   countdown card. */
+@keyframes piece-settle {
+  from {
+    opacity: 0;
+    transform: translate(var(--from-x, 0), 1.3rem);
+  }
+  /* Opaque a third of the way in, not two thirds: the object then finishes
+     travelling in plain sight instead of finishing its fade there. What a
+     reader must never catch is a piece that is present but not yet drawn. */
+  35% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turning {
+    animation: none;
+  }
+
+  html.js [data-piece]:not([data-shown]),
+  html.js [data-piece][data-shown] {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    will-change: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   An object and the seal pressed onto it, as one piece.
+
+   The seals were separate positioned objects, which meant they could drift out
+   of place and each animated on its own — and animating a blurred SVG is what
+   made them stutter. Carried inside the object they belong to, they move with
+   it, cannot land anywhere else, and add no animation of their own.
+   --------------------------------------------------------------------------- */
+.sealed-object {
+  display: block;
+  position: relative;
+  width: 100%;
+  /* Rotating the wrapper keeps the seal in the same frame as the object it is
+     pressed onto, so it cannot slide off the corner. */
+  transform: rotate(var(--tilt, 0deg));
+}
+
+.sealed-object > *:first-child {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sealed-object__seal {
+  position: absolute;
+  height: auto;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Straddling the lower-left corner of the last photograph, as the reference
+   has it — mostly off the print rather than sitting on the picture. */
+.sealed-object__seal--corner {
+  left: 5%;
+  top: 92%;
+  width: 23%;
+}
+
+/* The countdown card's drawn edge reaches its own border box, so its bleed had
+   nowhere to go and was being clipped. The slot is larger than the card and
+   holds it clear of the edges. */
+.countdown-slot {
+  padding: 2.5% 3%;
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------------------
+   Elevation.
+
+   Every object on the canvas is a physical thing lying on a white table, so it
+   casts two shadows: a tight one where it touches, and a soft wide one from the
+   room. One alone reads as a sticker; the pair is what makes it sit on the page.
+
+   The shadow is withheld until the object has landed. Re-filtering a moving
+   element every frame is what made the arrival stutter, and an object picking
+   up its shadow as it settles is closer to how it would actually behave.
+   --------------------------------------------------------------------------- */
+.piece,
+.canvas > .door,
+.envelope-scene__paper,
+.envelope-scene__stamp-slot,
+.details__envelope {
+  /* Two shadows, as a thing lying on a table casts: a tight one where it
+     touches and a soft wide one from the room. The radii are as small as they
+     can be and still read that way — a Gaussian blur costs in proportion to its
+     radius, this page carries two dozen of them over 4,500px at 2x, and that
+     cost is paid again every time the page scrolls past. The opacities are
+     raised to hold the weight the smaller radii would otherwise lose. */
+  filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--color-ink) 30%, transparent))
+    drop-shadow(0 9px 11px color-mix(in srgb, var(--color-ink) 26%, transparent));
+}
+
+html.js :is(.canvas [data-piece], .details__envelope[data-piece]):not([data-settled]) {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js :is(.canvas [data-piece], .details__envelope[data-piece]):not([data-settled]) {
+    filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--color-ink) 30%, transparent))
+      drop-shadow(0 9px 11px color-mix(in srgb, var(--color-ink) 26%, transparent));
+  }
+}
