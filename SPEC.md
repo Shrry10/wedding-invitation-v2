@@ -27,12 +27,12 @@ everywhere on the site (§5.1).
 
 | id | Name | Title on site | Date | Time | Venue |
 |---|---|---|---|---|---|
-| `mehndi` | Mehndi | The Henna Garden | 2026-12-11 | 19:00 | Hotel Suraj Palace, Patia Road |
-| `haldi` | Haldi | Touched by Turmeric | 2026-12-12 | 10:00 | Aura Lawns, Patia |
+| `mehndi` | Mehndi | The Henna Garden | 2026-12-11 | 18:00 | Hotel Suraj Palace, Patia Road |
+| `haldi` | Haldi | Touched by Turmeric | 2026-12-12 | 10:30 | Aura Lawns, Patia |
 | `sangeet` | Sangeet | Strings & Songs | 2026-12-12 | 19:00 | Aura Lawns, Patia |
-| `marriage` | Marriage | Bound by Thread | 2026-12-13 | 10:00 | Greenland Resort, Patia |
+| `marriage` | Marriage | Bound by Thread | 2026-12-13 | 11:00 | Greenland Resort, Patia |
 
-- **Countdown target:** `2026-12-13T10:00:00+05:30` (the marriage ceremony, IST).
+- **Countdown target:** `2026-12-13T11:00:00+05:30` (the marriage ceremony, IST).
 - **Visual model:** a hand-crafted paper invitation laid on a table: maroon
   velvet envelope, gold wax seal with the couple's monogram, embossed ivory
   cards, a silver tray, polaroids, a vinyl sleeve, white roses. Behind every
@@ -211,6 +211,15 @@ the drawn stand-in. Only `invitation` loads eagerly; the rest are lazy.
 Groups of objects move together. Change the space *between* groups rather than
 moving a single object (see the comment on `at()`).
 
+**Below 900px the canvas is zoomed.** Its width ramps from 100% at 900px to
+**180%** at 600px and stays there on phones, shifted left by 2.2% of its own
+width, so the empty margin of the coordinate space falls off both edges.
+Only the decorative sprig at 23.9% is cropped (by 3–6px). At that zoom the
+record would run off the right edge, so the playlist sleeve (`.playlist`)
+moves left by 2.5% of the canvas below 900px, into the air beside the
+envelope. At 390px the envelope and the record each end about 12px from the
+screen edge.
+
 ### 5.3 Details page (flow layout)
 
 This page is one centred column (`.page__column`, max 760px), in this order:
@@ -226,7 +235,9 @@ This page is one centred column (`.page__column`, max 760px), in this order:
    subgrid (icon, name, traditional name, date + time, venue link, address), so
    the rows line up across columns. Function names never wrap (see §5.6).
 3. **Dress Code**: one row per function: icon, name, and five swatches from
-   `eventPalettes.ts`.
+   `eventPalettes.ts`. Each chip is 40px (smaller if the column is), and a
+   diagonal glaze of light sweeps along each row from the first colour to
+   the last, in all four rows at once (§5.7).
 4. **Timeline**: a dashed winding route with hearts, stops alternating sides,
    at every width. Two drawings of the route are rendered (`layout="wide"` and
    `"narrow"` in `Paths.tsx`), and the stylesheet shows one: narrow below
@@ -310,6 +321,15 @@ Maps *searches* and should be replaced with exact pins.
   out by a moving mask (`.details__written`, `@keyframes pen-write`), in one
   steady stroke with no pauses. It is guarded on `html.js`, like the other
   motion.
+- The dress-code glaze (`.palette__chip::after`, `@keyframes swatch-glaze`)
+  is one band of light at one steady speed, 3.2s per sweep, looping with no
+  hold: it leaves the last chip as it reaches the first. Each chip draws the
+  band offset by its index (`--i`) times the chip pitch (`--chip-pitch`,
+  measured in `cqi` against `.palette__swatches`, which is a container), so
+  the five chips show one band moving across the row. All 20 animations
+  start with the page and share one start time. With reduced motion the
+  band stays still across the middle of each chip at 55% opacity. It is not
+  guarded on `html.js`, because it never hides anything.
 - `useReducedMotion` turns staging off, and CSS respects
   `prefers-reduced-motion`.
 
@@ -355,6 +375,7 @@ text of each event palette, measured from the stylesheet).
 | Add the playlist link | Set `playlist.url`. The sleeve becomes a link with "Click here" (maroon, like every cue) |
 | Change the countdown line / emphasised word | `countdown.headingLabel` and `countdown.headingEmphasis`. The last occurrence of the emphasis word is set in script + maroon. If the word is not found, the plain line is shown |
 | Change a dress-code colour | Edit the hex of `--color-dress-<event>-<hue>` in `src/index.css` |
+| Change the glaze speed | `animation` duration on `.palette__chip::after` (3.2s = one sweep of the row) |
 | Rename a dress-code colour | Edit `label` in `src/data/eventPalettes.ts`. Keep it to **about 8 letters**, since five swatches share a phone row (~59px per column at 360px) |
 | Add or replace a photograph | Crop it to the polaroid well, **492 : 501**, at **720 × 733** px, sRGB JPEG (quality ~80), with its metadata stripped (phone photos carry GPS). Save it in `src/assets/images/photos/`, list it in `content.gallery` with alt text, then point a story beat's `imageId` or a `homePhotos` slot at it. Crop by hand around the faces: `object-fit: cover` would otherwise cut a portrait photo at its middle |
 | Replace a map link | `venues[].mapsUrl` (must be HTTPS) |
@@ -434,6 +455,59 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-20: review round 3 (branch `review-round-3`, merged into `main`)
+
+**Home on a phone is zoomed in, with the record in frame** (`index.css`
+`.canvas`, `.canvas > .playlist`; `HomePage.tsx` `PlaylistDoor`)
+- The phone zoom went from 165% to 180% of the screen width (the ramp's
+  multiplier from 1.3 to 1.6, so it still reaches full zoom at 600px). The
+  shift went from −2.3% to −2.2%.
+- At 165% the record already sat within ~4px of the edge on some screens,
+  and at 180% it ran off. The sleeve (both the plain piece and the link
+  version) now has the class `playlist` and moves 2.5% of the canvas left
+  below 900px.
+- Measured at 320, 360, 390, 430 and 599px: the envelope's box and the
+  record's box each end 10–18px from the screen edges; only the decorative
+  sprig at 23.9% is cropped (3–6px). No horizontal overflow at any width.
+  At 900px and up nothing changed.
+
+**BHUBANESWAR in maroon** (`.card__where`): the city on the home page's
+invitation card is `var(--color-maroon)`, measured equal to the countdown's
+"yes": `rgb(91, 26, 34)`. It was ink-soft.
+
+**No white line round the photographs** (`Maroon.tsx` `Polaroid`)
+- The SVG well under each photograph was a pale silver-to-cream gradient.
+  The photograph is HTML laid over it, and where the two antialias, on a
+  tilted print especially, the pale well showed as a hairline. The well is
+  now `var(--color-maroon-deep)`, so the same pixels read as the shadow of
+  the recess. The unused `-well` gradient was removed.
+- Measured on the story page at 390px (3× pixels): pale pixels directly
+  under the maroon frame went from 13–85 per print to 0–13, and the ones
+  left are white in the photographs themselves. The home page's eight
+  prints were checked the same way.
+
+**New times** (`content.ts`): Mehndi 18:00, Haldi 10:30, Sangeet 19:00
+(unchanged), Marriage 11:00. The countdown target moved with the marriage
+ceremony to `2026-12-13T11:00:00+05:30` (validation requires the two to
+match). Checked on the details page: "6:00 PM, 10:30 AM, 7:00 PM, 11:00 AM"
+in both Date and Location and the timeline.
+
+**Dress code: smaller chips with a moving glaze** (`index.css`
+`.palette__swatches`, `.palette__chip`, `@keyframes swatch-glaze`;
+`DetailsPage.tsx` sets `--i` on each chip)
+- Chips are 40px, down from 48px (`--chip-size`).
+- A diagonal band of light (118°, paper at 62% at its centre) crosses each
+  row from the first colour to the last, in all four rows together, at a
+  medium 3.2s per sweep. How it is built is in §5.7.
+- Checked by pausing the animations and stepping through the cycle at 390
+  and 1440px: the band lights chip 1, 2, 3, 4, 5 in order, in the same
+  column in every row, and all 20 animations share one start time.
+
+**Checks:** typecheck, lint, 167 tests and the build all pass. Screenshots at
+1440, 760, 390 and 320px (home, details, story), no horizontal overflow, and
+no console or hydration errors in `npm run preview` on home, details and
+story, including `/bhavnaandsreetam/`. Screenshots deleted afterwards.
 
 ### 2026-09-20: cue colour and name order by address (branch `name-order`, merged into `main`)
 
@@ -640,6 +714,11 @@ pen-write`)
 ---
 
 ## 11. Open questions / next steps
+
+- Dress-code labels spill past their column at 320px (Pistachio, Daffodil,
+  Marigold, Platinum, Amethyst, Buttercup, Chambray) and Buttercup does by a
+  hair at 1440px. This was already so before round 3, and it is centred, so
+  it runs into the gutter rather than into a neighbour. Not changed.
 
 - Playlist URL and "hosted by" lines are still pending.
 - `public/og-image.png` (the WhatsApp preview picture) has "Sreetam & Bhavna"
