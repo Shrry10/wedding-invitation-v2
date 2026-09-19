@@ -71,7 +71,7 @@ npm install
 npm run dev          # Vite dev server, http://localhost:5173
 npm run typecheck    # tsc for app + node configs
 npm run lint         # eslint .
-npm test             # vitest run (136 tests at time of writing)
+npm test             # vitest run (140 tests at time of writing)
 npm run build        # typecheck → client build → SSR build → prerender into dist/index.html
 npm run preview      # serve dist/
 npm run preview:lan  # serve dist/ on the local network (open the printed Network URL on a phone on the same Wi-Fi)
@@ -116,6 +116,7 @@ src/
     StoryPage.tsx          Our Story: photo route of beats, closing message
   components/
     Backdrop.tsx           The fixed background photograph (hands), focal-point anchored
+    PrintFill.tsx          What fills a polaroid's well: a gallery photograph, or PhotoStandIn until there is one
     a11y/                  FactValue (pending-value renderer), SkipLink, VisuallyHidden
     countdown/             Countdown, CountdownUnit, CountdownLiveText (screen-reader text, coarse updates)
     art/                   Hand-authored SVG/CSS artwork: Maroon (envelopes, polaroid), Metal (wax seal,
@@ -123,14 +124,18 @@ src/
                            Ornament, Paths (dashed route lines + hearts), LineIcons, PlaceIcons,
                            PhotoStandIn, geometry.ts. CONVENTIONS.md = SVG authoring rules
   hooks/                   useHashRoute, useCountdown, useReducedMotion, useStagedReveal (+ dormant, see §9)
-  lib/                     isPending/knownValue, formatDate, formatDuration, coupleNames, arrival, …
+  lib/                     isPending/knownValue, formatDate, formatDuration, coupleNames, arrival,
+                           photoUrl (gallery path → bundled URL, via import.meta.glob), …
   probes/                  Isolated artwork viewers used by probe-*.html
   assets/fonts/            Vendored woff2 + LICENSES.md + OFL.txt
   assets/images/           background-hands.jpg, white-rose.png
+  assets/images/photos/    The couple's photographs, cropped to the polaroid well (see §6)
   test/                    Vitest setup + smoke test
 ```
 
-Not committed (see `.gitignore`): `node_modules`, `dist`, `recording/`
+Not committed (see `.gitignore`): `node_modules`, `dist`, `website-pics/` (the
+client's original photographs, ~145 MB; the cropped copies in
+`src/assets/images/photos/` are what ships), `recording/`
 (screen recording), `resc/support` (decor decks and reference video),
 `resc/website-ss`, `resc/flower`, `resc/background-hand.jpg`, `resc/.obsidian`
 (editor state), `.claude/settings.local.json`.
@@ -170,6 +175,12 @@ going to Story), Save the Date with a polaroid, and the **countdown card**
 (Countdown, "Until we say *yes*", "With love and gratitude", names, closing
 line, wax seal, back link).
 
+Every polaroid on the canvas holds a photograph. `content.homePhotos` maps
+each slot to a gallery image id: `invitation` (beside the card), `details-1`
+to `details-3` (under the tray, top to bottom), `story-1` to `story-3` (the
+"Once", "Upon", "A time" strip) and `save-the-date`. A slot left out shows
+the drawn stand-in. Only `invitation` loads eagerly; the rest are lazy.
+
 Groups of objects move together. Change the space *between* groups rather than
 moving a single object (see the comment on `at()`).
 
@@ -199,8 +210,9 @@ This page is one centred column (`.page__column`, max 760px), in this order:
 
 A dashed "washing line" route (`Paths.tsx`) with one print per
 `story.beats[]` entry, alternating sides. A beat's `imageId` is looked up in
-`content.gallery`. Until a photograph exists, an authored stand-in
-(`PhotoStandIn`) is shown. After the route come the closing message, "With
+`content.gallery`. Every beat has a photograph (`ourstory-1` to `ourstory-7`,
+in beat order). A beat with no `imageId` falls back to the authored stand-in
+(`PhotoStandIn`), through the same `PrintFill` the home page uses. After the route come the closing message, "With
 love", and the names.
 
 ### 5.5 Content model and pending values
@@ -213,13 +225,19 @@ love", and the names.
   `isPending()` from `lib/isPending.ts` instead of truthiness checks.
 - To replace a pending value, write the real string into `content.ts`.
   Nothing else changes.
+- **Photographs:** `gallery[]` lists every photograph (`id`, `src`, `width`,
+  `height`, `alt`). `src` is a path from the repo root inside
+  `src/assets/images/photos/`, not a URL; `lib/photoUrl.ts` turns it into the
+  fingerprinted URL through `import.meta.glob`. That keeps `content.ts` plain
+  data the build can import and validate before bundling. Story beats point at
+  photographs with `imageId`; the home page with `homePhotos` (§5.2).
 - Fields not currently rendered: `events[].dressCode`, `decorNote`, `motif` and
   `signature` (left from the old panel design); `footer.hostedByLines`;
   `couple.hashtag`; `theme.*`. The title and tagline in `index.html`'s meta
   tags are hand-written there, not read from `content.ts`.
 
 Things still pending on the live site (as of 2026-09-19): `playlist.url`,
-`story.closingMessage`, `footer.hostedByLines`. The venue `mapsUrl`s are Google
+`footer.hostedByLines`. The venue `mapsUrl`s are Google
 Maps *searches* and should be replaced with exact pins.
 
 ### 5.6 Styling system (`src/index.css`)
@@ -284,7 +302,9 @@ Maps *searches* and should be replaced with exact pins.
 Referential integrity (event → venue, beat → image), unique ids, collections
 and alt text, date/time formats, end after start, HTTPS map URLs, **countdown
 instant must carry an explicit offset**, signature assignment/uniqueness and
-signature asset existence, countdown matches the marriage event, story beats
+signature asset existence, **every gallery photograph is inside
+`src/assets/images/photos/` and on disk**, every `homePhotos` slot points at a
+real gallery image, countdown matches the marriage event, story beats
 (emblem required, no empty year), and **panel contrast ≥ 4.5:1** (ground vs
 text of each event palette, measured from the stylesheet).
 
@@ -299,7 +319,7 @@ text of each event palette, measured from the stylesheet).
 | Change the countdown line / emphasised word | `countdown.headingLabel` and `countdown.headingEmphasis`. The last occurrence of the emphasis word is set in script + maroon. If the word is not found, the plain line is shown |
 | Change a dress-code colour | Edit the hex of `--color-dress-<event>-<hue>` in `src/index.css` |
 | Rename a dress-code colour | Edit `label` in `src/data/eventPalettes.ts`. Keep it to **about 8 letters**, since five swatches share a phone row (~59px per column at 360px) |
-| Add photographs | Put the files in `src/assets/images/`, list them in `content.gallery`, and reference them by `imageId` on story beats |
+| Add or replace a photograph | Crop it to the polaroid well, **492 : 501**, at **720 × 733** px, sRGB JPEG (quality ~80), with its metadata stripped (phone photos carry GPS). Save it in `src/assets/images/photos/`, list it in `content.gallery` with alt text, then point a story beat's `imageId` or a `homePhotos` slot at it. Crop by hand around the faces: `object-fit: cover` would otherwise cut a portrait photo at its middle |
 | Replace a map link | `venues[].mapsUrl` (must be HTTPS) |
 | Regenerate social images | `npm run dev`, then `npm run rasters` (macOS) |
 
@@ -375,6 +395,49 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-19: the couple's photographs and the closing message (branch `photographs`)
+
+**Every polaroid now holds a real photograph** (`content.ts`, `types.ts`,
+`HomePage.tsx`, `StoryPage.tsx`, `PrintFill.tsx`, `lib/photoUrl.ts`,
+`validate.ts`)
+- The client's files in `website-pics/` are named after their placeholders.
+  They were matched as: `home_invitation` → the polaroid beside the invitation
+  card; `home_details_1–3` → the three under the tray, top to bottom;
+  `home_ourstory_1–3` → "Once", "Upon", "A time"; `home_below_savethedate` →
+  the polaroid beside Save the Date; `ourstory_1–7` → the seven story beats in
+  order (college, reply, common ground, proposal, Christmas, New Year,
+  engagement).
+- Each was cropped to the well (492 : 501) at 720 × 733, with a focal point
+  chosen per photo, converted to sRGB, and saved without metadata: 15 files,
+  27–143 KB each, ~1.2 MB in all. HEIC files were rotated by their EXIF
+  orientation first. `home_details_1` was cropped 14% tighter to remove the
+  carousel arrows left from an Instagram screenshot.
+- Review: the client swapped the second tray photograph for
+  `home_details_2_alt.JPG` (henna cones on a brass tray, previously
+  `IMG_7851`). It is also an Instagram screenshot, with the like and comment
+  counts down its right edge past 88% of the width, so it is cropped to the
+  left 86% (centre x 0.43, y 0.45). It is still `home-details-2.jpg`, and the
+  alt text was rewritten to match.
+
+**Story page: "Message for you"** (`content.ts`, `.story__message-text`)
+- `story.closingMessage` changed from pending to the client's message: "As
+  our beautiful journey turns the page to forever, we couldn't imagine taking
+  this next big step without you. Please gather with us to celebrate this new
+  beginning and shower our day with your love, blessings, and positivity."
+- It keeps the box's existing small letterspaced caps. `text-wrap: balance`
+  was added because the plain wrap left "positivity." alone on the last line
+  at 1440px. Checked at 1440, 760, 390 and 320px: 4 to 7 even lines, no
+  overflow.
+- New content field `homePhotos` (slot → image id) and type `HomePhotoSlot`.
+  `GalleryImage.src` is now a repo path, resolved by `photoUrl()`. The story
+  page's own `StoryPrint` became the shared `PrintFill`, and `.route__fill`
+  became `.print-fill`.
+- New checks: gallery files must be in the photo folder and on disk, and
+  `homePhotos` must point at real images. Four tests added.
+- Checked at 1440, 760, 390 and 320px on home and story: all 15 photographs
+  load, no stand-ins remain, no horizontal overflow, no page errors. The
+  largest print shows at ~283px (home, 1440px), so 720px covers a 2× screen.
 
 ### 2026-09-19: review round 2 (branch `review-round-2`, merged into `main`)
 
@@ -497,7 +560,10 @@ pen-write`)
 
 ## 11. Open questions / next steps
 
-- Playlist URL, story closing message and "hosted by" lines are still pending.
+- Playlist URL and "hosted by" lines are still pending.
+- `website-pics/IMG_6590.HEIC` (a selfie in the cold) matches no placeholder
+  and is unused. `home_details_2.PNG` (the mehndi lounge) was replaced by
+  `home_details_2_alt` and is also unused.
 - Replace the venue map searches with exact pins.
 - Optional: subset the Cinzel file to digits only. Remove the unused Marcellus
   font and the dormant hooks (ask first).
