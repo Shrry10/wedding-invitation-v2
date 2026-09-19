@@ -253,6 +253,11 @@ in beat order). A beat with no `imageId` falls back to the authored stand-in
 (`PhotoStandIn`), through the same `PrintFill` the home page uses. After the route come the closing message, "With
 love", and the names.
 
+Below 700px each stop reads label, place, sentence, **then** the print (the
+heart stays beside the print). The reordering is CSS only
+(`grid-template-areas` on `.route__stop`); the DOM keeps the print first,
+which is the order the wide layout (700px and up) shows.
+
 ### 5.5 Content model and pending values
 
 `src/data/types.ts` is the contract. `content.ts` is the only data file.
@@ -455,6 +460,22 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-20: story words before photographs on phones (branch `story-words-first`, merged into `main`)
+
+**Story page, below 700px** (`index.css` `.route__stop`, `.route__print`,
+`.route__label`)
+- Each stop now shows its label, place and sentence first, then the
+  photograph. The heart stays in the photograph's row. Before, the photograph
+  came first.
+- Spacing: the label lost its 12px top margin, and the print gained 14px
+  above it. From 700px up the print resets to no margin, so the wide route is
+  unchanged.
+- Checked at 320, 390, 760 and 1440px: phones show words then print, 760 and
+  1440 look the same as before. Lint and 167 tests pass, and so does the build.
+  Screenshots deleted afterwards.
+- Two comments in `index.css` that said the words sit "under" the print now
+  describe them without a position, since that depends on the width.
 
 ### 2026-09-20: review round 3 (branch `review-round-3`, merged into `main`)
 
