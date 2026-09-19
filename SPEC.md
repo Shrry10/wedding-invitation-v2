@@ -261,6 +261,10 @@ Maps *searches* and should be replaced with exact pins.
 - `useStagedReveal` brings every `[data-piece]` in once, at load. Objects are
   thrown in from their own side (`lib/arrival.ts`, `--from-x`). `data-fade`
   pieces fade only.
+- The one CSS-only motion: "You are invited" on the details page is written
+  out by a moving mask (`.details__written`, `@keyframes pen-write`), in one
+  steady stroke with no pauses. It is guarded on `html.js`, like the other
+  motion.
 - `useReducedMotion` turns staging off, and CSS respects
   `prefers-reduced-motion`.
 
@@ -344,7 +348,11 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 - **Visual check (manual, required for any visual change):** run the dev server
   and screenshot the affected section at **1440, 760, 390 and 320px** wide. Check
   that `document.documentElement.scrollWidth` equals the viewport width (no
-  horizontal overflow) and that labels don't spill out of their columns. Delete
+  horizontal overflow) and that labels don't spill out of their columns. For
+  the timeline, also check **599 and 600px**, where it switches between the
+  phone and wide drawings. For the details opening screen, check the
+  **height** as well: at 390×844, 1440×900 and a landscape phone (844×390),
+  "Unfolding the celebrations" must be the last thing visible. Delete
   the screenshots afterwards. Playwright is available through the npx cache, and
   `scripts/shoot.swift` works on macOS.
 
@@ -368,7 +376,7 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 
 ## 10. Change log
 
-### 2026-09-19: review round 2 (branch `review-round-2`)
+### 2026-09-19: review round 2 (branch `review-round-2`, merged into `main`)
 
 **"INVITATION" in bold** (`.card__kicker`, home page card): weight 700, up
 from the label weight of 500.
