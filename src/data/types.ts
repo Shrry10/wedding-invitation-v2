@@ -210,6 +210,9 @@ export interface GalleryImage {
   caption?: string
 }
 
+/** Whose name comes first where the pair is shown. */
+export type LeadName = 'bride' | 'groom'
+
 export interface Couple {
   brideName: string
   groomName: string
@@ -217,9 +220,11 @@ export interface Couple {
    * Which name leads wherever the pair is shown.
    *
    * Stored rather than baked into a component, so the order is a content
-   * decision and the two names stay semantically labelled.
+   * decision and the two names stay semantically labelled. This is the order
+   * at the root address; `/bhavnaandsreetam/` and `/sreetamandbhavna/` choose
+   * one explicitly (see `routes.ts`).
    */
-  leadName: 'bride' | 'groom'
+  leadName: LeadName
   hashtag: string
 }
 

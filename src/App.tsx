@@ -6,7 +6,7 @@ import { HomePage } from './pages/HomePage'
 import { DetailsPage } from './pages/DetailsPage'
 import { StoryPage } from './pages/StoryPage'
 import { content } from './data/content'
-import { useHashRoute } from './hooks/useHashRoute'
+import { useRoute } from './hooks/useRoute'
 import { coupleInitials, coupleNames } from './lib/coupleNames'
 
 /**
@@ -15,16 +15,20 @@ import { coupleInitials, coupleNames } from './lib/coupleNames'
  * Four pages, as the reference has: the envelope, the invitation behind it, and
  * the two pages that invitation opens onto. Which one shows is decided here and
  * nowhere else; no page knows about any other.
+ *
+ * The order of the names is decided here too, from the address, and handed
+ * down already ordered, so no page can show them the other way round.
+ *
+ * `path` is the address being prerendered; the browser reads its own.
  */
-export function App() {
-  const [page, navigate] = useHashRoute()
+export function App({ path }: { path?: string | undefined }) {
+  const [{ page, lead: chosenLead }, navigate] = useRoute(content.couple, path)
+  const lead = chosenLead ?? content.couple.leadName
 
-  const names = useMemo(() => {
-    const [first, second] = coupleNames(content.couple)
-    return `${first} & ${second}`
-  }, [])
+  const nameOrder = useMemo(() => coupleNames(content.couple, lead), [lead])
+  const names = `${nameOrder[0]} & ${nameOrder[1]}`
   // The seal strikes the two initials as one cipher, so no ampersand.
-  const monogram = useMemo(() => coupleInitials(content.couple), [])
+  const monogram = useMemo(() => coupleInitials(content.couple, lead), [lead])
 
   const goHome = useCallback(() => navigate('home'), [navigate])
 
@@ -38,7 +42,13 @@ export function App() {
       )}
 
       {page === 'home' && (
-        <HomePage content={content} names={names} monogram={monogram} navigate={navigate} />
+        <HomePage
+          content={content}
+          names={names}
+          nameOrder={nameOrder}
+          monogram={monogram}
+          navigate={navigate}
+        />
       )}
 
       {page === 'details' && (

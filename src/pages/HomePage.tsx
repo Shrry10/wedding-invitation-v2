@@ -138,13 +138,16 @@ function PlaylistDoor({ playlist }: { playlist: PlaylistConfig }) {
 
 interface HomePageProps {
   content: InvitationContent
+  /** Both names, already in the order they are shown, as one line. */
   names: string
+  /** The same two names, apart, for the card that sets them on lines of their own. */
+  nameOrder: readonly [string, string]
   monogram: string
   navigate: (page: PageId) => void
 }
 
-export function HomePage({ content, names, monogram, navigate }: HomePageProps) {
-  const { couple, hero, countdown, footer, playlist } = content
+export function HomePage({ content, names, nameOrder, monogram, navigate }: HomePageProps) {
+  const { hero, countdown, footer, playlist } = content
   const gallery = new Map(content.gallery.map((image) => [image.id, image]))
   const photo = (slot: HomePhotoSlot): GalleryImage | undefined => {
     const id = content.homePhotos[slot]
@@ -211,11 +214,11 @@ export function HomePage({ content, names, monogram, navigate }: HomePageProps) 
             <p className="t-label card__kicker">Invitation</p>
             <p className="t-label card__sub">To celebrate the wedding of</p>
             <h1 className="card__names">
-              <span className="card__name">{couple.groomName}</span>
+              <span className="card__name">{nameOrder[0]}</span>
               <span className="card__amp" aria-hidden="true">
                 &amp;
               </span>
-              <span className="card__name">{couple.brideName}</span>
+              <span className="card__name">{nameOrder[1]}</span>
             </h1>
             <p className="card__when">{hero.dateLabel}</p>
             <p className="card__where">{hero.cityLabel}</p>
