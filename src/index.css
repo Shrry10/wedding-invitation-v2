@@ -1582,11 +1582,13 @@ html.js .details__written {
   position: relative;
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr);
+  /* Words first, then the photograph they describe: on a phone the reader
+     meets each milestone by name before scrolling on to its print. */
   grid-template-areas:
-    'mark print'
     '.    label'
     '.    when'
-    '.    story';
+    '.    story'
+    'mark print';
   column-gap: 16px;
   /* The line and its heart take 50px off the left of every row, so without a
      matching gutter here the print sits hard against the right edge of the
@@ -1598,18 +1600,19 @@ html.js .details__written {
 .route__mark {
   grid-area: mark;
   justify-self: center;
-  /* The heart marks the print, not the caption under it. */
+  /* The heart marks the print, not the words that lead into it. */
   align-self: center;
 }
 
 .route__print {
   grid-area: print;
   width: 100%;
+  margin: 14px 0 0;
 }
 
 .route__label {
   grid-area: label;
-  margin: 12px 0 0;
+  margin: 0;
 }
 
 /* The place's own drawing, beside the line that names it. Darker than the label
@@ -1623,9 +1626,9 @@ html.js .details__written {
   margin: 2px 0 0;
 }
 
-/* The sentence under the print. Upright, not italic: the vendored Cormorant
-   has no italic face and a synthetic slant on a garalde looks cheap; it is set
-   apart by size and by the softer ink instead. */
+/* The sentence that goes with each print. Upright, not italic: the vendored
+   Cormorant has no italic face and a synthetic slant on a garalde looks cheap;
+   it is set apart by size and by the softer ink instead. */
 .route__story {
   grid-area: story;
   margin: 8px 0 0;
@@ -1704,6 +1707,11 @@ html.js .details__written {
 
   .route__stop[data-side='right'] {
     right: 0;
+  }
+
+  /* Back to print first: the print is what sits on the heart. */
+  .route__print {
+    margin: 0;
   }
 
   .route__label {
