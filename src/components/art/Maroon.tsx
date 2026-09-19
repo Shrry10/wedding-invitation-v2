@@ -595,13 +595,6 @@ export function Polaroid({
           <clipPath id={`${uid}-clip`}>
             <rect x={CARD.x} y={CARD.y} width={CARD.w} height={CARD.h} rx={2} />
           </clipPath>
-          <linearGradient id={`${uid}-well`} x1={0} y1={0} x2={0.4} y2={1}>
-            <stop offset="0" stopColor="var(--color-silver-light)" />
-            <stop
-              offset="1"
-              stopColor="color-mix(in srgb, var(--color-cream) 55%, var(--color-silver-light))"
-            />
-          </linearGradient>
         </defs>
 
         <g filter={`url(#${uid}-drop)`}>
@@ -627,7 +620,18 @@ export function Polaroid({
           />
         </g>
 
-        <rect x={WELL.x} y={WELL.y} width={WELL.w} height={WELL.h} fill={`url(#${uid}-well)`} />
+        {/* The well is the mount's deepest shade, not a pale print. The photograph
+            is laid over it as HTML, and where the two edges antialias, on a
+            tilted print especially, whatever the well is painted shows through
+            as a hairline. A pale well drew a white line round every
+            photograph; a dark one reads as the shadow of the recess. */}
+        <rect
+          x={WELL.x}
+          y={WELL.y}
+          width={WELL.w}
+          height={WELL.h}
+          fill="var(--color-maroon-deep)"
+        />
         {/* The print sits a fraction below the border, so its top and left are shaded. */}
         <path
           d={`M ${WELL.x} ${WELL.y + WELL.h} L ${WELL.x} ${WELL.y} L ${WELL.x + WELL.w} ${WELL.y}`}

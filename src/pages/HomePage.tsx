@@ -119,11 +119,15 @@ function PlaylistDoor({ playlist }: { playlist: PlaylistConfig }) {
   )
 
   if (url === undefined) {
-    return <Piece style={at(58.0, 0.6, 22.0)}>{face}</Piece>
+    return (
+      <Piece style={at(58.0, 0.6, 22.0)} className="playlist">
+        {face}
+      </Piece>
+    )
   }
   return (
     <a
-      className="door"
+      className="door playlist"
       data-piece
       style={at(58.0, 0.6, 22.0)}
       href={url}

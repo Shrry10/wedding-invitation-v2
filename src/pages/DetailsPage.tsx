@@ -211,11 +211,11 @@ export function DetailsPage({ content, monogram, navigate }: DetailsPageProps) {
                 <FunctionName event={event} className="function-name--left" />
               </div>
               <ul className="palette__swatches" aria-label={`${event.title}: the colours`}>
-                {paletteFor(event.palette).swatches.map((swatch) => (
+                {paletteFor(event.palette).swatches.map((swatch, index) => (
                   <li className="palette__swatch" key={swatch.label}>
                     <span
                       className="palette__chip"
-                      style={{ ['--swatch' as string]: swatch.token }}
+                      style={{ ['--swatch' as string]: swatch.token, ['--i' as string]: index }}
                       aria-hidden="true"
                     />
                     <span className="t-label palette__label">{swatch.label}</span>

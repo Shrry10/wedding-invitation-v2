@@ -1288,12 +1288,21 @@ html.js .details__written {
    there is, so a fifth colour can never drop to a second line — which it did
    once the name column was widened, ten pixels short. */
 .palette__swatches {
+  --swatch-gap: clamp(8px, 2vw, 16px);
+  /* The chip's size, and the distance from one chip to the next, which the
+     glaze below needs to travel the row at one speed. Both are measured
+     against this row: it is the container, so 100cqi is its width wherever
+     these are used. Every chip is centred in an equal column, so the pitch is
+     one column plus one gap. */
+  --chip-size: min((100cqi - 4 * var(--swatch-gap)) / 5, 40px);
+  --chip-pitch: calc((100cqi + var(--swatch-gap)) / 5);
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(8px, 2vw, 16px);
+  gap: var(--swatch-gap);
+  container-type: inline-size;
 }
 
 .palette__swatch {
@@ -1307,14 +1316,62 @@ html.js .details__written {
 /* A round chip rather than the reference's square: five per row, four rows,
    and squares that close read as a grid of tiles rather than as colours. */
 .palette__chip {
+  position: relative;
   display: block;
-  width: min(100%, 48px);
+  width: var(--chip-size);
   aspect-ratio: 1;
   border-radius: 50%;
+  overflow: hidden;
   background: var(--swatch);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 14%, transparent),
     0 2px 5px color-mix(in srgb, var(--color-ink) 18%, transparent);
+}
+
+/* The glaze: one diagonal band of light that crosses the row from the first
+   colour to the last, and every row at once.
+
+   It is one band, not five. Each chip draws its own copy, offset by its place
+   in the row (--i, set on the chip), so all five show the same band at the
+   same instant: over the chip it has reached, and past the edge of the rest.
+   It moves at one steady speed, and it leaves the last chip at the moment it
+   reaches the first, so the light never stops anywhere (the client reads a
+   held animation as the site lagging). Every row starts with the page, so the
+   four sweep together. */
+.palette__chip::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    118deg,
+    transparent 30%,
+    color-mix(in srgb, var(--color-paper) 62%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(calc(-1 * var(--chip-size)));
+  animation: swatch-glaze 3.2s linear infinite;
+  pointer-events: none;
+}
+
+/* From just short of the first chip to just past the last: four pitches and
+   the band's own width either side. */
+@keyframes swatch-glaze {
+  from {
+    transform: translateX(calc(-1 * var(--chip-size) - var(--i, 0) * var(--chip-pitch)));
+  }
+  to {
+    transform: translateX(calc(4 * var(--chip-pitch) + var(--chip-size) - var(--i, 0) * var(--chip-pitch)));
+  }
+}
+
+/* Without motion the light stays where it falls, across the middle, and
+   fainter, so it glazes the colour without hiding it. */
+@media (prefers-reduced-motion: reduce) {
+  .palette__chip::after {
+    animation: none;
+    transform: none;
+    opacity: 0.55;
+  }
 }
 
 .palette__label {
@@ -1784,7 +1841,7 @@ html.js .details__written {
  */
 @media (max-width: 899px) {
   .canvas {
-    width: clamp(100%, calc(100% + (900px - 100vw) * 1.3), 165%);
+    width: clamp(100%, calc(100% + (900px - 100vw) * 1.6), 180%);
     /* Zeroed so the page's own centring applies: an auto inline margin with no
        free space to absorb computes to zero and pins the canvas to the start,
        which hangs the whole overflow off one edge. */
@@ -1792,7 +1849,15 @@ html.js .details__written {
     /* The objects sit 2.2% right of the coordinate space's middle, so centring
        the space leaves them off centre by that much. It is the objects that
        should be centred, not the space they are drawn in. */
-    transform: translateX(-2.3%);
+    transform: translateX(-2.2%);
+  }
+
+  /* At 180% the record, which pokes out of the right of its sleeve, is the
+     one object that would run off the screen. The sleeve moves into the air
+     between it and the envelope, which is wider than it looks: the
+     envelope's box ends well short of its drawn edge. */
+  .canvas > .playlist {
+    margin-left: -2.5%;
   }
 }
 
@@ -1949,7 +2014,8 @@ html.js .details__written {
   letter-spacing: 0.1em;
   text-indent: 0.1em;
   text-transform: uppercase;
-  color: var(--color-ink-soft);
+  /* The city in the maroon of the countdown's "yes" (.countdown__emphasis). */
+  color: var(--color-maroon);
 }
 
 .oval__title {

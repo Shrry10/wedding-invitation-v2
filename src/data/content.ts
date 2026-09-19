@@ -42,7 +42,7 @@ export const content: InvitationContent = {
   countdown: {
     // The marriage ceremony, in India Standard Time. The offset is explicit so
     // every guest sees the same remaining time wherever they are.
-    targetInstant: '2026-12-13T10:00:00+05:30',
+    targetInstant: '2026-12-13T11:00:00+05:30',
     headingLabel: 'Until we say yes',
     headingEmphasis: 'yes',
     completedMessage: 'Today is the day',
@@ -93,7 +93,7 @@ export const content: InvitationContent = {
       title: 'The Henna Garden',
       nameDevanagari: 'मेहंदी',
       date: '2026-12-11',
-      startTime: '19:00',
+      startTime: '18:00',
       venueId: 'suraj-palace',
       dressCode: PENDING,
       motif: 'lotus',
@@ -107,7 +107,7 @@ export const content: InvitationContent = {
       title: 'Touched by Turmeric',
       nameDevanagari: 'हल्दी',
       date: '2026-12-12',
-      startTime: '10:00',
+      startTime: '10:30',
       venueId: 'aura-lawns',
       dressCode: PENDING,
       motif: 'kalash',
@@ -137,7 +137,7 @@ export const content: InvitationContent = {
       title: 'Bound by Thread',
       nameDevanagari: 'विवाह',
       date: '2026-12-13',
-      startTime: '10:00',
+      startTime: '11:00',
       venueId: 'greenland-resort',
       dressCode: PENDING,
       motif: 'knot',
