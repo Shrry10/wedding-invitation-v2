@@ -177,16 +177,22 @@ moving a single object (see the comment on `at()`).
 
 This page is one centred column (`.page__column`, max 760px), in this order:
 
-1. "THE DETAILS" title, "You are invited" script, the opened envelope with
+1. **The opening screen** (`.details__opening`): "THE DETAILS" title, "You are
+   invited" script (written out on load, see §10), the opened envelope with
    the card rising out of it, then **`invitation.message`** as its caption
    ("Unfolding the celebrations"). The caption is set large, upright, on one
-   line, with gold hairlines either side.
+   line, with gold hairlines either side. The block is `min-height: 100svh`
+   and the envelope takes whatever height is left (a size container, sized by
+   `cqw`/`cqh`), so the fold falls just under the caption on any device.
 2. **Date and Location**: four columns on ≥720px, two below. Each column is a
    subgrid (icon, name, traditional name, date + time, venue link, address), so
    the rows line up across columns. Function names never wrap (see §5.6).
 3. **Dress Code**: one row per function: icon, name, and five swatches from
    `eventPalettes.ts`.
-4. **Timeline**: a dashed route line with hearts and one stop per function.
+4. **Timeline**: a dashed winding route with hearts, stops alternating sides,
+   at every width. Two drawings of the route are rendered (`layout="wide"` and
+   `"narrow"` in `Paths.tsx`), and the stylesheet shows one: narrow below
+   600px, wide from 600px.
 5. A heart flourish, the wax seal, and "← Back to home".
 
 ### 5.4 Story page
@@ -361,6 +367,49 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-19: review round 2 (branch `review-round-2`)
+
+**"INVITATION" in bold** (`.card__kicker`, home page card): weight 700, up
+from the label weight of 500.
+
+**Details page: the fold falls under the caption** (`DetailsPage.tsx`,
+`.details__opening`, `.details__envelope`)
+- The title, the script line, the envelope and "Unfolding the celebrations" are
+  wrapped in `.details__opening`, which is at least `100svh` tall. The column's
+  top padding moved into it. The envelope container is `flex: 1` and
+  `container-type: size`. The envelope itself (420 × 470) is
+  `min(82cqw, 420px, 100cqh × 420/470)` wide, or 92cqw below 600px, so it fits
+  whichever dimension runs out first. Vertical gaps use `svh`.
+- Checked at 320×568, 360×640, 390×844, 430×932, 768×1024, 1000×570,
+  1440×900 and 1920×1080. In each, the caption is the last thing on screen and
+  "Date and Location" starts below the fold. Landscape phones (667×375,
+  844×390) also fit, with the envelope at its 140px minimum height.
+
+**"You are invited" written out on load** (`.details__written`, `@keyframes
+pen-write`)
+- A left-to-right mask with a short soft edge, in one steady stroke over 2.2s,
+  starting 380ms after load. It is not a letter-by-letter typing effect,
+  because Great Vibes joins its letters and splitting it into spans would
+  break the joins. Pauses between words were tried and removed: the client
+  said they made the page feel like it was lagging. The span is padded so the
+  swashes stay inside the mask.
+  Guarded by `html.js`. Turned off for reduced motion.
+
+**Timeline: the winding route on phones too** (`Paths.tsx`, `DetailsPage.tsx`,
+`.schedule*`)
+- New `SCHEDULE_NARROW` route spec with heavier marks in box units, wider cards
+  (0.42), and a longer drop (470). `scheduleRouteNodes`,
+  `scheduleRouteViewBox`, `ScheduleRoute` and `SCHEDULE_ROUTE_LAYOUT` now take
+  a layout (`'wide' | 'narrow'`). Each stop gets `--stop-y-wide` and
+  `--stop-y-narrow`, and CSS picks one of them.
+- Below 600px the date and time go on two lines (`.schedule__date` /
+  `.schedule__time`, with the `·` hidden), and the route takes back up to 12px
+  of the column's side padding. The straight rail and the per-stop
+  `HeartMark` were removed from the details page. The story page still uses
+  `HeartMark`.
+- The wide layout now starts at 600px instead of 700px. At 600–699px the
+  phone drawing's line looked too heavy when scaled up that far.
 
 ### 2026-09-19: review round 1 (copy, dress code, typography)
 

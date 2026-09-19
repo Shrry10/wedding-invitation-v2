@@ -525,7 +525,9 @@ export function WindingPath({
         strokeWidth={r(PATH_STROKE)}
         strokeDasharray={`${r(PATH_DASH)} ${r(PATH_GAP)}`}
       />
-      <g transform={`translate(${r(tail.x)} ${r(tail.y)}) scale(${facing * DOODLE_SCALE} ${DOODLE_SCALE})`}>
+      <g
+        transform={`translate(${r(tail.x)} ${r(tail.y)}) scale(${facing * DOODLE_SCALE} ${DOODLE_SCALE})`}
+      >
         <path
           d={DOODLE}
           fill="none"
@@ -674,6 +676,45 @@ const SCHEDULE: RouteSpec = {
   heart: 15,
   doodle: 0.22,
   endPad: 60,
+}
+
+/*
+ * The schedule on a phone.
+ *
+ * The same winding line, drawn for a box a third as wide: the route is scaled
+ * to its width, so every mark that should stay the same size on the screen is
+ * three times as large here in box units — at 350px one unit is 0.35px. The
+ * cards take a little more of the width, because the type in them cannot
+ * shrink as far as the line can, and the swing is held just wide enough that
+ * the hearts keep clear of the cards' inner edges.
+ *
+ * The drop is longer than the wide route's for the same reason: a stop is
+ * about 190px of content at 350px, with the date and time on two lines, so a
+ * drop of 470 lets the next stop's drawing start under the previous stop's
+ * venue — the two share a little of the page on opposite sides, which a zigzag
+ * reads as sequence, never the whole band.
+ */
+const SCHEDULE_NARROW: RouteSpec = {
+  amp: 62,
+  card: 0.42,
+  top: 110,
+  bottom: 520,
+  dy: 470,
+  ties: false,
+  stroke: 7.5,
+  dash: 26,
+  gap: 11,
+  heart: 30,
+  doodle: 0.3,
+  endPad: 110,
+}
+
+/** Which of the schedule's two drawings: the wide one, or the one for a phone. */
+export type ScheduleLayout = 'wide' | 'narrow'
+
+const SCHEDULE_SPECS: Record<ScheduleLayout, RouteSpec> = {
+  wide: SCHEDULE,
+  narrow: SCHEDULE_NARROW,
 }
 
 /**
@@ -857,7 +898,13 @@ function Route({
         />
       </g>
       {nodes.map((node, i) => (
-        <Heart key={r(node.y)} at={[node.x, node.y]} w={spec.heart} h={spec.heart} seed={i * 13 + 2} />
+        <Heart
+          key={r(node.y)}
+          at={[node.x, node.y]}
+          w={spec.heart}
+          h={spec.heart}
+          seed={i * 13 + 2}
+        />
       ))}
     </svg>
   )
@@ -886,31 +933,43 @@ export function photoRouteViewBox(stops: number): { width: number; height: numbe
   return { width: ROUTE_W, height: routeHeight(PHOTO, stops) }
 }
 
-export function PhotoRoute({ stops, className }: { stops: number; className?: string | undefined }) {
-  return <Route spec={PHOTO} stops={stops} className={className} />
-}
-
-/** What a page must know to place a stop beside the schedule's line. */
-export const SCHEDULE_ROUTE_LAYOUT = {
-  cardWidth: SCHEDULE.card,
-} as const
-
-export function scheduleRouteNodes(stops: number): PathAnchor[] {
-  return routeAnchors(SCHEDULE, stops)
-}
-
-export function scheduleRouteViewBox(stops: number): { width: number; height: number } {
-  return { width: ROUTE_W, height: routeHeight(SCHEDULE, stops) }
-}
-
-export function ScheduleRoute({
+export function PhotoRoute({
   stops,
   className,
 }: {
   stops: number
   className?: string | undefined
 }) {
-  return <Route spec={SCHEDULE} stops={stops} className={className} />
+  return <Route spec={PHOTO} stops={stops} className={className} />
+}
+
+/** What a page must know to place a stop beside the schedule's line. */
+export const SCHEDULE_ROUTE_LAYOUT: Record<ScheduleLayout, { cardWidth: number }> = {
+  wide: { cardWidth: SCHEDULE.card },
+  narrow: { cardWidth: SCHEDULE_NARROW.card },
+}
+
+export function scheduleRouteNodes(stops: number, layout: ScheduleLayout): PathAnchor[] {
+  return routeAnchors(SCHEDULE_SPECS[layout], stops)
+}
+
+export function scheduleRouteViewBox(
+  stops: number,
+  layout: ScheduleLayout,
+): { width: number; height: number } {
+  return { width: ROUTE_W, height: routeHeight(SCHEDULE_SPECS[layout], stops) }
+}
+
+export function ScheduleRoute({
+  stops,
+  layout,
+  className,
+}: {
+  stops: number
+  layout: ScheduleLayout
+  className?: string | undefined
+}) {
+  return <Route spec={SCHEDULE_SPECS[layout]} stops={stops} className={className} />
 }
 
 /**

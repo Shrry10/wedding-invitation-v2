@@ -13,9 +13,9 @@
   font-weight: 400;
   font-display: swap;
   src: url('./assets/fonts/marcellus-400-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -24,9 +24,9 @@
   font-weight: 300 700;
   font-display: swap;
   src: url('./assets/fonts/cormorant-garamond-variable-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -35,9 +35,9 @@
   font-weight: 400;
   font-display: swap;
   src: url('./assets/fonts/great-vibes-400-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -46,9 +46,9 @@
   font-weight: 400;
   font-display: swap;
   src: url('./assets/fonts/pinyon-script-400-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -57,8 +57,8 @@
   font-weight: 400;
   font-display: swap;
   src: url('./assets/fonts/tiro-devanagari-hindi-400-latin-subset.woff2') format('woff2');
-  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC,
-    U+A830-A839, U+A8E0-A8FF;
+  unicode-range:
+    U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF;
 }
 
 /* ---------------------------------------------------------------------------
@@ -103,8 +103,9 @@
 
 @font-face {
   font-family: 'Tiro Devanagari Fallback';
-  src: local('Noto Serif Devanagari'), local('Kohinoor Devanagari'),
-    local('Devanagari Sangam MN'), local('Nirmala UI');
+  src:
+    local('Noto Serif Devanagari'), local('Kohinoor Devanagari'), local('Devanagari Sangam MN'),
+    local('Nirmala UI');
   size-adjust: 100%;
   ascent-override: 105%;
   descent-override: 35%;
@@ -267,21 +268,24 @@
   --opacity-foreground: 0.6;
   --opacity-focal: 1;
 
-
   /* Font stacks. Each ends in a real system serif so nothing depends on a
      downloaded file arriving. */
-  --font-display: 'Cinzel Figures', 'Cormorant Garamond', 'Cormorant Fallback', 'Hoefler Text', Georgia,
+  --font-display:
+    'Cinzel Figures', 'Cormorant Garamond', 'Cormorant Fallback', 'Hoefler Text', Georgia,
     'Times New Roman', serif;
-  --font-devanagari: 'Tiro Devanagari Hindi', 'Tiro Devanagari Fallback',
-    'Noto Serif Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Nirmala UI', serif;
-  --font-body: 'Cinzel Figures', 'Cormorant Garamond', 'Cormorant Fallback', 'Hoefler Text', Georgia,
+  --font-devanagari:
+    'Tiro Devanagari Hindi', 'Tiro Devanagari Fallback', 'Noto Serif Devanagari',
+    'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Nirmala UI', serif;
+  --font-body:
+    'Cinzel Figures', 'Cormorant Garamond', 'Cormorant Fallback', 'Hoefler Text', Georgia,
     'Times New Roman', serif;
   /* The flowing hand every heading on the reference is set in. Falls back to
      whatever cursive the system has, then to the body serif. */
-  --font-script: 'Great Vibes', 'Snell Roundhand', 'Apple Chancery',
-    'Segoe Script', 'Brush Script MT', cursive, var(--font-body);
-  --font-script-alt: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive,
+  --font-script:
+    'Great Vibes', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', 'Brush Script MT', cursive,
     var(--font-body);
+  --font-script-alt:
+    'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive, var(--font-body);
 
   /* Layout. */
   --content-max-width: 1120px;
@@ -782,7 +786,9 @@ html:not(.js) .countdown__units {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: opacity 620ms ease, transform 620ms cubic-bezier(0.4, 0, 0.6, 1);
+  transition:
+    opacity 620ms ease,
+    transform 620ms cubic-bezier(0.4, 0, 0.6, 1);
 }
 
 .page--envelope[data-leaving] .envelope-scene {
@@ -916,6 +922,31 @@ html:not(.js) .countdown__units {
 }
 
 /* --- Details ------------------------------------------------------------------ */
+/* The first screen. The title, the script line, the envelope and its caption
+   are one composition sized to the height the page opens at: the envelope
+   takes whatever height the other three leave, so on any phone or monitor the
+   fold falls just under "Unfolding the celebrations" and the rest of the page
+   is below it. The column's own top padding is taken over here, because it is
+   part of that height. `svh` is the viewport with a phone's browser bars
+   showing, which is how the page first opens. */
+.page--details .page__column {
+  padding-top: 0;
+}
+
+.details__opening {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(28px, 8svh, 96px) 0 clamp(22px, 7svh, 64px);
+}
+
+.details__opening .section__script {
+  margin: clamp(10px, 4svh, 48px) 0 0;
+}
+
 /* The envelope: the same object the invitation page lays on its table, at the
    size the reference gives it here. Depth is mostly not in the drawing — a
    maroon shape with nothing inside it and no shadow is a flat rectangle
@@ -923,8 +954,33 @@ html:not(.js) .countdown__units {
    pocket, the seal pressed over the notch, the spray at the corner, and the two
    shadows the canvas casts. */
 .details__envelope {
+  /* Takes the height left over, and the drawing inside is sized to fit it
+     both ways (see below). A floor, so a phone on its side still shows an
+     envelope rather than a sliver; there the first screen scrolls. */
+  flex: 1 1 0;
+  min-height: 140px;
+  width: 100%;
+  margin: clamp(10px, 2.4svh, 22px) 0 clamp(16px, 3.4svh, 40px);
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The envelope with the card risen out of it is 420 wide by 470 tall. Its
+   width is the smallest of: the share of the column the reference gives it,
+   its full size, and the width at which it is exactly as tall as the room it
+   has. A tall phone has height to spare and width to give, so there it takes
+   nearly the whole column. */
+.details__envelope > .sealed-object {
   width: min(78%, 420px);
-  margin: clamp(8px, 2vw, 18px) auto clamp(28px, 5vw, 46px);
+  width: min(82cqw, 420px, 100cqh * 420 / 470);
+}
+
+@media (max-width: 599px) {
+  .details__envelope > .sealed-object {
+    width: min(92cqw, 420px, 100cqh * 420 / 470);
+  }
 }
 
 .details__card {
@@ -974,6 +1030,58 @@ html:not(.js) .countdown__units {
 
 .details__message::after {
   background: linear-gradient(to left, transparent, var(--color-gold-deep));
+}
+
+/* "You are invited", written out as the page opens.
+
+   A reveal running left to right behind a short soft edge, the way ink
+   appears behind a nib, rather than typed letter by letter: Great Vibes joins
+   its letters, and cutting it into letters would break the joins and drop them
+   in as blocks. One steady stroke: pauses between the words were tried and
+   read as the page stalling rather than as a hand lifting. The span is
+   padded so the script's swashes, which overhang its box, stay inside the
+   mask; the negative margin gives the room back.
+
+   Guarded on scripting like every other arrival, and skipped for reduced
+   motion, so the line is simply there. */
+.details__written {
+  display: inline-block;
+  padding: 0.12em 0.4em;
+  margin: -0.12em -0.4em;
+}
+
+html.js .details__written {
+  -webkit-mask-image: linear-gradient(90deg, #000 45%, transparent 48%);
+  mask-image: linear-gradient(90deg, #000 45%, transparent 48%);
+  -webkit-mask-size: 250% 100%;
+  mask-size: 250% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 0% 0;
+  mask-position: 0% 0;
+  animation: pen-write 2200ms 380ms linear both;
+}
+
+/* The mask's leading edge sits at (1.16 - p / 100 * 1.5) of the span's width
+   for a mask-position of p%: 80% is just short of the first letter, and 0%
+   is past the last. */
+@keyframes pen-write {
+  from {
+    -webkit-mask-position: 80% 0;
+    mask-position: 80% 0;
+  }
+  to {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .details__written {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 }
 
 .details__note {
@@ -1215,19 +1323,33 @@ html:not(.js) .countdown__units {
   }
 }
 
-/* --- Timeline: the four functions down one line --------------------------------
+/* --- Timeline: the four functions down one winding line ------------------------
 
-   Two layouts from one markup, as the story's route has. Narrow: one column,
-   the line running down the left. Wide: the drawn route, each stop pulled up
-   so its drawing sits level with its heart.
+   One layout at every width: the drawn route, each stop pulled up so its
+   drawing sits level with its heart, alternating sides. A phone gets its own
+   drawing of the line (heavier marks, a longer drop, wider cards), rendered
+   beside the wide one; these custom properties choose which one the stops are
+   placed against.
    ------------------------------------------------------------------------------ */
 .schedule {
+  --route-ratio: var(--route-ratio-narrow);
+  --schedule-card: var(--schedule-card-narrow);
   position: relative;
-  width: 100%;
-  margin: clamp(22px, 4vw, 38px) 0 clamp(18px, 4vw, 36px);
+  /* On a phone the cards want every pixel: the route takes back most of the
+     column's side padding, which is only air at this point of the page. */
+  width: calc(100% + 2 * var(--schedule-bleed));
+  margin: clamp(22px, 4vw, 38px) calc(-1 * var(--schedule-bleed)) clamp(18px, 4vw, 36px);
+  --schedule-bleed: clamp(0px, 14px - 1vw, 12px);
+  aspect-ratio: var(--route-ratio);
 }
 
 .schedule__line {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.schedule__line--wide {
   display: none;
 }
 
@@ -1241,128 +1363,107 @@ html:not(.js) .countdown__units {
   list-style: none;
   margin: 0;
   padding: 0;
-  position: relative;
-  display: grid;
-  row-gap: clamp(24px, 5vw, 36px);
-}
-
-.schedule__rail {
   position: absolute;
-  left: 15.5px;
-  inset-block: 0;
-  width: 3px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--color-ink) 0 10px,
-    transparent 10px 14px
-  );
+  inset: 0;
 }
 
 .schedule__stop {
-  position: relative;
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  grid-template-areas:
-    'mark icon'
-    '.    name'
-    '.    when'
-    '.    where';
-  column-gap: 16px;
+  --stop-y: var(--stop-y-narrow);
+  position: absolute;
+  top: var(--stop-y);
+  display: flex;
+  flex-direction: column;
+  /* Pulled up by half the drawing, so the heart on the line sits level with
+     the drawing rather than with the middle of the type under it. */
+  margin-top: calc(var(--schedule-icon) / -2);
+  width: var(--schedule-card);
+}
+
+/* Each stop keeps to the side of its card nearest the line, as the reference
+   holds its drawings just off the line rather than out at the page's edge;
+   the inset is the air between the heart and the drawing. */
+.schedule__stop[data-side='left'] {
+  left: 0;
+  align-items: flex-end;
+  text-align: right;
+  padding-right: 6%;
+}
+
+.schedule__stop[data-side='right'] {
+  right: 0;
+  align-items: flex-start;
   text-align: left;
+  padding-left: 6%;
 }
 
-.schedule__mark {
-  grid-area: mark;
-  justify-self: center;
-  align-self: center;
+.schedule__stop[data-side='left'] .schedule__name {
+  align-items: flex-end;
+  text-align: right;
 }
 
-.schedule__icon {
-  grid-area: icon;
-  color: var(--color-ink);
-}
-
-.schedule__name {
-  grid-area: name;
-  margin-top: 10px;
+.schedule__stop[data-side='right'] .schedule__name {
   align-items: flex-start;
   text-align: left;
 }
 
+.schedule__icon {
+  color: var(--color-ink);
+}
+
+.schedule__name {
+  margin-top: 10px;
+}
+
 .schedule__when {
-  grid-area: when;
   margin: 6px 0 0;
 }
 
 .schedule__where {
-  grid-area: where;
   margin: 2px 0 0;
   font-size: clamp(0.76rem, 0.72rem + 0.2vw, 0.85rem);
   color: var(--color-ink-soft);
 }
 
-@media (min-width: 700px) {
-  .schedule {
-    aspect-ratio: var(--route-ratio);
-  }
-
-  .schedule__line {
+/* A phone's card is about 140px: the date and the time take a line each,
+   and a long name breaks, balanced, rather than running at the line. From
+   600px the wide drawing's cards hold the date and time on one line, and the
+   phone's heavier line, scaled up that far, would be too heavy. */
+@media (max-width: 599px) {
+  .schedule__date,
+  .schedule__time {
     display: block;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
   }
 
-  .schedule__rail,
-  .schedule__mark {
+  .schedule__sep {
     display: none;
   }
 
-  .schedule__list {
-    position: absolute;
-    inset: 0;
+  .schedule__name .function-name__title {
+    font-size: clamp(0.95rem, 0.86rem + 0.4vw, 1.05rem);
+  }
+
+  .schedule__name .function-name__trad {
+    letter-spacing: 0.12em;
+  }
+}
+
+@media (min-width: 600px) {
+  .schedule {
+    --route-ratio: var(--route-ratio-wide);
+    --schedule-card: var(--schedule-card-wide);
+    --schedule-bleed: 0px;
+  }
+
+  .schedule__line--wide {
     display: block;
   }
 
+  .schedule__line--narrow {
+    display: none;
+  }
+
   .schedule__stop {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    top: var(--stop-y);
-    /* Pulled up by half the drawing, so the heart on the line sits level with
-       the drawing rather than with the middle of the type under it. */
-    margin-top: calc(var(--schedule-icon) / -2);
-    width: var(--schedule-card);
-    --from-x: var(--stop-from-x);
-  }
-
-  /* Each stop keeps to the side of its card nearest the line, as the reference
-     holds its drawings just off the line rather than out at the page's edge;
-     the inset is the air between the heart and the drawing. */
-  .schedule__stop[data-side='left'] {
-    left: 0;
-    align-items: flex-end;
-    text-align: right;
-    padding-right: 6%;
-  }
-
-  .schedule__stop[data-side='right'] {
-    right: 0;
-    align-items: flex-start;
-    text-align: left;
-    padding-left: 6%;
-  }
-
-  .schedule__stop[data-side='left'] .schedule__name {
-    align-items: flex-end;
-    text-align: right;
-  }
-
-  .schedule__stop[data-side='right'] .schedule__name {
-    align-items: flex-start;
-    text-align: left;
+    --stop-y: var(--stop-y-wide);
   }
 }
 
@@ -1407,11 +1508,7 @@ html:not(.js) .countdown__units {
   left: 15.5px;
   inset-block: 0;
   width: 3px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--color-ink) 0 15px,
-    transparent 15px 18px
-  );
+  background: repeating-linear-gradient(to bottom, var(--color-ink) 0 15px, transparent 15px 18px);
 }
 
 .route__stop {
@@ -1780,9 +1877,11 @@ html:not(.js) .countdown__units {
   color: var(--color-ink-soft);
 }
 
-
 .card__kicker {
   margin: 0 0 0.5cqw;
+  /* The one word on the card set heavy: it names what the card is, and at the
+     label weight it read as one more line of the small print under it. */
+  font-weight: 700;
   font-size: 1.95cqw;
   letter-spacing: 0.16em;
   text-indent: 0.16em;
