@@ -16,9 +16,10 @@ with this file, this file wins.
 
 ## 1. Objective
 
-A static, single-file wedding invitation site for **Sreetam & Bhavna**, 11–13
-December 2026, Bhubaneswar. Most guests will open it from a WhatsApp link on a
-phone.
+A static wedding invitation site for **Sreetam & Bhavna**, 11–13 December
+2026, Bhubaneswar. Most guests will open it from a WhatsApp link on a phone.
+Each side of the family has its own link, which puts their child's name first
+everywhere on the site (§5.1).
 
 - **Theme:** *Mangal Sutra* (मंगल सूत्र). Tagline: "Bound by rituals, crafted by
   devotion, celebrated forever." Hashtag: `#SreekomilaBhav`.
@@ -44,7 +45,8 @@ phone.
 - Every fact on the page comes from `src/data/content.ts`, and no other file
   holds content.
 - The build fails on invalid content (see §5.8–5.9).
-- Works with scripting disabled, because the HTML is prerendered.
+- Works with scripting disabled, because every page, in every name order, is
+  prerendered to its own HTML file.
 - No horizontal scroll at any width from 320px up.
 - Reduced motion is respected, and keyboard focus is visible.
 - No runtime network calls to third parties. Fonts and images are vendored.
@@ -61,8 +63,8 @@ phone.
 | Styling | One hand-written stylesheet, `src/index.css`. Tailwind 4 is wired in (`@theme inline` mirrors the tokens) but the pages use plain class names |
 | Tests | Vitest + Testing Library (jsdom) |
 | Lint / format | ESLint 9 (flat config), Prettier |
-| Routing | Hash routes, no router library (`src/routes.ts`, `useHashRoute`) |
-| Hosting | Any static host over HTTPS. Output is `dist/` |
+| Routing | Path routes, no router library (`src/routes.ts`, `useRoute`); each address is a prerendered `index.html` |
+| Hosting | Any static host over HTTPS that serves `folder/index.html` for `/folder/` (all common ones do). Output is `dist/` |
 
 ## 3. Commands
 
@@ -71,8 +73,8 @@ npm install
 npm run dev          # Vite dev server, http://localhost:5173
 npm run typecheck    # tsc for app + node configs
 npm run lint         # eslint .
-npm test             # vitest run (140 tests at time of writing)
-npm run build        # typecheck → client build → SSR build → prerender into dist/index.html
+npm test             # vitest run (167 tests at time of writing)
+npm run build        # typecheck → client build → SSR build → prerender 12 addresses into dist/**/index.html
 npm run preview      # serve dist/
 npm run preview:lan  # serve dist/ on the local network (open the printed Network URL on a phone on the same Wi-Fi)
 npm run rasters      # macOS only: re-render og-image / favicons from the live dev server (swift)
@@ -88,11 +90,12 @@ Deploy: `cp .env.example .env.production`, then set `VITE_SITE_URL` (so the
 ## 4. Project structure
 
 ```
-index.html                 Document shell, meta/OG tags, sets html.js before the bundle loads
+index.html                 Document shell, meta/OG tags, sets html.js and adds a missing trailing slash before the bundle loads
 vite.config.ts             React + Tailwind + content-validation plugin + absolute OG URLs
 scripts/
   validate-content.ts      Vite plugin: runs validateContent() at build start and fails the build on errors
-  prerender.mjs            Injects the SSR markup into dist/index.html, deletes dist-ssr/
+  prerender.mjs            Writes one prerendered index.html per address (page × name order), reorders the
+                           names in each head, deletes dist-ssr/
   render-rasters.swift     Renders og-image.png / favicon.png / apple-touch-icon.png (macOS WebKit)
   shoot.swift              Screenshot helper (URL, width, height, out, scrollY)
 public/                    favicon.png, apple-touch-icon.png, og-image.png (committed rasters)
@@ -100,9 +103,9 @@ probe-*.html               Dev-only pages that mount src/probes/* for inspecting
 resc/docs/                 Original brief, spec, plan, execution log, handover (historical)
 src/
   main.tsx                 Hydrates prerendered markup, or renders fresh in dev
-  entry-server.tsx         renderToString(<App/>) for the prerender step
-  App.tsx                  Chooses the page from the hash. The only place pages are composed
-  routes.ts                PAGES = envelope | home | details | story; #/<page>
+  entry-server.tsx         render(path) and prerenderTargets() for the prerender step
+  App.tsx                  Chooses the page and the name order from the address. The only place pages are composed
+  routes.ts                PAGES = envelope | home | details | story; /[order]/<page>/ (+ routes.test.ts)
   index.css                ALL styling: fonts, tokens, type scale, every component's CSS
   data/
     types.ts               The content contract (types only)
@@ -123,7 +126,7 @@ src/
                            tray, key, earrings), Paper (embossed card, ovals, stamps), Florals, Vinyl,
                            Ornament, Paths (dashed route lines + hearts), LineIcons, PlaceIcons,
                            PhotoStandIn, geometry.ts. CONVENTIONS.md = SVG authoring rules
-  hooks/                   useHashRoute, useCountdown, useReducedMotion, useStagedReveal (+ dormant, see §9)
+  hooks/                   useRoute, useCountdown, useReducedMotion, useStagedReveal (+ dormant, see §9)
   lib/                     isPending/knownValue, formatDate, formatDuration, coupleNames, arrival,
                            photoUrl (gallery path → bundled URL, via import.meta.glob), …
   probes/                  Isolated artwork viewers used by probe-*.html
@@ -144,20 +147,44 @@ client's original photographs, ~145 MB; the cropped copies in
 
 ## 5. Architecture
 
-### 5.1 Pages and navigation
+### 5.1 Pages, name order and navigation
 
-Four pages, addressed by hash so the whole site stays one static HTML file:
+Four pages, addressed by path. Every address is prerendered to its own
+`index.html`, so a static host serves each as a plain file:
 
-| Hash | Page | Reached from |
+| Path | Page | Reached from |
 |---|---|---|
-| `#/envelope` (default) | `EnvelopePage` | first load. Opening the envelope goes to home after ~760ms (160ms with reduced motion) |
-| `#/home` | `HomePage` | the envelope. "← Back to envelope" at the bottom |
-| `#/details` | `DetailsPage` | the silver tray / "The Details" oval on home |
-| `#/story` | `StoryPage` | the photo strip / "Our story" oval on home |
+| `/` (default) | `EnvelopePage` | first load. Opening the envelope goes to home after ~760ms (160ms with reduced motion) |
+| `/home/` | `HomePage` | the envelope. "← Back to envelope" at the bottom |
+| `/details/` | `DetailsPage` | the silver tray / "The Details" oval on home |
+| `/story/` | `StoryPage` | the photo strip / "Our story" oval on home |
 
-`useHashRoute` reads `location.hash` through `useSyncExternalStore`, so the
-browser's back button works. On the server it returns the default page. No
-page imports another page.
+**Name order.** An optional first segment chooses whose name leads:
+
+| Prefix | Order everywhere | Share with |
+|---|---|---|
+| none (`/`, `/home/`, …) | the content's `couple.leadName` (groom: Sreetam & Bhavna) | anyone |
+| `/sreetamandbhavna/` | Sreetam & Bhavna | the groom's side |
+| `/bhavnaandsreetam/` | Bhavna & Sreetam | the bride's side |
+
+So `/bhavnaandsreetam/home/` is the home page with Bhavna first. "Everywhere"
+means: the envelope heading and its button label, the invitation card, the
+card in the small envelope, the countdown sign-off and its spoken subject, the
+story page's "With love", the wax-seal initials (BS / SB), and the page's
+`<title>`, `og:title`, `twitter:title` and descriptions, so a WhatsApp preview
+shows the same order. The segment is built from the names in `content.ts`
+(`orderSegment`: both names joined by "and", lower case, letters and digits
+only), so it follows any change of spelling there. Case and a missing
+trailing slash are accepted; an unknown segment falls back to the default.
+
+`useRoute` reads `location` through `useSyncExternalStore` and navigates with
+`history.pushState`, keeping the order prefix, so moving between pages never
+changes the order and the back button works. The server renders the path it
+is given (`<App path>`), and the client's server snapshot is its own pathname,
+so hydration always matches the file served. Old `#/home`-style links still
+open the page they name. `index.html` adds a missing trailing slash before
+anything draws, because some hosts would otherwise serve the root page (in the
+default order) for `/bhavnaandsreetam/home`. No page imports another page.
 
 ### 5.2 Home: the absolute canvas
 
@@ -292,10 +319,18 @@ Maps *searches* and should be replaced with exact pins.
    `--color-*` tokens from `index.css`, and runs `validateContent`. Any failure
    stops the build with a field path and a message.
 2. Client build to `dist/`, SSR build of `entry-server.tsx` to `dist-ssr/`.
-3. `prerender.mjs` renders `<App/>` to a string, injects it into
-   `dist/index.html`, and deletes `dist-ssr/`. `main.tsx` then hydrates.
+3. `prerender.mjs` renders `<App path>` for each of the 12 addresses (4 pages ×
+   3 orders), injects each into a copy of `dist/index.html`, and writes it to
+   `dist/<path>index.html`. In copies whose order differs from the default it
+   swaps the names in the head's hand-written title and descriptions, and it
+   fails the build if those no longer spell the default order. `og:url` gets
+   the address's path. Then it deletes `dist-ssr/`. `main.tsx` hydrates.
+   Sizes: the envelope file is ~290 KB (38 KB gzipped); `home/` is ~3.9 MB
+   (485 KB gzipped) because the canvas art is inline SVG. Guests only fetch
+   it by opening a `/home/` link directly; moving there from the envelope
+   renders it from the bundle.
 4. `absoluteSocialUrls` rewrites `og:image` / `og:url` using `VITE_SITE_URL`.
-   It warns if the variable is not set.
+   It warns if the variable is not set. It runs before the prerender step.
 
 ### 5.9 Validation checks (`src/data/validate.ts`)
 
@@ -315,7 +350,9 @@ text of each event palette, measured from the stylesheet).
 | Want to… | Do this |
 |---|---|
 | Change any wording or fact | Edit `src/data/content.ts`, then rebuild |
-| Add the playlist link | Set `playlist.url`. The sleeve becomes a link with "Click here" |
+| Send a link with one name first | `https://<site>/bhavnaandsreetam/` or `/sreetamandbhavna/` (any page can follow: `/bhavnaandsreetam/story/`). The plain `/` uses `couple.leadName` |
+| Change the site title or share description | Edit `index.html`. Keep the names in the default order and spelled `Sreetam &amp; Bhavna` / `Sreetam and Bhavna`: the prerender swaps exactly those for the other order |
+| Add the playlist link | Set `playlist.url`. The sleeve becomes a link with "Click here" (maroon, like every cue) |
 | Change the countdown line / emphasised word | `countdown.headingLabel` and `countdown.headingEmphasis`. The last occurrence of the emphasis word is set in script + maroon. If the word is not found, the plain line is shown |
 | Change a dress-code colour | Edit the hex of `--color-dress-<event>-<hue>` in `src/index.css` |
 | Rename a dress-code colour | Edit `label` in `src/data/eventPalettes.ts`. Keep it to **about 8 letters**, since five swatches share a phone row (~59px per column at 360px) |
@@ -373,7 +410,9 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
   phone and wide drawings. For the details opening screen, check the
   **height** as well: at 390×844, 1440×900 and a landscape phone (844×390),
   "Unfolding the celebrations" must be the last thing visible. Delete
-  the screenshots afterwards. Playwright is available through the npx cache, and
+  the screenshots afterwards. For routing or name-order changes, also load
+  every address (§5.1) in `npm run preview` and check the title, the order of
+  every visible name, and the console for hydration errors. Playwright is available through the npx cache, and
   `scripts/shoot.swift` works on macOS.
 
 ## 9. Boundaries
@@ -395,6 +434,48 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-20: cue colour and name order by address (branch `name-order`, merged into `main`)
+
+**Every cue in the maroon of "yes"** (`index.css`, `EnvelopePage.tsx`)
+- "Click here" (`.oval__cue`, `.sleeve__cue`), "Tap to open" (new
+  `.envelope-scene__cue`) and "← Back to …" (`.back-link`) are now
+  `var(--color-maroon)` (`#5b1a22`), the colour of the countdown's "yes"
+  (`.countdown__emphasis`). They were ink-soft or ink before.
+- `.back-link` used to turn maroon on hover. Since it is maroon at rest, hover
+  now underlines it instead (1px, offset 0.35em).
+- The sleeve's "Click here" only shows once `playlist.url` is set, so it is not
+  visible yet.
+
+**Name order chosen by the address** (`routes.ts`, `hooks/useRoute.ts`,
+`App.tsx`, `HomePage.tsx`, `lib/coupleNames.ts`, `types.ts`,
+`entry-server.tsx`, `scripts/prerender.mjs`, `index.html`)
+- Pages moved from hash addresses (`#/home`) to paths (`/home/`), with an
+  optional order prefix: `/bhavnaandsreetam/…` or `/sreetamandbhavna/…`
+  (§5.1). Paths were chosen over a hash prefix (`#/bhavnaandsreetam/home`)
+  because a hash never reaches the server. With a hash, every link would
+  load the one prerendered file in the default order: the bride's side would
+  see "Sreetam & Bhavna" first and then watch it swap, and the WhatsApp
+  preview would always read "Sreetam & Bhavna". A query parameter has the same
+  problem.
+- `useHashRoute` was replaced by `useRoute`. `coupleNames`, `coupleInitials`
+  and `coupleMonogram` take an optional lead. New type `LeadName`.
+- The home page's invitation card set `groomName` then `brideName` directly,
+  so it ignored `leadName`. It now takes the ordered pair from `App`.
+- The prerender now writes 12 files instead of 1 (§5.8). Old `#/home` links
+  still work.
+- Tests: `routes.test.ts` (16), `coupleNames.test.ts` (3), `App.test.tsx`
+  (8: every page in every order leads with the right name, seal initials,
+  card order, the envelope opening keeps the prefix, the back button, and an
+  old hash link).
+- Checked in `npm run preview` at 1440, 760, 390 and 320px: all 12 addresses
+  have the right title, every visible name leads with the chosen one, no
+  horizontal overflow, and no console or hydration errors. At 390 and 1440px,
+  the envelope → home → details → back → story flow keeps
+  `/bhavnaandsreetam/`, the browser back button works, `/#/details` opens
+  details, and `/bhavnaandsreetam/home` gets its slash added. The cue colours
+  were measured equal to the "yes": `rgb(91, 26, 34)`. The dev server was also
+  checked at `/bhavnaandsreetam/home`.
 
 ### 2026-09-19: the couple's photographs and the closing message (branch `photographs`, merged into `main`)
 
@@ -561,6 +642,14 @@ pen-write`)
 ## 11. Open questions / next steps
 
 - Playlist URL and "hosted by" lines are still pending.
+- `public/og-image.png` (the WhatsApp preview picture) has "Sreetam & Bhavna"
+  drawn into it, and it is from the earlier design. Links from
+  `/bhavnaandsreetam/` get the right title but this same picture. The
+  `raster-og.html` page that `npm run rasters` expects no longer exists.
+  Options: a new picture with no names in it, or one picture per order.
+- Hosting is not chosen yet. Whichever host is used, check that
+  `/bhavnaandsreetam/home/` serves `dist/bhavnaandsreetam/home/index.html`.
+  There is no 404 page: an unknown path is a host 404.
 - `website-pics/IMG_6590.HEIC` (a selfie in the cold) matches no placeholder
   and is unused. `home_details_2.PNG` (the mehndi lounge) was replaced by
   `home_details_2_alt` and is also unused.
