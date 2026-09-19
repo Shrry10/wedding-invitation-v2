@@ -1669,6 +1669,10 @@ html.js .details__written {
   font-size: clamp(0.62rem, 0.58rem + 0.2vw, 0.74rem);
   line-height: 1.9;
   color: var(--color-ink);
+  /* The message runs to five or six centred lines, and a greedy wrap left
+     one word alone on the last of them. Balanced lines keep the block's
+     shape even, the way a set card would be. */
+  text-wrap: balance;
 }
 
 .story__with-love {

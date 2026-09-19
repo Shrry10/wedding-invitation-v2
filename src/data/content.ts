@@ -149,7 +149,8 @@ export const content: InvitationContent = {
 
   story: {
     heading: 'Our Story',
-    closingMessage: PENDING,
+    closingMessage:
+      'As our beautiful journey turns the page to forever, we couldn\u2019t imagine taking this next big step without you. Please gather with us to celebrate this new beginning and shower our day with your love, blessings, and positivity.',
     // The story, in the order it happened — and it is a story, not an
     // itinerary. Two people who knew each other and were not friends, six years
     // of nothing, one reply to an Instagram story, and everything after. The
