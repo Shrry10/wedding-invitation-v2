@@ -404,18 +404,33 @@ export function OpenEnvelope({
           <clipPath id={`${uid}-flapclip`}>
             <path d={flap} />
           </clipPath>
+          {/* The shade along the crease. A blurred stroke laid over the fold
+              gave it two edges of its own and read as a band painted across
+              the paper; a gradient only ever has one darkest line, the fold
+              itself, and nothing to catch the eye above or below it. */}
+          <linearGradient
+            id={`${uid}-crease`}
+            x1={0}
+            y1={POCKET.top - 260}
+            x2={0}
+            y2={POCKET.top + 320}
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0" stopColor="var(--color-maroon-deep)" stopOpacity="0" />
+            <stop offset="0.448" stopColor="var(--color-maroon-deep)" stopOpacity="0.3" />
+            <stop offset="1" stopColor="var(--color-maroon-deep)" stopOpacity="0" />
+          </linearGradient>
         </defs>
 
         <g clipPath={`url(#${uid}-flapclip)`}>
           <path d={flap} fill={`url(#${uid}-flap)`} />
           {/* Thrown back behind the card, the flap darkens towards its own crease. */}
-          <path
-            d={`M ${POCKET.left} ${POCKET.top} L ${POCKET.right} ${POCKET.top}`}
-            fill="none"
-            stroke="var(--color-maroon-deep)"
-            strokeWidth={150}
-            strokeOpacity={0.6}
-            style={{ filter: 'blur(20px)' }}
+          <rect
+            x={0}
+            y={0}
+            width={OPEN_VIEW.w}
+            height={OPEN_VIEW.h}
+            fill={`url(#${uid}-crease)`}
           />
           <GrainWash
             filterId={`${uid}-grain`}

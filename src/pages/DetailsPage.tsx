@@ -147,9 +147,14 @@ export function DetailsPage({ content, monogram, navigate }: DetailsPageProps) {
           <div className="details__envelope" data-piece>
             <span className="sealed-object">
               <OpenEnvelope>
+                {/* Inside the envelope, as the home page's bouquet is: the
+                    posy is drawn in the envelope's own slot, so the pocket —
+                    drawn after the slot — cuts its stems. It comes after the
+                    card, lying over the card's left edge rather than behind
+                    it, the way a posy dropped in beside a card would. */}
                 <InvitationCard className="details__card" />
+                <FlowerPhoto photo="tied-posy" eager className="details__spray" />
               </OpenEnvelope>
-              <FlowerPhoto photo="tied-posy" eager className="details__spray" />
               <WaxSeal
                 monogram={monogram}
                 className="sealed-object__seal"

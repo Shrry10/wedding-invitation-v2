@@ -865,9 +865,9 @@ html:not(.js) .countdown__units {
   /* A posy laid over the envelope's lower left corner, flowers up and stem
      trailing off below, as the reference lays its own. Mirrored so the stem
      runs down and to the right, away from the corner. */
-  left: 7%;
-  top: 45%;
-  width: 34%;
+  left: 6%;
+  top: 43%;
+  width: 40%;
   height: auto;
   transform: scaleX(-1) rotate(14deg);
 }
@@ -1002,15 +1002,17 @@ html:not(.js) .countdown__units {
 }
 
 .details__spray {
-  /* The posy stood in the envelope's left shoulder, as the reference stands
-     its own: blooms over the card's left edge, twine and stems down the front
-     of the pocket. */
+  /* The posy standing in the envelope's left shoulder: blooms rising past the
+     card's left edge, twine and stems behind the pocket. It is placed in the
+     envelope's card slot, not on the object, so these are fractions of that
+     slot — the pocket's left shoulder crosses it at about 48%, and the foot
+     of the posy runs well past that. */
   position: absolute;
-  left: 5%;
-  top: 19%;
-  width: 27%;
+  left: -11%;
+  top: 10%;
+  width: 48%;
   height: auto;
-  transform: rotate(-5deg);
+  transform: scaleX(-1) rotate(-5deg);
   pointer-events: none;
 }
 
@@ -1860,10 +1862,6 @@ html.js .details__written {
        free space to absorb computes to zero and pins the canvas to the start,
        which hangs the whole overflow off one edge. */
     margin-inline: 0;
-    /* The objects sit 2.2% right of the coordinate space's middle, so centring
-       the space leaves them off centre by that much. It is the objects that
-       should be centred, not the space they are drawn in. */
-    transform: translateX(-2.2%);
   }
 
   /* At 180% the record, which pokes out of the right of its sleeve, is the
@@ -2192,50 +2190,57 @@ html.js .details__written {
   position: relative;
   width: 100%;
   height: 100%;
-  /* Clipped to the envelope's own opening: the flap's two edges above, the
-     pocket's V below, in this box's coordinates (the box is the card slot,
-     120–880 across and 110–916 down of the envelope's 1000 × 1120 drawing).
-     Without it a bloom laid near a shoulder floats outside the paper. */
-  clip-path: polygon(50% -6%, 110.5% 44.7%, 50% 78.8%, -10.5% 44.7%);
+  /* Clipped to the paper the flowers are lying on: the flap's two edges above
+     its fold, the envelope's full width below it, in this box's coordinates
+     (the box is the card slot, 120–880 across and 110–916 down of the
+     envelope's 1000 × 1120 drawing; the fold is at 44.7% of it and the
+     pocket's notch at 78.8%). Without it a bloom laid near a shoulder floats
+     outside the paper. The bottom is left open, because what runs past it is
+     covered by the pocket drawn after. */
+  clip-path: polygon(50% -6%, 110.5% 44.7%, 110.5% 106%, -10.5% 106%, -10.5% 44.7%);
 }
 
 .envelope-liner__bunch {
   position: absolute;
   height: auto;
+  /* A close shadow on the paper behind, so each bunch sits on the flap rather
+     than being printed on it. */
+  filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--color-maroon-deep) 55%, transparent));
 }
 
-.envelope-liner__bunch--back-left {
-  left: -7%;
-  top: 0;
-  width: 60%;
-  transform: rotate(-14deg);
-}
-
-.envelope-liner__bunch--back-right {
-  left: 50%;
-  top: 5%;
-  width: 56%;
-  transform: scaleX(-1) rotate(-20deg);
-}
-
+/* Two cut bunches of heads leaning out of the opening either side of the
+   bouquet, low enough that the flap shows above them: the arrangement has to
+   keep a silhouette of its own, and flowers reaching into the flap's two
+   corners read as a printed lining rather than as stems in a pocket. */
 .envelope-liner__bunch--left {
-  left: -5%;
-  top: 24%;
-  width: 56%;
-  transform: rotate(6deg);
+  left: 1%;
+  top: 40%;
+  width: 38%;
+  transform: rotate(-12deg);
 }
 
 .envelope-liner__bunch--right {
-  left: 52%;
-  top: 22%;
-  width: 54%;
-  transform: scaleX(-1) rotate(10deg);
+  left: 63%;
+  top: 38%;
+  width: 38%;
+  transform: scaleX(-1) rotate(-14deg);
 }
 
+/* The bouquet itself: blooms up on the flap, stems down into the opening. */
 .envelope-liner__bunch--middle {
-  left: 16%;
-  top: 28%;
+  left: 17%;
+  top: 27%;
   width: 68%;
+}
+
+/* A last bunch of heads across the mouth of the pocket, laid after the
+   bouquet. It is what hides the bouquet's lace tie: the tie falls above the
+   notch at 78.8%, and a bouquet sunk far enough for the pocket to cover it
+   has its blooms off the flap altogether. */
+.envelope-liner__bunch--front {
+  left: 20%;
+  top: 60%;
+  width: 62%;
 }
 
 /* How each photographed arrangement lies on the table. The tray's bouquet and

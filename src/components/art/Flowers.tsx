@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react'
 import envelopeBouquetUrl from '../../assets/images/flowers/envelope-bouquet.webp'
 import linerRosesUrl from '../../assets/images/flowers/liner-roses.webp'
-import posyUrl from '../../assets/images/flowers/posy.webp'
+import standingPosyUrl from '../../assets/images/flowers/standing-posy.webp'
 import tiedPosyUrl from '../../assets/images/flowers/tied-posy.webp'
 import trayBouquetUrl from '../../assets/images/flowers/tray-bouquet.webp'
 import wildRoseSprayUrl from '../../assets/images/flowers/wild-rose-spray.webp'
@@ -22,16 +22,16 @@ import wildRosesOnFrameUrl from '../../assets/images/flowers/wild-roses-on-frame
  * so it covers the stems and only the blooms show; two small sprigs are laid
  * after the prints instead, so they rest on the frames.
  *
- * Four of them are supplied by the couple, from the Canva template this site
- * is modelled on; the rest are Pexels or Pixabay photographs (both free to
- * use and modify, no attribution required).
+ * Five of them are supplied by the couple, from the Canva template this site
+ * is modelled on; the other two are Pixabay photographs (free to use and
+ * modify, no attribution required).
  * `src/assets/images/flowers/SOURCES.md` lists where each file came from and
  * how it was cut out. The width and height below are each file's own, so the
  * browser reserves the right box before the image arrives.
  */
 const FLOWERS = {
-  /** A posy of white blooms and eucalyptus, bound in twine with a ribbon. */
-  posy: { src: posyUrl, w: 700, h: 1088 },
+  /** One ranunculus, jasmine, astilbe and eucalyptus, bound in twine — the supplied posy that stands on the sealed envelope. */
+  'standing-posy': { src: standingPosyUrl, w: 360, h: 438 },
   /** One ranunculus, jasmine and astilbe, bound in twine — the supplied posy. */
   'tied-posy': { src: tiedPosyUrl, w: 817, h: 1000 },
   /** A round bouquet of cream garden roses and eucalyptus, tied with a lace bow. */

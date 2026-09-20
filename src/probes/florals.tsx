@@ -4,7 +4,7 @@ import { FloralSpray } from '../components/art/Florals'
 import { FlowerPhoto, type FlowerPhotoId } from '../components/art/Flowers'
 
 const PHOTOS: readonly FlowerPhotoId[] = [
-  'posy',
+  'standing-posy',
   'tied-posy',
   'tray-bouquet',
   'wild-rose-spray',

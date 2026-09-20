@@ -54,7 +54,7 @@ export function EnvelopePage({ names, monogram, onOpened }: EnvelopePageProps) {
           <span className="envelope-scene__paper">
             <SealedEnvelope className="envelope-scene__envelope" />
             <WaxSeal monogram={monogram} className="envelope-scene__seal" />
-            <FlowerPhoto photo="posy" eager className="envelope-scene__floral" />
+            <FlowerPhoto photo="standing-posy" eager className="envelope-scene__floral" />
           </span>
 
           {/* The stamp sizes its own padding in percentages, which resolve

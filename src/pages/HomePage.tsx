@@ -48,6 +48,14 @@ const CANVAS_H = 2100
  * Judge that air by what is drawn, not by these numbers: a floral spray's box
  * is largely transparent, so the gap a reader sees is the blank band between
  * two groups' ink, which here ran a third longer than the boxes implied.
+ *
+ * Across, each group is centred on the coordinate space rather than measured
+ * straight off the reference, whose own collage sits a little right of its
+ * middle: read down the page, four groups ending 2% right of centre and one
+ * on it read as a page that drifts. The lefts below carry that correction —
+ * the tray group by 2.2, the story and save-the-date groups by 2.4 and the
+ * countdown by 2.0 — and a group keeps its internal arrangement, because what
+ * is centred is the group's ink, not each object in it.
  */
 function at(left: number, top: number, width: number, extra?: CSSProperties): CSSProperties {
   return {
@@ -179,21 +187,21 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
 
         {/* The envelope it arrived in, opened, with the flowers still inside. */}
         <Piece style={at(26.1, 0.6, 28.8)}>
-          {/* The reference packs the whole opening with roses rather than
-              standing one posy in it, so the tray's bouquet is laid in five
-              times over — but with its bow and stems cut off, because five
-              bows in a row reads as five bouquets rather than one bed of
-              roses. Two sit back at the shoulders, two lower and turned out,
-              one large in the middle; every copy's faded bottom edge falls
-              behind the pocket's V or into the shadow inside it. */}
+          {/* Flowers held *in* the envelope, not printed on its lining: the
+              thrown-back flap is drawn first, the flowers over it, the pocket
+              over them, so a bouquet lies on the flap with its bow and stems
+              disappearing into the opening. One hand-tied bouquet is the
+              object — a second bow beside it would read as a second bouquet —
+              with two cut bunches of heads tucked in behind at the shoulders
+              to fill the paper either side of it. Every bottom edge falls
+              behind the pocket's V. */}
           <span className="sealed-object">
           <OpenEnvelope>
             <span className="envelope-liner">
-              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--back-left" />
-              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--back-right" />
               <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--left" />
               <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--right" />
-              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--middle" />
+              <FlowerPhoto photo="tray-bouquet" eager className="envelope-liner__bunch envelope-liner__bunch--middle" />
+              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--front" />
             </span>
           </OpenEnvelope>
           <WaxSeal
@@ -243,29 +251,29 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
             angle, so nothing is lost by not turning it. */}
         {/* Roses tucked in behind the plate's rim: laid before the tray, so the
             plate covers their stems and only the heads show past its edge. */}
-        <Piece style={at(30.3, 23.0, 19.0)}>
+        <Piece style={at(28.1, 23.0, 19.0)}>
           <FlowerPhoto photo="tray-bouquet" className="flowers--tray" />
         </Piece>
-        <Piece style={at(39.5, 25.6, 32.5)} className="piece--turning">
+        <Piece style={at(37.3, 25.6, 32.5)} className="piece--turning">
           <span className="plate-shadow" aria-hidden="true" />
           <span className="turning">
             <SilverTray />
           </span>
         </Piece>
-        <Piece style={at(33.0, 32.2, 4.2)}>
+        <Piece style={at(30.8, 32.2, 4.2)}>
           <PearlEarrings />
         </Piece>
-        <Piece style={at(57.0, 25.2, 13.5)}>
+        <Piece style={at(54.8, 25.2, 13.5)}>
           <Polaroid tilt={11}>
             <PrintFill image={photo('details-1')} seed={3} />
           </Polaroid>
         </Piece>
-        <Piece style={at(60.0, 29.2, 13.5)}>
+        <Piece style={at(57.8, 29.2, 13.5)}>
           <Polaroid tilt={-7}>
             <PrintFill image={photo('details-2')} seed={4} />
           </Polaroid>
         </Piece>
-        <Piece style={at(53.5, 33.0, 13.5)}>
+        <Piece style={at(51.3, 33.0, 13.5)}>
           <Polaroid tilt={4}>
             <PrintFill image={photo('details-3')} seed={5} />
           </Polaroid>
@@ -274,7 +282,7 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
           type="button"
           className="door"
           data-piece
-          style={at(42.2, 27.4, 16.8)}
+          style={at(40.0, 27.4, 16.8)}
           onClick={() => navigate('details')}
         >
           <Cartouche>
@@ -283,7 +291,7 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
             <DoveEmblem className="oval__doves" />
           </Cartouche>
         </button>
-        <Piece style={at(50.5, 25.4, 15.0)}>
+        <Piece style={at(48.3, 25.4, 15.0)}>
           <AntiqueKey />
         </Piece>
 
@@ -292,7 +300,10 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
           type="button"
           className="door"
           data-piece
-          style={at(42.2, 40.9, 15.3)}
+          /* Centred on the canvas itself, not on the group: it is a badge
+             standing alone above the strip, and a reader takes it as the
+             heading of the page rather than as part of the arrangement. */
+          style={at(42.35, 40.9, 15.3)}
           onClick={() => navigate('story')}
         >
           <Cartouche>
@@ -303,37 +314,37 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
         {/* Flowers behind the strip: laid before the prints, so the prints
             cover the branch and stems and only the blooms show above their top
             edges, a few spilling a little way onto the frames. */}
-        <Piece style={at(27.0, 43.3, 18.5)}>
+        <Piece style={at(24.6, 43.3, 18.5)}>
           <FlowerPhoto photo="wild-rose-spray" className="flowers--once" />
         </Piece>
-        <Piece style={at(61.2, 45.2, 18.5)}>
+        <Piece style={at(58.8, 45.2, 18.5)}>
           <FlowerPhoto photo="wild-rose-spray" className="flowers--a-time" />
         </Piece>
-        <Piece style={at(27.0, 46.5, 21.5)}>
+        <Piece style={at(24.6, 46.5, 21.5)}>
           <Polaroid caption="Once" tilt={-4}>
             <PrintFill image={photo('story-1')} seed={6} />
           </Polaroid>
         </Piece>
-        <Piece style={at(41.8, 47.3, 21.5)}>
+        <Piece style={at(39.4, 47.3, 21.5)}>
           <Polaroid caption="Upon" tilt={2}>
             <PrintFill image={photo('story-2')} seed={7} />
           </Polaroid>
         </Piece>
-        <Piece style={at(56.2, 48.4, 21.5)}>
+        <Piece style={at(53.8, 48.4, 21.5)}>
           <Polaroid caption="A time" tilt={7}>
             <PrintFill image={photo('story-3')} seed={8} />
           </Polaroid>
         </Piece>
         {/* Two sprigs laid after the prints, resting on their corners: the
             flowers behind the strip all stop at its edge otherwise. */}
-        <Piece style={at(27.2, 45.6, 9.6)}>
+        <Piece style={at(24.8, 45.6, 9.6)}>
           <FlowerPhoto photo="wild-roses-on-frame" className="flowers--once-front" />
         </Piece>
-        <Piece style={at(70.0, 47.5, 9.6)}>
+        <Piece style={at(67.6, 47.5, 9.6)}>
           <FlowerPhoto photo="wild-roses-on-frame" className="flowers--a-time-front" />
         </Piece>
         {/* Save the date, and one more photograph. */}
-        <Piece style={at(26.5, 60.0, 22.0)}>
+        <Piece style={at(24.1, 60.0, 22.0)}>
           <ScallopedOval>
             <span className="t-script oval__title oval__title--wide">Save the Date</span>
             <span className="t-date oval__date">{hero.dateLabel}</span>
@@ -342,24 +353,24 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
         {/* One bouquet standing in the envelope, as the reference has it: laid
             before the envelope, so the flap and the card cover its stems and
             only the blooms show, rising to the save-the-date card's height. */}
-        <Piece style={at(47.0, 60.3, 26.0)}>
+        <Piece style={at(44.6, 60.3, 26.0)}>
           <FlowerPhoto photo="envelope-bouquet" className="flowers--save-the-date" />
         </Piece>
-        <Piece style={at(49.8, 65.7, 28.5)}>
+        <Piece style={at(47.4, 65.7, 28.5)}>
           <OpenEnvelope>
             <NamesCard className="envelope__card">
               <span className="t-script envelope__card-names">{names}</span>
             </NamesCard>
           </OpenEnvelope>
         </Piece>
-        <Piece style={at(28.0, 67.3, 19.5)}>
+        <Piece style={at(25.6, 67.3, 19.5)}>
           <Polaroid tilt={-2}>
             <PrintFill image={photo('save-the-date')} seed={9} />
           </Polaroid>
         </Piece>
 
         {/* The countdown closes the page. */}
-        <Piece style={at(27.5, 78.6, 49.0)} className="countdown-slot">
+        <Piece style={at(25.5, 78.6, 49.0)} className="countdown-slot">
           <EmbossedCard className="countdown-plate">
             <div className="countdown-card">
             <h2 className="t-script countdown__title">Countdown</h2>

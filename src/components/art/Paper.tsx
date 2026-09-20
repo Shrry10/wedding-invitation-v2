@@ -1187,8 +1187,10 @@ export function NamesCard({ children, className }: PaperProps) {
       ratio={`${NAME_W} / ${NAME_H}`}
       /* Deep at the foot: the bottom two fifths of this card are behind the
          envelope's pocket, so the names are centred in what shows, not in the
-         sheet. */
-      inset="10% 12% 46%"
+         sheet. A little deeper at the head than the arithmetic asks, because
+         the flap's point cuts across the foot of what shows and the names read
+         as riding high when they are centred on the whole of it. */
+      inset="15% 12% 46%"
       viewBox={`0 0 ${NAME_W} ${NAME_H}`}
       art={<NamesArt uid={uid} />}
     >
