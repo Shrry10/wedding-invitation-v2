@@ -1110,6 +1110,94 @@ export function InvitationCard({ children, className }: PaperProps) {
 }
 
 /* ---------------------------------------------------------------------------
+   The card of names, in the save-the-date envelope.
+   --------------------------------------------------------------------------- */
+
+/* The card fills the envelope's slot, so its drawing is that slot's own
+   proportion (760 × 806 of the envelope's units, halved and a little rounder)
+   and nothing is stretched. Units are kept near the invitation card's so the
+   same rule weights strike the same depth at the size each is shown. */
+const NAME_W = 300
+const NAME_H = 318
+const NAME_MIRRORS: readonly string[] = [
+  'translate(0 0)',
+  `translate(${NAME_W} 0) scale(-1 1)`,
+  `translate(0 ${NAME_H}) scale(1 -1)`,
+  `translate(${NAME_W} ${NAME_H}) scale(-1 -1)`,
+]
+
+function NamesArt({ uid }: { uid: string }) {
+  const clip = `${uid}-clip`
+  return (
+    <>
+      <defs>
+        <rect id={`${uid}-edge`} x={3} y={3} width={NAME_W - 6} height={NAME_H - 6} />
+        <clipPath id={clip}>
+          <use href={`#${uid}-edge`} />
+        </clipPath>
+        <g id={`${uid}-corner`}>
+          {INV_FILIGREE.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </g>
+        <g id={`${uid}-rules`}>
+          <path
+            d={notchedRect(INV_OUTER, INV_OUTER, NAME_W - INV_OUTER * 2, NAME_H - INV_OUTER * 2, 9)}
+          />
+          <rect
+            x={INV_INNER}
+            y={INV_INNER}
+            width={NAME_W - INV_INNER * 2}
+            height={NAME_H - INV_INNER * 2}
+            rx={2}
+          />
+        </g>
+        <g id={`${uid}-corners`}>
+          {NAME_MIRRORS.map((t) => (
+            <use key={t} href={`#${uid}-corner`} transform={t} />
+          ))}
+        </g>
+      </defs>
+      <use href={`#${uid}-edge`} fill={CREAM} />
+      <Fibre clip={clip} count={220} width={NAME_W} height={NAME_H} />
+      <PaperEdge href={`${uid}-edge`} clip={clip} />
+      <use href={`#${uid}-edge`} fill="none" stroke={SHADE} strokeWidth={0.6} opacity={0.6} />
+      <g clipPath={`url(#${clip})`}>
+        <Relief href={`${uid}-rules`} width={0.9} depth={0.85} />
+        <Relief href={`${uid}-corners`} width={1.4} depth={0.95} />
+      </g>
+    </>
+  )
+}
+
+/**
+ * The card the names are written on, rising out of the save-the-date envelope.
+ *
+ * It was a plain cream rectangle, the one piece of stationery on the site with
+ * no die struck into it. It now carries the invitation card's own frame — the
+ * same double rule and corner filigree — at its own proportion, so the two
+ * cards read as one set. Only the top of it clears the envelope's pocket; the
+ * bottom corners are covered, as they are on the details page.
+ */
+export function NamesCard({ children, className }: PaperProps) {
+  const uid = useId().replace(/:/g, '')
+  return (
+    <Sheet
+      className={className}
+      ratio={`${NAME_W} / ${NAME_H}`}
+      /* Deep at the foot: the bottom two fifths of this card are behind the
+         envelope's pocket, so the names are centred in what shows, not in the
+         sheet. */
+      inset="10% 12% 46%"
+      viewBox={`0 0 ${NAME_W} ${NAME_H}`}
+      art={<NamesArt uid={uid} />}
+    >
+      {children}
+    </Sheet>
+  )
+}
+
+/* ---------------------------------------------------------------------------
    Heart divider.
    --------------------------------------------------------------------------- */
 

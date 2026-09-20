@@ -1,7 +1,7 @@
 import { useRef, type CSSProperties, type ReactNode } from 'react'
 import { Countdown } from '../components/countdown/Countdown'
-import { FloralSpray } from '../components/art/Florals'
-import { EmbossedCard, ScallopedOval } from '../components/art/Paper'
+import { FlowerPhoto } from '../components/art/Flowers'
+import { EmbossedCard, NamesCard, ScallopedOval } from '../components/art/Paper'
 import { Cartouche, DoveEmblem, InviteCard } from '../components/art/Ornament'
 import { OPEN_ENVELOPE_SEAL, OpenEnvelope, Polaroid } from '../components/art/Maroon'
 import { PrintFill } from '../components/PrintFill'
@@ -120,7 +120,7 @@ function PlaylistDoor({ playlist }: { playlist: PlaylistConfig }) {
 
   if (url === undefined) {
     return (
-      <Piece style={at(58.0, 0.6, 22.0)} className="playlist">
+      <Piece style={at(51.1, 0.6, 22.6)} className="playlist">
         {face}
       </Piece>
     )
@@ -129,7 +129,7 @@ function PlaylistDoor({ playlist }: { playlist: PlaylistConfig }) {
     <a
       className="door playlist"
       data-piece
-      style={at(58.0, 0.6, 22.0)}
+      style={at(51.1, 0.6, 22.6)}
       href={url}
       target="_blank"
       rel="noreferrer noopener"
@@ -168,22 +168,32 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
         ref={canvasRef}
         style={{ ['--canvas-ratio' as string]: `${CANVAS_W} / ${CANVAS_H}` }}
       >
+        {/* Beside the envelope, as the reference has it: the sleeve, and the
+            record halfway out of it. It stands in the invitation card's own
+            column — sleeve's left edge and record's right edge on the card's
+            two edges — and is drawn before the envelope, so the envelope's
+            shoulder covers the corner where the two meet. A decorative piece
+            takes no pointer events, so nothing laid over it can swallow the
+            link. */}
+        <PlaylistDoor playlist={playlist} />
+
         {/* The envelope it arrived in, opened, with the flowers still inside. */}
         <Piece style={at(26.1, 0.6, 28.8)}>
-          {/* The reference lines the whole opening with roses rather than
-              standing one posy in it, so three sprays overlap to fill it. */}
+          {/* The reference packs the whole opening with roses rather than
+              standing one posy in it, so the tray's bouquet is laid in five
+              times over — but with its bow and stems cut off, because five
+              bows in a row reads as five bouquets rather than one bed of
+              roses. Two sit back at the shoulders, two lower and turned out,
+              one large in the middle; every copy's faded bottom edge falls
+              behind the pocket's V or into the shadow inside it. */}
           <span className="sealed-object">
           <OpenEnvelope>
             <span className="envelope-liner">
-              <FloralSpray variant="tied" className="envelope-liner__spray envelope-liner__spray--a" />
-              <FloralSpray variant="tied" flip className="envelope-liner__spray envelope-liner__spray--b" />
-              <FloralSpray variant="corner" className="envelope-liner__spray envelope-liner__spray--c" />
-              <FloralSpray variant="sprig" className="envelope-liner__spray envelope-liner__spray--d" />
-              <FloralSpray variant="sprig" flip className="envelope-liner__spray envelope-liner__spray--e" />
-              <FloralSpray variant="corner" flip className="envelope-liner__spray envelope-liner__spray--f" />
-              <FloralSpray variant="corner" className="envelope-liner__spray envelope-liner__spray--g" />
-              <FloralSpray variant="sprig" className="envelope-liner__spray envelope-liner__spray--h" />
-              <FloralSpray variant="corner" flip className="envelope-liner__spray envelope-liner__spray--i" />
+              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--back-left" />
+              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--back-right" />
+              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--left" />
+              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--right" />
+              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--middle" />
             </span>
           </OpenEnvelope>
           <WaxSeal
@@ -197,14 +207,8 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
           />
           </span>
         </Piece>
-        {/* Beside the envelope, as the reference has it: the sleeve, and the
-            record halfway out of it. Drawn before the spray below so the
-            flowers lie over its bottom edge the way they do on the reference —
-            they cannot swallow the link, because a decorative piece takes no
-            pointer events. */}
-        <PlaylistDoor playlist={playlist} />
-        <Piece style={at(53.6, 4.9, 19.5)}>
-          <FloralSpray variant="corner" />
+        <Piece style={at(52.2, 5.2, 17.5)}>
+          <FlowerPhoto photo="tied-posy" eager className="flowers--card" />
         </Piece>
 
         {/* A photograph propped against the invitation card. */}
@@ -237,14 +241,16 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
             is re-run on every frame, and this page has been made to stop
             stuttering once already. A circle's shadow is the same at every
             angle, so nothing is lost by not turning it. */}
+        {/* Roses tucked in behind the plate's rim: laid before the tray, so the
+            plate covers their stems and only the heads show past its edge. */}
+        <Piece style={at(30.3, 23.0, 19.0)}>
+          <FlowerPhoto photo="tray-bouquet" className="flowers--tray" />
+        </Piece>
         <Piece style={at(39.5, 25.6, 32.5)} className="piece--turning">
           <span className="plate-shadow" aria-hidden="true" />
           <span className="turning">
             <SilverTray />
           </span>
-        </Piece>
-        <Piece style={at(26.1, 23.3, 20.8)}>
-          <FloralSpray variant="tied" />
         </Piece>
         <Piece style={at(33.0, 32.2, 4.2)}>
           <PearlEarrings />
@@ -294,6 +300,15 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
             <span className="t-label oval__cue">Click here</span>
           </Cartouche>
         </button>
+        {/* Flowers behind the strip: laid before the prints, so the prints
+            cover the branch and stems and only the blooms show above their top
+            edges, a few spilling a little way onto the frames. */}
+        <Piece style={at(27.0, 43.3, 18.5)}>
+          <FlowerPhoto photo="wild-rose-spray" className="flowers--once" />
+        </Piece>
+        <Piece style={at(61.2, 45.2, 18.5)}>
+          <FlowerPhoto photo="wild-rose-spray" className="flowers--a-time" />
+        </Piece>
         <Piece style={at(27.0, 46.5, 21.5)}>
           <Polaroid caption="Once" tilt={-4}>
             <PrintFill image={photo('story-1')} seed={6} />
@@ -309,19 +324,13 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
             <PrintFill image={photo('story-3')} seed={8} />
           </Polaroid>
         </Piece>
-        {/* The sprigs are laid down last, over the photographs, and a little
-            higher than before. A sprig's bloom is at its foot, and once the
-            sprigs were enlarged the foot fell behind the strip — only the
-            astilbe spikes showed above it. Drawn on top, the bloom rests on the
-            corner of a print the way the tray's bouquet rests on its
-            photographs; lifted, it straddles the print's edge rather than
-            sitting deep in the picture. The right one is not lifted: the tray's
-            last photograph hangs just above it, and its spikes would cross that. */}
-        <Piece style={at(23.9, 35.4, 21.2)}>
-          <FloralSpray variant="sprig" />
+        {/* Two sprigs laid after the prints, resting on their corners: the
+            flowers behind the strip all stop at its edge otherwise. */}
+        <Piece style={at(27.2, 45.6, 9.6)}>
+          <FlowerPhoto photo="wild-roses-on-frame" className="flowers--once-front" />
         </Piece>
-        <Piece style={at(54.3, 37.9, 22.0)}>
-          <FloralSpray variant="sprig" flip />
+        <Piece style={at(70.0, 47.5, 9.6)}>
+          <FlowerPhoto photo="wild-roses-on-frame" className="flowers--a-time-front" />
         </Piece>
         {/* Save the date, and one more photograph. */}
         <Piece style={at(26.5, 60.0, 22.0)}>
@@ -330,17 +339,17 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
             <span className="t-date oval__date">{hero.dateLabel}</span>
           </ScallopedOval>
         </Piece>
-        <Piece style={at(43.2, 62.3, 15.6)}>
-          <FloralSpray variant="corner" />
-        </Piece>
-        <Piece style={at(45.2, 62.7, 15.6)}>
-          <FloralSpray variant="corner" />
+        {/* One bouquet standing in the envelope, as the reference has it: laid
+            before the envelope, so the flap and the card cover its stems and
+            only the blooms show, rising to the save-the-date card's height. */}
+        <Piece style={at(47.0, 60.3, 26.0)}>
+          <FlowerPhoto photo="envelope-bouquet" className="flowers--save-the-date" />
         </Piece>
         <Piece style={at(49.8, 65.7, 28.5)}>
           <OpenEnvelope>
-            <span className="envelope__card">
+            <NamesCard className="envelope__card">
               <span className="t-script envelope__card-names">{names}</span>
-            </span>
+            </NamesCard>
           </OpenEnvelope>
         </Piece>
         <Piece style={at(28.0, 67.3, 19.5)}>

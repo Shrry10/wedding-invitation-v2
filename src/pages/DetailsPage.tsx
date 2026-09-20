@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { PlaceIcon, type PlaceIconName } from '../components/art/PlaceIcons'
-import { FloralSpray } from '../components/art/Florals'
+import { FlowerPhoto } from '../components/art/Flowers'
 import { HeartFlourish, InvitationCard } from '../components/art/Paper'
 import { OPEN_ENVELOPE_SEAL, OpenEnvelope } from '../components/art/Maroon'
 import { WaxSeal } from '../components/art/Metal'
@@ -149,7 +149,7 @@ export function DetailsPage({ content, monogram, navigate }: DetailsPageProps) {
               <OpenEnvelope>
                 <InvitationCard className="details__card" />
               </OpenEnvelope>
-              <FloralSpray variant="corner" className="details__spray" />
+              <FlowerPhoto photo="tied-posy" eager className="details__spray" />
               <WaxSeal
                 monogram={monogram}
                 className="sealed-object__seal"

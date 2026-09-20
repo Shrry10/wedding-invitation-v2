@@ -123,15 +123,21 @@ src/
     a11y/                  FactValue (pending-value renderer), SkipLink, VisuallyHidden
     countdown/             Countdown, CountdownUnit, CountdownLiveText (screen-reader text, coarse updates)
     art/                   Hand-authored SVG/CSS artwork: Maroon (envelopes, polaroid), Metal (wax seal,
-                           tray, key, earrings), Paper (embossed card, ovals, stamps), Florals, Vinyl,
-                           Ornament, Paths (dashed route lines + hearts), LineIcons, PlaceIcons,
-                           PhotoStandIn, geometry.ts. CONVENTIONS.md = SVG authoring rules
+                           tray, key, earrings), Paper (embossed card, ovals, stamps), Florals (the
+                           drawn sprays, now only lining the home envelope), Vinyl, Ornament, Paths
+                           (dashed route lines + hearts), LineIcons, PlaceIcons, PhotoStandIn,
+                           geometry.ts. CONVENTIONS.md = SVG authoring rules. Flowers.tsx is the
+                           exception: <FlowerPhoto photo="…"> renders one cut-out flower
+                           photograph (see §5.2 and assets/images/flowers/)
   hooks/                   useRoute, useCountdown, useReducedMotion, useStagedReveal (+ dormant, see §9)
   lib/                     isPending/knownValue, formatDate, formatDuration, coupleNames, arrival,
                            photoUrl (gallery path → bundled URL, via import.meta.glob), …
   probes/                  Isolated artwork viewers used by probe-*.html
   assets/fonts/            Vendored woff2 + LICENSES.md + OFL.txt
-  assets/images/           background-hands.jpg, white-rose.png
+  assets/images/           background-hands.jpg, white-rose.png (the drawn sprays' rose)
+  assets/images/flowers/   Nine cut-out flower arrangements (WebP with alpha); several are built from
+                           two or more photographs + SOURCES.md (Pexels and Pixabay ids, what went
+                           into each file, how they were cut out and composited)
   assets/images/photos/    The couple's photographs, cropped to the polaroid well (see §6)
   test/                    Vitest setup + smoke test
 ```
@@ -194,9 +200,9 @@ ratio (812 × 2100), and every object is placed with
 screenshot. Type inside the canvas is sized in container-query units (`cqw`), so
 the whole drawing scales as one piece instead of reflowing.
 
-Objects, top to bottom: the opened envelope with roses and the wax seal, the
-**playlist sleeve** (a link only when `playlist.url` is known; otherwise it
-shows just "Playlist" with no caption), a polaroid, **door one** (the spinning
+Objects, top to bottom: the opened envelope packed with roses and the wax
+seal, the **playlist sleeve** (a link only when `playlist.url` is known;
+otherwise it shows just "Playlist" with no caption), a polaroid, **door one** (the spinning
 silver tray + key, going to Details), **door two** (the story photo strip,
 going to Story), Save the Date with a polaroid, and the **countdown card**
 (Countdown, "Until we say *yes*", "With love and gratitude", names, closing
@@ -208,17 +214,46 @@ to `details-3` (under the tray, top to bottom), `story-1` to `story-3` (the
 "Once", "Upon", "A time" strip) and `save-the-date`. A slot left out shows
 the drawn stand-in. Only `invitation` loads eagerly; the rest are lazy.
 
+**Every flower on the site is a photograph** (`FlowerPhoto`, §4) — the drawn
+`FloralSpray` set is no longer used on any page. A file may serve more than
+one place, but a repeat is always mirrored, so no two places read as the same
+picture: the two story prints carry the same pair, and the couple's posy
+stands both behind the playlist and in the details envelope.
+
+| Place | Photo | Placement |
+|---|---|---|
+| Envelope page, sealed envelope corner | `posy` | `.envelope-scene__floral`, mirrored, stem trailing below the envelope |
+| Home, inside the opened envelope | `liner-roses` | five copies (`.envelope-liner__bunch--*`), two back at the shoulders, two lower and turned out, one large in the middle. The liner is clipped to the envelope's own opening (`clip-path` on `.envelope-liner`), so no bloom floats outside the paper |
+| Home, between the sleeve and the invitation card | `tied-posy` | mirrored and turned 10°, laid over the sleeve's bottom edge, its stems running down behind the card's top edge |
+| Home, the silver tray | `tray-bouquet` | a round bouquet of cream roses tied with a lace bow, mirrored and turned 36°, head up and left of the plate, bow and stems crossing its rim (laid before the plate) |
+| Home, the "Once" print | `wild-rose-spray` | **behind** the print, mirrored — the "A time" arrangement reflected |
+| Home, the "Once" print, on top | `wild-roses-on-frame` | laid **after** the prints, mirrored, resting on the frame's top-left corner |
+| Home, the "A time" print | `wild-rose-spray` | **behind** the print; roses show over its top-right corner |
+| Home, the "A time" print, on top | `wild-roses-on-frame` | laid **after** the prints, resting on the frame's top-right corner and a little way onto the photograph |
+| Home, the names envelope | `envelope-bouquet` | **behind** the envelope, leaning 7° left: one posy standing in it, its stems hidden by the flap and the card, its blooms rising to the save-the-date card's height |
+| Details, opened envelope | `tied-posy` | `.details__spray`, stood in the envelope's left shoulder: blooms over the card's left edge, twine and stems down the front of the pocket |
+
+"Behind" is DOM order: the flower's `Piece` comes before the object that
+covers it. Keep it so when moving either one. On phones the canvas shows only
+about 25%–80% of its width, so a flower's visible tip must stay inside that:
+the "Once" pair is set at the print's own left edge (27%) for that reason,
+rather than mirroring the "A time" offsets exactly.
+
+Only the flowers visible on arrival (envelope page, the card roses, the
+details envelope) load eagerly; the rest are lazy. They take the page's usual
+two drop shadows from the piece they sit in.
+
 Groups of objects move together. Change the space *between* groups rather than
 moving a single object (see the comment on `at()`).
 
 **Below 900px the canvas is zoomed.** Its width ramps from 100% at 900px to
 **180%** at 600px and stays there on phones, shifted left by 2.2% of its own
 width, so the empty margin of the coordinate space falls off both edges.
-Only the decorative sprig at 23.9% is cropped (by 3–6px). At that zoom the
+Nothing drawn is cropped: the envelope's flowers are clipped to its opening
+and the story prints' flowers start at the prints' own edges. At that zoom the
 record would run off the right edge, so the playlist sleeve (`.playlist`)
-moves left by 2.5% of the canvas below 900px, into the air beside the
-envelope. At 390px the envelope and the record each end about 12px from the
-screen edge.
+moves left by 2.5% of the canvas below 900px. At 390px the envelope and the
+record each end about 12px from the screen edge.
 
 ### 5.3 Details page (flow layout)
 
@@ -384,6 +419,7 @@ text of each event palette, measured from the stylesheet).
 | Rename a dress-code colour | Edit `label` in `src/data/eventPalettes.ts`. Keep it to **about 8 letters**, since five swatches share a phone row (~59px per column at 360px) |
 | Add or replace a photograph | Crop it to the polaroid well, **492 : 501**, at **720 × 733** px, sRGB JPEG (quality ~80), with its metadata stripped (phone photos carry GPS). Save it in `src/assets/images/photos/`, list it in `content.gallery` with alt text, then point a story beat's `imageId` or a `homePhotos` slot at it. Crop by hand around the faces: `object-fit: cover` would otherwise cut a portrait photo at its middle |
 | Replace a map link | `venues[].mapsUrl` (must be HTTPS) |
+| Replace or add a flower photograph | Prefer a photograph published already cut out (Pixabay's transparent-background filter has sharp ones); otherwise cut one out as `src/assets/images/flowers/SOURCES.md` describes. Check the edge at 100%: a soft edge reads as blur on a white page. Save as WebP about 1000px wide in `src/assets/images/flowers/`, add it to `FLOWERS` in `Flowers.tsx` with its exact width and height, and record its source in `SOURCES.md`. A repeat of a photo already on the page must be mirrored, so the two places do not read as one picture twice |
 | Regenerate social images | `npm run dev`, then `npm run rasters` (macOS) |
 
 ---
@@ -460,6 +496,99 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-20: real flower photographs (branch `real-flower-photos`, uncommitted, awaiting review)
+
+**Why:** in review every floral prop read as the same flower (one photographed
+rose stamped into drawn sprays), and none had real leaves.
+
+**What changed** (after four review passes)
+- New `components/art/Flowers.tsx`: `<FlowerPhoto photo="…">` renders one
+  cut-out flower arrangement from `assets/images/flowers/`. Nine files, from
+  Pexels and Pixabay (free licences, no attribution needed; what went into
+  each and how, in `SOURCES.md`). Each place uses a different one (table in
+  §5.2).
+- Second pass, from review:
+  - The envelope lining on home is the drawn sprays again, as before. The
+    photographed lining did not look as good.
+  - The tray's bouquet, the story strip's flowers and the "Save the Date"
+    flowers are now laid **behind** the plate, the prints and the names
+    envelope, so only the blooms show past them.
+  - Sharper edges: the Pixabay photographs are published already cut out at
+    full resolution. The card roses were cut again at 2400px with a refined
+    edge (colour-keyed petals, background colour removed from edge pixels)
+    instead of a feathered mask.
+- Third pass, from review:
+  - Four of the files are now **built from several photographs**, so each
+    place shows an arrangement rather than one stock picture: the tray has a
+    full bouquet (garden roses, wild roses, buds, two sprigs of blossom); the
+    blossom branch rises out of a knot of roses; the "Save the Date" bank of
+    small roses has cream garden roses set into it.
+  - Two small sprigs (`rose-on-frame`, `wild-roses-on-frame`) are laid
+    **after** the prints, so they rest on the frames' corners, one of them a
+    little way onto the photograph.
+  - `SOURCES.md` records the two rules that keep a composite from reading as
+    a collage: crop where the surroundings are already transparent, and fade
+    any edge the crop had to cut through.
+- Fourth pass, from review:
+  - The tray now carries a **whole hand-tied bouquet** (Pexels 28077219: white
+    flowers, eucalyptus, ribbon-bound stems), its head filled out with three
+    copies of the cream garden roses, because the photograph's own head had
+    few roses. It is mirrored and turned so the head sits up and left of the
+    plate and the stems cross its rim, as the reference the couple sent does.
+    The layered cluster it replaced did not read as a bouquet.
+  - The "Once" group is layered in the order the review asked for: blossom
+    (the tiniest flowers) at the back, wild roses to the sides, one garden
+    rose in the middle, then the print, then a crisp garden rose on top of
+    the frame. That front rose is cropped past its own petals so no fade
+    touches it — the earlier one looked blurred at its edge.
+- Envelope page (posy) and details page (rose bunch) are as in the first pass.
+- `probe-florals.html` shows the drawn sprays and then every arrangement.
+- The flower files weigh about 1.1 MB in total (seven files after the fifth
+  pass). Only the flowers seen on arrival load eagerly.
+- The prerendered home page is **278 KB** of HTML, down from 3.9 MB on `main`:
+  every drawn spray is gone from the page, the envelope's lining included, and
+  those nine inline SVG sprays were almost all of that weight.
+
+- Fifth pass, from review — **the couple's own flowers**. Three cut-out PNGs
+  from the Canva template the site is modelled on were sent as download links
+  and are now the site's bouquets (`SOURCES.md`, "Supplied"):
+  - `tray-bouquet` is the round bouquet with the lace bow. Its six detached
+    petals were dropped (they would float in mid-air behind the tray).
+  - `envelope-bouquet` stands in the save-the-date envelope.
+  - `tied-posy` — one ranunculus, jasmine and astilbe bound in twine — stands
+    between the playlist sleeve and the invitation card (mirrored), and in
+    the details envelope's left shoulder.
+  - `liner-roses` is the tray's bouquet with its bow and stems cut off and
+    the cut edge faded. Five copies fill the opened envelope on home, which
+    ends the drawn `FloralSpray` lining: five bows in a row read as five
+    bouquets, so only heads are used. The liner is clipped to the envelope's
+    opening, so nothing floats outside the paper.
+  - The "Once" print now carries the "A time" pair mirrored, as review asked;
+    `blossom-branch`, `rose-on-frame`, `rose-cluster` and `rose-bunch` are
+    deleted. A repeated photograph is always mirrored (§5.2).
+  - **The playlist stands in the invitation card's column**: the sleeve's left
+    edge and the record's right edge sit on the card's two edges
+    (`at(51.1, 0.6, 22.6)`; the record overhangs its own box by 3.5%). It is
+    drawn *before* the envelope now, so the envelope's shoulder covers the
+    corner where they meet.
+  - **The names card is no longer plain** (`NamesCard`, `Paper.tsx`): it
+    carries the invitation card's own frame — the same double rule and corner
+    filigree — drawn at the envelope slot's proportion (300 × 318) so nothing
+    is stretched. Its foot is padded 46%, because the bottom of the card is
+    behind the pocket and the names have to centre in what shows.
+
+**Checks:** typecheck, lint, 167 tests and the build pass. Screenshots of the
+envelope, home and details pages at 1440, 760, 390 and 320px: no horizontal
+overflow, the flowers behind the story prints stay on screen on phones, and
+the blossom does not cross the "Our story" label. `npm run preview` at `/`,
+`/home/`, `/details/` and `/bhavnaandsreetam/home/`: no console errors,
+every flower image loads, and the prerendered HTML carries the `<img>` tags,
+so they show without scripting. Screenshots deleted afterwards.
+
+**Left alone:** the envelope-page posy's source is artificial flowers and its
+edge is softer than the new ones; it was not flagged in review, so it stays
+until asked.
 
 ### 2026-09-20: story words before photographs on phones (branch `story-words-first`, merged into `main`)
 

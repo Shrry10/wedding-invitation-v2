@@ -862,12 +862,14 @@ html:not(.js) .countdown__units {
 
 .envelope-scene__floral {
   position: absolute;
-  /* The spray's own drawing carries air above the blooms, so it is hung higher
-     than the point where the flowers should sit. */
-  left: 8%;
-  top: 47%;
-  width: 47%;
+  /* A posy laid over the envelope's lower left corner, flowers up and stem
+     trailing off below, as the reference lays its own. Mirrored so the stem
+     runs down and to the right, away from the corner. */
+  left: 7%;
+  top: 45%;
+  width: 34%;
   height: auto;
+  transform: scaleX(-1) rotate(14deg);
 }
 
 .envelope-scene__stamp {
@@ -1000,11 +1002,15 @@ html:not(.js) .countdown__units {
 }
 
 .details__spray {
+  /* The posy stood in the envelope's left shoulder, as the reference stands
+     its own: blooms over the card's left edge, twine and stems down the front
+     of the pocket. */
   position: absolute;
-  left: -6%;
-  top: 12%;
-  width: 40%;
+  left: 5%;
+  top: 19%;
+  width: 27%;
   height: auto;
+  transform: rotate(-5deg);
   pointer-events: none;
 }
 
@@ -2149,17 +2155,17 @@ html.js .details__written {
 
 /* The card tucked into the envelope that stands where the reference put its
    RSVP; ours simply carries the couple's names. */
+/* The card of names paints its own stock and frame (`NamesCard`), so all this
+   holds is the drop shadow that lifts it off the envelope's lining. */
 .envelope__card {
-  display: grid;
-  place-items: center;
   width: 100%;
-  height: 100%;
-  padding: 6% 8%;
-  background: var(--color-cream);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-ink) 32%, transparent);
+  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--color-ink) 30%, transparent));
 }
 
 .envelope__card-names {
+  /* A block, so its own centring applies: inside the drawn card the names are
+     no longer a grid item that the box centres for them. */
+  display: block;
   font-size: 3.2cqw;
   line-height: 1.2;
   text-align: center;
@@ -2176,36 +2182,94 @@ html.js .details__written {
   text-align: center;
 }
 
-/* The bed of roses lining the open envelope. Three sprays overlapping fill the
-   triangular opening the way the reference's photographed liner does. */
+/* The roses packing the open envelope: the tray's bouquet with its bow and
+   stems cut away, laid in five times. Two sit back at the shoulders, two
+   lower and turned out, one large in the middle. Each is placed by where its
+   heads sit; the cut bottom edge is faded in the file and falls behind the
+   pocket's V or into the shadow inside the envelope. */
 .envelope-liner {
   display: block;
   position: relative;
   width: 100%;
   height: 100%;
+  /* Clipped to the envelope's own opening: the flap's two edges above, the
+     pocket's V below, in this box's coordinates (the box is the card slot,
+     120–880 across and 110–916 down of the envelope's 1000 × 1120 drawing).
+     Without it a bloom laid near a shoulder floats outside the paper. */
+  clip-path: polygon(50% -6%, 110.5% 44.7%, 50% 78.8%, -10.5% 44.7%);
 }
 
-.envelope-liner__spray {
+.envelope-liner__bunch {
   position: absolute;
   height: auto;
 }
 
-.envelope-liner__spray--a {
-  left: -6%;
-  top: 2%;
-  width: 62%;
-}
-
-.envelope-liner__spray--b {
-  left: 42%;
+.envelope-liner__bunch--back-left {
+  left: -7%;
   top: 0;
-  width: 64%;
+  width: 60%;
+  transform: rotate(-14deg);
 }
 
-.envelope-liner__spray--c {
-  left: 24%;
-  top: 16%;
-  width: 52%;
+.envelope-liner__bunch--back-right {
+  left: 50%;
+  top: 5%;
+  width: 56%;
+  transform: scaleX(-1) rotate(-20deg);
+}
+
+.envelope-liner__bunch--left {
+  left: -5%;
+  top: 24%;
+  width: 56%;
+  transform: rotate(6deg);
+}
+
+.envelope-liner__bunch--right {
+  left: 52%;
+  top: 22%;
+  width: 54%;
+  transform: scaleX(-1) rotate(10deg);
+}
+
+.envelope-liner__bunch--middle {
+  left: 16%;
+  top: 28%;
+  width: 68%;
+}
+
+/* How each photographed arrangement lies on the table. The tray's bouquet and
+   the story strip's flowers are laid before the plate and the prints, which
+   cover their stems; the turn sets which way the blooms spill out. The two
+   story prints carry the same pair of photographs, and the "Once" end is
+   mirrored so the strip reads as two arrangements rather than one repeated. */
+.flowers--tray {
+  transform: scaleX(-1) rotate(36deg);
+}
+
+/* The posy standing in the save-the-date envelope leans a little towards the
+   card beside it, the way a bouquet settles against one side of a pocket. */
+.flowers--save-the-date {
+  transform: rotate(-7deg);
+}
+
+/* The posy between the sleeve and the invitation card: mirrored and leaned
+   in, laid over the sleeve's bottom edge the way the reference lays it, with
+   its stems running down behind the card's top edge. */
+.flowers--card {
+  transform: scaleX(-1) rotate(10deg);
+}
+
+.flowers--once {
+  transform: scaleX(-1) rotate(-4deg);
+}
+
+.flowers--once-front {
+  transform: scaleX(-1);
+}
+
+.flowers--a-time {
+  transform: rotate(4deg);
 }
 
 /* The doves pressed below the label on the details medallion. */
@@ -2221,46 +2285,6 @@ html.js .details__written {
    ratio is set inline by the component, which is why this has to outrank it. */
 .countdown-plate {
   aspect-ratio: 260 / 372 !important;
-}
-
-.envelope-liner__spray--d {
-  left: 8%;
-  top: 22%;
-  width: 34%;
-}
-
-.envelope-liner__spray--e {
-  left: 58%;
-  top: 20%;
-  width: 34%;
-}
-
-.envelope-liner__spray--f {
-  left: 4%;
-  top: 30%;
-  width: 44%;
-}
-
-/* Three more, filling where the flap's opening still showed through: the middle
-   between the two bouquets, the left shoulder, and the right. The lower half of
-   every one of these is behind the envelope's front pocket, so they are placed
-   by where their heads sit, not by their boxes. */
-.envelope-liner__spray--g {
-  left: 30%;
-  top: 4%;
-  width: 42%;
-}
-
-.envelope-liner__spray--h {
-  left: 16%;
-  top: 8%;
-  width: 30%;
-}
-
-.envelope-liner__spray--i {
-  left: 54%;
-  top: 12%;
-  width: 44%;
 }
 
 /* ---------------------------------------------------------------------------
