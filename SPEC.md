@@ -222,8 +222,8 @@ stands both behind the playlist and in the details envelope.
 
 | Place | Photo | Placement |
 |---|---|---|
-| Envelope page, sealed envelope corner | `posy` | `.envelope-scene__floral`, mirrored, stem trailing below the envelope |
-| Home, inside the opened envelope | `liner-roses` | five copies (`.envelope-liner__bunch--*`), two back at the shoulders, two lower and turned out, one large in the middle. The liner is clipped to the envelope's own opening (`clip-path` on `.envelope-liner`), so no bloom floats outside the paper |
+| Envelope page, sealed envelope corner | `standing-posy` | `.envelope-scene__floral`, mirrored and turned 14°, blooms up on the envelope's lower left corner and the twine and stems trailing off below it |
+| Home, inside the opened envelope | `tray-bouquet` + `liner-roses` | one hand-tied bouquet lying in the envelope (`.envelope-liner__bunch--middle`), blooms up on the thrown-back flap and stems into the opening, with two cut bunches of heads leaning out either side (`--left`, `--right`) and a third across the mouth of the pocket (`--front`) that covers the bouquet's lace tie. The flap is drawn first, the flowers next and the pocket last, so the flowers are held *in* the envelope; each bunch carries a close shadow on the paper behind it. The set is clipped to the paper it lies on — the flap's two edges above the fold, the envelope's full width below (`clip-path` on `.envelope-liner`) — so no bloom floats outside it |
 | Home, between the sleeve and the invitation card | `tied-posy` | mirrored and turned 10°, laid over the sleeve's bottom edge, its stems running down behind the card's top edge |
 | Home, the silver tray | `tray-bouquet` | a round bouquet of cream roses tied with a lace bow, mirrored and turned 36°, head up and left of the plate, bow and stems crossing its rim (laid before the plate) |
 | Home, the "Once" print | `wild-rose-spray` | **behind** the print, mirrored — the "A time" arrangement reflected |
@@ -231,13 +231,23 @@ stands both behind the playlist and in the details envelope.
 | Home, the "A time" print | `wild-rose-spray` | **behind** the print; roses show over its top-right corner |
 | Home, the "A time" print, on top | `wild-roses-on-frame` | laid **after** the prints, resting on the frame's top-right corner and a little way onto the photograph |
 | Home, the names envelope | `envelope-bouquet` | **behind** the envelope, leaning 7° left: one posy standing in it, its stems hidden by the flap and the card, its blooms rising to the save-the-date card's height |
-| Details, opened envelope | `tied-posy` | `.details__spray`, stood in the envelope's left shoulder: blooms over the card's left edge, twine and stems down the front of the pocket |
+| Details, opened envelope | `tied-posy` | `.details__spray`, standing **in** the envelope's left shoulder: drawn inside the envelope's own card slot and after the card, so it lies over the card's left edge, while the pocket — drawn after the slot — cuts its stems. Mirrored, and sized against that slot (48% of it) |
 
 "Behind" is DOM order: the flower's `Piece` comes before the object that
-covers it. Keep it so when moving either one. On phones the canvas shows only
-about 25%–80% of its width, so a flower's visible tip must stay inside that:
-the "Once" pair is set at the print's own left edge (27%) for that reason,
-rather than mirroring the "A time" offsets exactly.
+covers it — and for a flower inside an envelope, that means inside
+`OpenEnvelope`'s own slot, so the pocket drawn after the slot cuts the stems.
+Within the slot the details posy comes *after* the card, so it lies over the
+card's left edge rather than behind it. Keep it so when moving either one.
+
+The home and details posies are both mirrored and so face the same way; they
+are on different pages, and the details one shows only what clears the card.
+`standing-posy` and `tied-posy` are near-twins — the same posy arranged
+differently — and a guest meets them on consecutive screens.
+
+On phones the canvas shows only about 25%–80% of its width, so a flower's
+visible tip must stay inside that: the "Once" pair is set at the print's own
+left edge (24.6%) for that reason, rather than mirroring the "A time" offsets
+exactly.
 
 Only the flowers visible on arrival (envelope page, the card roses, the
 details envelope) load eagerly; the rest are lazy. They take the page's usual
@@ -246,14 +256,29 @@ two drop shadows from the piece they sit in.
 Groups of objects move together. Change the space *between* groups rather than
 moving a single object (see the comment on `at()`).
 
+**Each group is centred across the canvas**, not measured straight off the
+reference, whose collage sits about 2% right of its own middle: the tray group
+carries a 2.2% correction, the story and save-the-date groups 2.4% and the
+countdown 2.0%, and the envelope group needed none. Every group's ink now
+centres within 1% of the coordinate space's middle at every width. A
+correction moves a whole group, because what is centred is the group's ink and
+not each object in it. The one exception is the "Our story" badge
+(`at(42.35, …)`), which stands alone above the strip and is centred on the
+canvas exactly. "The Details" badge is not: it lies on the silver tray and
+belongs to that arrangement, so it sits 11–23px left of the screen's middle.
+
 **Below 900px the canvas is zoomed.** Its width ramps from 100% at 900px to
-**180%** at 600px and stays there on phones, shifted left by 2.2% of its own
-width, so the empty margin of the coordinate space falls off both edges.
-Nothing drawn is cropped: the envelope's flowers are clipped to its opening
-and the story prints' flowers start at the prints' own edges. At that zoom the
-record would run off the right edge, so the playlist sleeve (`.playlist`)
-moves left by 2.5% of the canvas below 900px. At 390px the envelope and the
-record each end about 12px from the screen edge.
+**180%** at 600px and stays there on phones, so the empty margin of the
+coordinate space falls off both edges. The canvas is not shifted: the objects
+are centred in the space they are drawn in, so centring the space centres
+them.
+
+Nothing drawn is cropped: the envelope's flowers are clipped to the paper they
+lie on and the story prints' flowers start at the prints' own edges. At that
+zoom the record would run off the right edge, so the playlist sleeve
+(`.playlist`) moves left by 2.5% of the canvas below 900px. At 390px the
+envelope's box starts 27px from the left edge and the record ends 22px from
+the right; at 320px, 22px and 18px.
 
 ### 5.3 Details page (flow layout)
 
@@ -497,7 +522,88 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 
 ## 10. Change log
 
-### 2026-09-20: real flower photographs (branch `real-flower-photos`, uncommitted, awaiting review)
+### 2026-09-20: flowers held in the envelope, groups centred (branch `real-flower-photos`, merged into `main`)
+
+**The opened envelope holds bouquets** (`HomePage.tsx`; `index.css`
+`.envelope-liner`, `.envelope-liner__bunch--*`)
+- The five copies of `liner-roses` that packed the opening read as a printed
+  lining, because they filled the whole diamond between the flap and the
+  pocket and stopped exactly on its edges. In their place: the hand-tied
+  `tray-bouquet` lying in the envelope, two cut bunches of heads leaning out
+  either side of it, and a third bunch across the mouth of the pocket.
+- The layering was already flap, then flowers, then pocket; what changed is
+  where the flowers sit in it. The bouquet's blooms now rise onto the flap and
+  its stems run down past the notch, so maroon paper shows above and around
+  the arrangement and the flowers read as being *in* the envelope.
+- The front bunch exists to cover the bouquet's lace tie. The tie falls above
+  the notch (78.8% of the card slot), and sinking the bouquet far enough for
+  the pocket to cover it takes the blooms off the flap altogether.
+- The clip no longer follows the pocket's V: it is the flap's two edges above
+  the fold and the envelope's full width below, so a bloom may lie on the flap
+  but never outside the paper. Each bunch carries a close maroon shadow.
+
+**Every group on the home canvas is centred** (`HomePage.tsx`, the lefts in
+`at()`; `index.css` `.canvas`)
+- Measured against the canvas, the groups' ink centred at 50.3, 53.3, 52.4,
+  52.4 and 52.0%: the envelope group sat on the middle and everything below
+  it sat right of it, which is what reading down the page showed. The lefts
+  now carry a correction per group — tray 2.2%, story 2.4%, save-the-date
+  2.4%, countdown 2.0% — and every group centres within 1% of the middle.
+- The phone rule's `translateX(-2.2%)` on `.canvas` is gone with it: it moved
+  the whole space to compensate for objects that are now centred in it.
+  Measured at 320, 360, 390, 430 and 599px, the leftmost and rightmost boxes
+  end 10–20px and 3–5px from the screen edges, as they did before, and there
+  is no horizontal overflow at any width.
+- The story group's correction took the "Our story" badge 2.4% left of the
+  screen's middle, which review caught. The badge is now centred on the canvas
+  exactly (`at(42.35, 40.9, 15.3)`), measured as on the screen's middle to
+  within a pixel at 390, 820, 1280 and 1440px.
+
+**The flap's crease is a gradient** (`OpenEnvelope`, `Maroon.tsx`): the shade
+along the fold was a 150-unit stroke blurred by 20, which gave it two edges of
+its own and read as a darker band painted across the inside of the envelope —
+plain on both the home and the details pages once the flowers stopped covering
+it. It is now a linear gradient over the same flap clip, transparent 260 above
+the fold, 0.3 of `--color-maroon-deep` at the fold and transparent 320 below,
+so the fold is the only darkest line.
+
+**The envelope page carries a supplied posy** (`standing-posy.webp`;
+`Flowers.tsx`, `EnvelopePage.tsx`, `.envelope-scene__floral`): the Pexels posy
+on the sealed envelope — artificial flowers, and the one file on the site with
+a soft cut edge — is replaced by a fifth photograph from the couple's Canva
+template (`CA4` in `SOURCES.md`): one ranunculus, jasmine, astilbe and
+eucalyptus bound in twine. It is published cut out, so it was only cropped to
+its alpha box (360 × 438) and encoded; at 360px wide it still covers the
+largest size it is drawn at, 359 device pixels on a 430px screen at 3×. Same
+placement as before, a little larger to hold the old posy's weight: 40% of the
+envelope rather than 34%, at 6%/43%. `posy.webp` is deleted.
+
+**The details envelope holds its posy** (`DetailsPage.tsx`; `index.css`
+`.details__spray`): it was laid over the whole object, so its twine and stems
+ran down the front of the pocket and it read as a posy resting against the
+envelope. It now sits in the envelope's own card slot, which the pocket is
+drawn after, so the pocket cuts its stems — the same order that holds the home
+page's bouquet. Within the slot it comes after the card, so its blooms lie
+over the card's left edge and the pocket is the only thing covering any of it.
+Mirrored, and about a fifth larger: 48% of the slot, which is 36% of the
+envelope against 27% before. Checked at 700, 390 and 320px: the stems are cut
+by the pocket's left shoulder at every width and the blooms stay on screen.
+
+**The names card's names sit lower** (`NamesCard`, `Paper.tsx`): its head
+padding went from 10% to 15% of the card's width, so the names drop about 2%
+of the card's height. They were centred on all that shows of the card, but the
+flap's point cuts across the foot of it, so they read as riding high.
+
+**Checks:** typecheck, lint, 167 tests and the build pass. Screenshots of the
+envelope, home and details pages at 1280, 700, 430, 390 and 320px, and
+`probe-florals.html`: the envelope reads as holding flowers with no lace tie
+showing, both envelopes are even maroon with no band across the inside, each
+group centres, the "Our story" badge is on the screen's middle, the names sit
+lower, the details posy's stems are cut by the pocket, and nothing is cropped
+that was not cropped before. Screenshots deleted
+afterwards.
+
+### 2026-09-20: real flower photographs (branch `real-flower-photos`, merged into `main`)
 
 **Why:** in review every floral prop read as the same flower (one photographed
 rose stamped into drawn sprays), and none had real leaves.
@@ -563,7 +669,8 @@ rose stamped into drawn sprays), and none had real leaves.
     the cut edge faded. Five copies fill the opened envelope on home, which
     ends the drawn `FloralSpray` lining: five bows in a row read as five
     bouquets, so only heads are used. The liner is clipped to the envelope's
-    opening, so nothing floats outside the paper.
+    opening, so nothing floats outside the paper. (Review replaced this
+    arrangement later the same day — see the entry above.)
   - The "Once" print now carries the "A time" pair mirrored, as review asked;
     `blossom-branch`, `rose-on-frame`, `rose-cluster` and `rose-bunch` are
     deleted. A repeated photograph is always mirrored (§5.2).
@@ -576,7 +683,9 @@ rose stamped into drawn sprays), and none had real leaves.
     carries the invitation card's own frame — the same double rule and corner
     filigree — drawn at the envelope slot's proportion (300 × 318) so nothing
     is stretched. Its foot is padded 46%, because the bottom of the card is
-    behind the pocket and the names have to centre in what shows.
+    behind the pocket and the names have to centre in what shows; its head is
+    padded 15%, a little deeper than that arithmetic asks, because the flap's
+    point cuts across the foot of what shows.
 
 **Checks:** typecheck, lint, 167 tests and the build pass. Screenshots of the
 envelope, home and details pages at 1440, 760, 390 and 320px: no horizontal
@@ -588,7 +697,8 @@ so they show without scripting. Screenshots deleted afterwards.
 
 **Left alone:** the envelope-page posy's source is artificial flowers and its
 edge is softer than the new ones; it was not flagged in review, so it stays
-until asked.
+until asked. (It was replaced by a supplied posy later the same day — see the
+entry above.)
 
 ### 2026-09-20: story words before photographs on phones (branch `story-words-first`, merged into `main`)
 
@@ -870,6 +980,9 @@ pen-write`)
   hair at 1440px. This was already so before round 3, and it is centred, so
   it runs into the gutter rather than into a neighbour. Not changed.
 
+- `standing-posy` (envelope page) and `tied-posy` (home and details) are the
+  same posy arranged differently, and a guest meets them on consecutive
+  screens. Both are the couple's own flowers, so they stay unless asked.
 - Playlist URL and "hosted by" lines are still pending.
 - `public/og-image.png` (the WhatsApp preview picture) has "Sreetam & Bhavna"
   drawn into it, and it is from the earlier design. Links from
