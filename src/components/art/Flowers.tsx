@@ -37,7 +37,7 @@ const FLOWERS = {
   /** A round bouquet of cream garden roses and eucalyptus, tied with a lace bow. */
   'tray-bouquet': { src: trayBouquetUrl, w: 1100, h: 1038 },
   /** The same bouquet with its bow and stems cut away: heads only, for lining the envelope. */
-  'liner-roses': { src: linerRosesUrl, w: 1100, h: 699 },
+  'liner-roses': { src: linerRosesUrl, w: 1100, h: 632 },
   /** A spray of open white roses and buds on a leafy stem. */
   'wild-rose-spray': { src: wildRoseSprayUrl, w: 1000, h: 500 },
   /** One ranunculus, jasmine and astilbe, bound in twine — the posy standing in the envelope. */

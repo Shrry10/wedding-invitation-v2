@@ -1,4 +1,5 @@
 import { useId, type CSSProperties, type ReactNode } from 'react'
+import { ObjectPhoto } from './Objects'
 
 /**
  * The record and its sleeve.
@@ -9,6 +10,18 @@ import { useId, type CSSProperties, type ReactNode } from 'react'
  * sleeve reads as a sleeve rather than as another card — that overlap is the
  * whole drawing, and it is why the record is laid down first and the sleeve on
  * top of it.
+ *
+ * The record is now the couple's photograph of a pressing rather than a drawn
+ * disc, and it turns: 36 seconds a revolution, on the same `.turning` rule as
+ * the salver under the details badge, so the two things on this canvas with
+ * any business turning turn together. The photograph is cut to its own disc,
+ * tangent to all four sides of its box, so it spins about `50% 50%` with no
+ * measured centre to drift.
+ *
+ * The sleeve stays drawn, and it is what carries the words. Type revolving
+ * with the record is unreadable, and the pressing's own label is far too small
+ * to hold a title standing still; the sleeve's printed panel is the right size
+ * and it does not move.
  */
 
 const VIEW = { w: 340, h: 250 } as const
@@ -27,6 +40,8 @@ const LAYER: CSSProperties = {
   display: 'block',
   overflow: 'visible',
 }
+
+const pct = (n: number, of: number): string => `${((n / of) * 100).toFixed(2)}%`
 
 /**
  * The scalloped band that stands for the lace border.
@@ -55,8 +70,6 @@ function laceDiscs(): { cx: number; cy: number }[] {
 }
 
 const LACE = laceDiscs()
-/** Grooves, spaced tighter towards the rim as they are on a pressing. */
-const GROOVES = [0.97, 0.92, 0.87, 0.83, 0.79, 0.75, 0.7, 0.64, 0.58, 0.52, 0.46, 0.4]
 
 export function PlaylistSleeve({
   className,
@@ -72,18 +85,27 @@ export function PlaylistSleeve({
       className={className}
       style={{ position: 'relative', display: 'block', aspectRatio: `${VIEW.w} / ${VIEW.h}` }}
     >
+      {/* The record, laid down first so the sleeve covers its left half. Its
+          shadow is a still disc under a turning one: a drop shadow on the
+          record itself would sweep round the page with it, and a shadow that
+          moves is what makes a spinning object read as a sticker. */}
+      <span
+        className="record-slot"
+        style={{
+          position: 'absolute',
+          left: pct(DISC.cx - DISC.r, VIEW.w),
+          top: pct(DISC.cy - DISC.r, VIEW.h),
+          width: pct(DISC.r * 2, VIEW.w),
+        }}
+      >
+        <span className="record-shadow" aria-hidden="true" />
+        <span className="turning">
+          <ObjectPhoto photo="record" eager className="record" />
+        </span>
+      </span>
+
       <svg style={LAYER} viewBox={`0 0 ${VIEW.w} ${VIEW.h}`} aria-hidden="true" focusable="false">
         <defs>
-          {/* Vinyl is not flat black: it is near-black with a hard sheen
-              running across it, which is the only thing that says the disc is
-              a disc and not a hole in the page. */}
-          <linearGradient id={`${uid}-disc`} x1="0.1" y1="0" x2="0.85" y2="1">
-            <stop offset="0%" stopColor="color-mix(in srgb, var(--color-ink) 86%, var(--color-paper))" />
-            <stop offset="34%" stopColor="var(--color-ink)" />
-            <stop offset="58%" stopColor="color-mix(in srgb, var(--color-ink) 78%, var(--color-paper))" />
-            <stop offset="76%" stopColor="var(--color-ink)" />
-            <stop offset="100%" stopColor="color-mix(in srgb, var(--color-ink) 92%, var(--color-paper))" />
-          </linearGradient>
           <linearGradient id={`${uid}-sleeve`} x1="0.1" y1="0" x2="0.9" y2="1">
             <stop offset="0%" stopColor="var(--color-cream)" />
             <stop offset="62%" stopColor="color-mix(in srgb, var(--color-cream) 88%, var(--color-cream-deep))" />
@@ -94,36 +116,6 @@ export function PlaylistSleeve({
           </filter>
         </defs>
 
-        {/* The record, laid down first so the sleeve covers its left half. */}
-        <g filter={`url(#${uid}-drop)`}>
-          <circle cx={DISC.cx + 4} cy={DISC.cy + 7} r={DISC.r} fill="var(--color-ink)" fillOpacity={0.34} />
-        </g>
-        <circle cx={DISC.cx} cy={DISC.cy} r={DISC.r} fill={`url(#${uid}-disc)`} />
-        {GROOVES.map((g) => (
-          <circle
-            key={g}
-            cx={DISC.cx}
-            cy={DISC.cy}
-            r={DISC.r * g}
-            fill="none"
-            stroke="var(--color-paper)"
-            strokeWidth={0.5}
-            strokeOpacity={0.1}
-          />
-        ))}
-        <circle cx={DISC.cx} cy={DISC.cy} r={DISC.r * 0.32} fill="var(--color-cream)" />
-        <circle
-          cx={DISC.cx}
-          cy={DISC.cy}
-          r={DISC.r * 0.32}
-          fill="none"
-          stroke="var(--color-maroon)"
-          strokeWidth={1.2}
-          strokeOpacity={0.5}
-        />
-        <circle cx={DISC.cx} cy={DISC.cy} r={4} fill="var(--color-paper)" />
-
-        {/* The sleeve. */}
         <g filter={`url(#${uid}-drop)`}>
           <rect
             x={SLEEVE.x + 3}
@@ -184,10 +176,10 @@ export function PlaylistSleeve({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          left: `${((SLEEVE.x + PANEL_INSET) / VIEW.w) * 100}%`,
-          top: `${((SLEEVE.y + PANEL_INSET) / VIEW.h) * 100}%`,
-          width: `${((SLEEVE.size - PANEL_INSET * 2) / VIEW.w) * 100}%`,
-          height: `${((SLEEVE.size - PANEL_INSET * 2) / VIEW.h) * 100}%`,
+          left: pct(SLEEVE.x + PANEL_INSET, VIEW.w),
+          top: pct(SLEEVE.y + PANEL_INSET, VIEW.h),
+          width: pct(SLEEVE.size - PANEL_INSET * 2, VIEW.w),
+          height: pct(SLEEVE.size - PANEL_INSET * 2, VIEW.h),
           textAlign: 'center',
         }}
       >

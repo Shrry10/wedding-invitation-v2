@@ -43,8 +43,13 @@ cropped to its own alpha bounding box and resized. `CA4` was already large
 enough in its frame to be used at its own resolution, so it was only cropped. `CA1` also carries six petals and leaves detached
 from the bouquet, which would float in mid-air once the bouquet is tucked
 behind the tray: only the largest connected run of opaque pixels is kept.
-`liner-roses` is `CA1` cut straight across above the bow, with the alpha
-faded over the last 70px, so the cut disappears into the envelope's shadow.
+`liner-roses` is `CA1` cut straight across above the bow, and the cut is hard.
+It was published with the alpha faded over the last 70px, so the cut would
+disappear into the envelope's shadow; against the photographed envelope that
+fade read as flowers dissolving in mid-air rather than rising out of a pocket,
+so the faded rows were taken off (699px tall down to 632). The bunches are
+placed instead so the cut falls behind the pocket's edge, which is what the
+fade was there to avoid needing.
 
 Files are 360–1200px wide, WebP, quality 84–86, alpha quality 95.
 The width and height in `src/components/art/Flowers.tsx` must match each file.
