@@ -35,7 +35,7 @@ everywhere on the site (§5.1).
 - **Countdown target:** `2026-12-13T11:00:00+05:30` (the marriage ceremony, IST).
 - **Visual model:** a hand-crafted paper invitation laid on a table: maroon
   velvet envelope, gold wax seal with the couple's monogram, embossed ivory
-  cards, a silver tray, polaroids, a vinyl sleeve, white roses. Behind every
+  cards, a silver tray, polaroids, a vinyl record, white roses. Behind every
   page is a faint black-and-white photograph of two hands reaching for each
   other. The design copies a reference website (screenshots in
   `resc/website-ss/`, not committed).
@@ -122,13 +122,17 @@ src/
     PrintFill.tsx          What fills a polaroid's well: a gallery photograph, or PhotoStandIn until there is one
     a11y/                  FactValue (pending-value renderer), SkipLink, VisuallyHidden
     countdown/             Countdown, CountdownUnit, CountdownLiveText (screen-reader text, coarse updates)
-    art/                   Hand-authored SVG/CSS artwork: Maroon (envelopes, polaroid), Metal (wax seal,
-                           tray, key, earrings), Paper (embossed card, ovals, stamps), Florals (the
-                           drawn sprays, now only lining the home envelope), Vinyl, Ornament, Paths
-                           (dashed route lines + hearts), LineIcons, PlaceIcons, PhotoStandIn,
-                           geometry.ts. CONVENTIONS.md = SVG authoring rules. Flowers.tsx is the
-                           exception: <FlowerPhoto photo="…"> renders one cut-out flower
-                           photograph (see §5.2 and assets/images/flowers/)
+    art/                   Artwork, drawn and photographed. Two registries render photographs:
+                           Objects.tsx (<ObjectPhoto photo="…"> — the envelopes, the photo mount,
+                           the wax seal, the record, the silver plate; see assets/images/objects/)
+                           and Flowers.tsx (<FlowerPhoto photo="…">; see assets/images/flowers/).
+                           Still drawn: Paper (embossed card, ovals, the lace "tap to open" stamp),
+                           Ornament, Paths (dashed route lines + hearts), LineIcons, PlaceIcons,
+                           PhotoStandIn, geometry.ts. Maroon, Metal and Vinyl are now mostly
+                           placement — where a seal sits on an envelope, where a print sits in a
+                           mount — over an ObjectPhoto, with Metal still drawing the key and the
+                           earrings. Florals holds the superseded drawn sprays (probe only).
+                           CONVENTIONS.md = SVG authoring rules
   hooks/                   useRoute, useCountdown, useReducedMotion, useStagedReveal (+ dormant, see §9)
   lib/                     isPending/knownValue, formatDate, formatDuration, coupleNames, arrival,
                            photoUrl (gallery path → bundled URL, via import.meta.glob), …
@@ -138,6 +142,10 @@ src/
   assets/images/flowers/   Nine cut-out flower arrangements (WebP with alpha); several are built from
                            two or more photographs + SOURCES.md (Pexels and Pixabay ids, what went
                            into each file, how they were cut out and composited)
+  assets/images/objects/   Seven cut-out object photographs (WebP with alpha) + SOURCES.md (which
+                           Canva asset each came from, and how each was cut: the two discs tangent
+                           to their box, the envelope's two halves to one shared box, the mount's
+                           aperture punched out, the flap's printed liner painted over)
   assets/images/photos/    The couple's photographs, cropped to the polaroid well (see §6)
   test/                    Vitest setup + smoke test
 ```
@@ -162,7 +170,7 @@ Four pages, addressed by path. Every address is prerendered to its own
 |---|---|---|
 | `/` (default) | `EnvelopePage` | first load. Opening the envelope goes to home after ~760ms (160ms with reduced motion) |
 | `/home/` | `HomePage` | the envelope. "← Back to envelope" at the bottom |
-| `/details/` | `DetailsPage` | the silver tray / "The Details" oval on home |
+| `/details/` | `DetailsPage` | "The Details" badge on the silver plate on home (the key hangs from the badge and opens the same door) |
 | `/story/` | `StoryPage` | the photo strip / "Our story" oval on home |
 
 **Name order.** An optional first segment chooses whose name leads:
@@ -203,7 +211,7 @@ the whole drawing scales as one piece instead of reflowing.
 Objects, top to bottom: the opened envelope packed with roses and the wax
 seal, the **playlist sleeve** (a link only when `playlist.url` is known;
 otherwise it shows just "Playlist" with no caption), a polaroid, **door one** (the spinning
-silver tray + key, going to Details), **door two** (the story photo strip,
+silver plate, with the badge and its key on it, going to Details), **door two** (the story photo strip,
 going to Story), Save the Date with a polaroid, and the **countdown card**
 (Countdown, "Until we say *yes*", "With love and gratitude", names, closing
 line, wax seal, back link).
@@ -215,7 +223,9 @@ to `details-3` (under the tray, top to bottom), `story-1` to `story-3` (the
 the drawn stand-in. Only `invitation` loads eagerly; the rest are lazy.
 
 **Every flower on the site is a photograph** (`FlowerPhoto`, §4) — the drawn
-`FloralSpray` set is no longer used on any page. A file may serve more than
+`FloralSpray` set is no longer used on any page. So is every piece of
+stationery on it (`ObjectPhoto`, §4): the envelopes, the photo mount, the wax
+seal, the record and the silver plate. A file may serve more than
 one place, but a repeat is always mirrored, so no two places read as the same
 picture: the two story prints carry the same pair, and the couple's posy
 stands both behind the playlist and in the details envelope.
@@ -223,7 +233,7 @@ stands both behind the playlist and in the details envelope.
 | Place | Photo | Placement |
 |---|---|---|
 | Envelope page, sealed envelope corner | `standing-posy` | `.envelope-scene__floral`, mirrored and turned 14°, blooms up on the envelope's lower left corner and the twine and stems trailing off below it |
-| Home, inside the opened envelope | `tray-bouquet` + `liner-roses` | one hand-tied bouquet lying in the envelope (`.envelope-liner__bunch--middle`), blooms up on the thrown-back flap and stems into the opening, with two cut bunches of heads leaning out either side (`--left`, `--right`) and a third across the mouth of the pocket (`--front`) that covers the bouquet's lace tie. The flap is drawn first, the flowers next and the pocket last, so the flowers are held *in* the envelope; each bunch carries a close shadow on the paper behind it. The set is clipped to the paper it lies on — the flap's two edges above the fold, the envelope's full width below (`clip-path` on `.envelope-liner`) — so no bloom floats outside it |
+| Home, inside the opened envelope | `tray-bouquet` + `liner-roses` | one hand-tied bouquet lying in the envelope (`.envelope-liner__bunch--middle`), blooms up on the thrown-back flap and stems into the opening, with two cut bunches of heads leaning out either side (`--left`, `--right`) and a third across the mouth of the pocket (`--front`) that covers the bouquet's lace tie. Each cut bunch ends in a hard edge, hung so that edge falls behind the pocket: a bunch faded out instead reads as flowers dissolving in mid-air, where one that disappears behind paper reads as flowers coming out of a pocket. Four bunches, not more: a set that fills the flap to its point reads as a printed lining, which is the very thing the photographed flap's own liner print was painted out to avoid. The envelope's back half is laid first, the flowers next and its front pocket last, so the flowers are held *in* the envelope; each bunch carries a close shadow on the paper behind it. The set is clipped to the paper it lies on — the flap's two edges above the fold, the envelope's full width below (`clip-path` on `.envelope-liner`) — so no bloom floats outside it |
 | Home, between the sleeve and the invitation card | `tied-posy` | mirrored and turned 10°, laid over the sleeve's bottom edge, its stems running down behind the card's top edge |
 | Home, the silver tray | `tray-bouquet` | a round bouquet of cream roses tied with a lace bow, mirrored and turned 36°, head up and left of the plate, bow and stems crossing its rim (laid before the plate) |
 | Home, the "Once" print | `wild-rose-spray` | **behind** the print, mirrored — the "A time" arrangement reflected |
@@ -264,8 +274,11 @@ centres within 1% of the coordinate space's middle at every width. A
 correction moves a whole group, because what is centred is the group's ink and
 not each object in it. The one exception is the "Our story" badge
 (`at(42.35, …)`), which stands alone above the strip and is centred on the
-canvas exactly. "The Details" badge is not: it lies on the silver tray and
+canvas exactly. "The Details" badge is not: it lies on the silver plate and
 belongs to that arrangement, so it sits 11–23px left of the screen's middle.
+The key is not an object on the canvas at all — it hangs inside the badge's
+own button (`.badge-key`), so the two lift together on hover and a reader who
+aims at the key opens the details.
 
 **Below 900px the canvas is zoomed.** Its width ramps from 100% at 900px to
 **180%** at 600px and stays there on phones, so the empty margin of the
@@ -275,7 +288,7 @@ them.
 
 Nothing drawn is cropped: the envelope's flowers are clipped to the paper they
 lie on and the story prints' flowers start at the prints' own edges. At that
-zoom the record would run off the right edge, so the playlist sleeve
+zoom the record would run off the right edge, so the playlist
 (`.playlist`) moves left by 2.5% of the canvas below 900px. At 390px the
 envelope's box starts 27px from the left edge and the record ends 22px from
 the right; at 320px, 22px and 18px.
@@ -395,6 +408,19 @@ Maps *searches* and should be replaced with exact pins.
   start with the page and share one start time. With reduced motion the
   band stays still across the middle of each chip at 55% opacity. It is not
   guarded on `html.js`, because it never hides anything.
+- **Two discs turn**, 36s per revolution, at one steady speed with no hold
+  (`.turning`, `@keyframes plate-turn`): the silver plate under "The Details"
+  badge and the playlist's record. They share the rule, so they turn together.
+  The spin is on each disc alone: `.piece--turning` and `.canvas > .playlist`
+  switch the piece's own drop shadow off and a still `.plate-shadow` or
+  `.record-shadow` beneath carries it instead, because a filter on an ancestor
+  of something that moves is re-run every frame. A circle's shadow is the
+  same at every angle, so nothing is lost. Both photographs are cut to their
+  own alpha bounding box, so each disc fills its box and `.turning` spins
+  about `50% 50%`. The playlist's words are not on the record: type turning
+  with it is unreadable, and the pressing's own label is far too small to hold
+  a title standing still. They stay on the drawn sleeve's printed panel, which
+  is the right size and does not move.
 - `useReducedMotion` turns staging off, and CSS respects
   `prefers-reduced-motion`.
 
@@ -437,7 +463,7 @@ text of each event palette, measured from the stylesheet).
 | Change any wording or fact | Edit `src/data/content.ts`, then rebuild |
 | Send a link with one name first | `https://<site>/bhavnaandsreetam/` or `/sreetamandbhavna/` (any page can follow: `/bhavnaandsreetam/story/`). The plain `/` uses `couple.leadName` |
 | Change the site title or share description | Edit `index.html`. Keep the names in the default order and spelled `Sreetam &amp; Bhavna` / `Sreetam and Bhavna`: the prerender swaps exactly those for the other order |
-| Add the playlist link | Set `playlist.url`. The sleeve becomes a link with "Click here" (maroon, like every cue) |
+| Add the playlist link | Set `playlist.url`. The record becomes a link with "Click here" (maroon, like every cue) |
 | Change the countdown line / emphasised word | `countdown.headingLabel` and `countdown.headingEmphasis`. The last occurrence of the emphasis word is set in script + maroon. If the word is not found, the plain line is shown |
 | Change a dress-code colour | Edit the hex of `--color-dress-<event>-<hue>` in `src/index.css` |
 | Change the glaze speed | `animation` duration on `.palette__chip::after` (3.2s = one sweep of the row) |
@@ -521,6 +547,152 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-21: the stationery photographed (uncommitted)
+
+The couple sent six more cut-outs from the Canva template, and every drawn
+object they cover is now the photograph instead. The drawings could carry a
+fold but never a material: the envelopes read as card whatever the weave filter
+did, the mount as a flat wash, the seal as a printed token, the record as a
+hole in the page. `src/components/art/Objects.tsx` is the registry, built like
+`Flowers.tsx` — `<ObjectPhoto photo="…">`, each file's own width and height, one
+`SOURCES.md` beside the files saying where each came from and how it was cut.
+
+**Both envelopes** (`Maroon.tsx`; `envelope-sealed`, `envelope-open-back`,
+`envelope-open-front`)
+- The open envelope is one object published as two halves, already in register
+  on one canvas, so they are cropped to one shared box and written at one size.
+  `OpenEnvelope` lays back, then children, then front — the same sandwich the
+  drawing had, so nothing about how a card or a bouquet sits in it changed.
+- The supplied back has a printed floral liner inside the flap. It is painted
+  out (see `SOURCES.md`): the flowers on this site are objects lying in the
+  envelope, not a pattern printed on it.
+- Both halves carried a pale rim a couple of pixels wide at full alpha — the
+  sweep they were shot against, kept rather than cut. Invisible on the page,
+  it drew a bright hairline along every edge where one half lies over the
+  other's dark interior, which is most of the inside of the envelope. Both are
+  trimmed three pixels in and bled, so the edge carries the paper's own colour.
+- The photograph's geometry differs from the drawing's, so everything measured
+  against it moved: the fold is at 39.2% of the file rather than 42%, the
+  pocket's notch at 65.1% rather than 66.5%, the flap's apex at 0.3% rather
+  than 5.5%. `OPEN_ENVELOPE` states all three, `OPEN_ENVELOPE_SEAL` is derived
+  from the notch, and `.envelope-liner`'s clip polygon was rebuilt on them.
+- The sealed envelope keeps its flap point at seven tenths of the height —
+  0.696 measured off the file against 0.7 drawn. The seal is cut to its own wax
+  with no padded box round it, so `.envelope-scene__seal` is 19.3% wide at
+  `left: 50%; top: 67%`, in place of 20.5% at 50.5%/65%.
+- `Maroon.tsx` went from 1,183 lines to about 220. `Cloth`, `Grain`,
+  `MaroonFace`, the crease helpers and the unused `OrnateFrame` all went with
+  the drawings; the probe's three filigree cells went with it.
+
+**The liner bunches cut hard** (`Flowers.tsx`; `index.css`
+`.envelope-liner__bunch--left`/`--right`; `assets/images/flowers/liner-roses.webp`)
+- `liner-roses` was published with its alpha faded over the last 70px, so the
+  cut would disappear into the envelope's shadow. On the photographed envelope
+  that fade read as blur — flowers dissolving in mid-air. The faded rows are
+  off the file (699px tall down to 632), and the two side bunches hang six
+  points lower (`top` 40%/38% to 46%/44%) so the hard edge falls behind the
+  pocket instead. Flowers that disappear behind paper read as flowers coming
+  out of a pocket, which is what the fade was standing in for.
+
+**The photo mount** (`Maroon.tsx` `Polaroid`; `photo-mount`)
+- Its aperture is published as white board, not a hole, so the opening is cut
+  out of the alpha and the print goes *under* the mount. The mount's edge then
+  falls over the print, as a window mount does, instead of the print's edge
+  meeting the mount's along a line that antialiases into a hairline of table on
+  every tilted card.
+- The aperture is square and sits at 7.4%/6.9% of the file, 85.1% by 72.6% —
+  within half a percent of the drawn well, so no photograph was recropped. The
+  caption keeps its script and its length-budgeted size, set over the band.
+- The mount draws no shadow of its own. On the canvas the piece already casts
+  the page's pair; on the story page `.route__print` now casts them, because
+  the drawn version carried its shadow inside its own SVG.
+
+**The wax seal** (`Metal.tsx` `WaxSeal`; `wax-seal`)
+- The seal is the photograph, struck blank; only the cipher is drawn into it,
+  with the same two-copy intaglio treatment as before. The die's face was
+  measured off the file — the groove where the rim wall drops runs from 0.179
+  to 0.818 across the blob — and the letters are placed against that.
+- The pour's edge, the rim's lit arcs, the creases and the bubbles all went:
+  about 380 lines. The wax's satin is a property of the wax, and the gradient
+  standing in for it is what gave the drawn pass away.
+
+**The record turns** (`Vinyl.tsx`; `index.css` `.record-slot`, `.record-shadow`)
+- The drawn disc inside `PlaylistSleeve` is now the photographed pressing, and
+  it turns: the same `.turning` rule and the same 36-second revolution as the
+  silver plate, so the two things on the canvas with any business turning turn
+  together.
+- The lace sleeve stays drawn and stays over the record's left half, because it
+  is what carries the words. A title revolving with the record is unreadable
+  and the pressing's own label is far too small to hold one standing still; the
+  sleeve's printed panel is the right size and does not move. About 60 lines of
+  drawn disc — the sheen gradient, twelve grooves, the cream label and the
+  spindle — went with the photograph.
+- `.canvas > .playlist` drops the piece's drop-shadow filter for the same
+  reason `.piece--turning` does, and a still `.record-shadow` disc carries the
+  record's weight. The sleeve keeps drawing its own shadow inside its SVG, so
+  it is unaffected.
+- The piece's box, its place on the canvas and the record's size within it are
+  all unchanged, so nothing else in the group moved.
+
+### 2026-09-20: the plate photographed, the key on the badge, cloth envelopes (uncommitted)
+
+**The silver plate is a photograph** (`Metal.tsx` `SilverTray`;
+`assets/images/objects/silver-plate.webp` + `SOURCES.md`; `index.css`
+`.silver-plate`, `.plate-shadow`, `.turning`)
+- The drawn salver was replaced by the plate the couple supplied, from the
+  same Canva template the flowers came from. Its character is the acanthus
+  engraving filling the well and the gadrooned rope round the lip, and both
+  are too fine to draw at the size the page uses: the drawn pass had a plain
+  well, because an invented fleuron chased into it was worse.
+- The file is cut to its own alpha bounding box (1210×1209, 78% opaque — a
+  clean disc), resized to 900×899, WebP q84. So the disc is tangent to all
+  four sides of its box, `.plate-shadow` is `inset: 0` rather than the four
+  stale percentages it carried, and `.turning` spins about `50% 50%` rather
+  than the drawing's old off-centre point.
+- The drawn ellipse filled 97% of its box and the photograph fills 100%, so
+  the piece is `at(37.8, 25.6, 31.5)` in place of `at(37.3, 25.6, 32.5)`:
+  same centre, same rendered diameter, to within a hundredth of a percent.
+- Net bundle change: −350 lines of SVG, +123 KB of WebP.
+
+**The key hangs from the badge** (`Metal.tsx` `AntiqueKey`; `HomePage.tsx`;
+`index.css` `.canvas > .door > .badge-key`)
+- It was a loose object lying across the plate. In the reference it is on a
+  split ring through the badge's shoulder, so it is now drawn inside the
+  badge's own button: the two lift together on hover, and a reader who aims
+  at the key opens the details.
+- The badge itself is unchanged — same `Cartouche`, same type, same doves.
+- The key was redrawn to the reference. It is tarnished silver, not the black
+  iron of the earlier pass: bright along every filed edge and dark only where
+  the tarnish has settled (`TARNISH`, `KEY_DARK`/`BODY`/`LIT`/`HI`). The bow
+  is two kidney openings cut through a shield — two holes rather than one
+  void with a member painted back over it, so the member is the metal the
+  holes leave between them and the walls stay an even six units thick. The
+  collar is a barrel between two rings, not a coil of four.
+- The ring is drawn twice: once behind the bow, and once clipped to the near
+  opening so it shows *through* the openwork. Without the second copy the
+  ring stops dead at the bow's edge and the two read as stacked.
+- Placement is three numbers (`left: 58%`, `top: -2%`, `width: 70%`) because
+  the key's viewBox is its rotated drawing's own bounding box. The selector
+  is `.canvas > .door > .badge-key`, as deep as `.canvas > .door > *`, or
+  that rule's `width: 100%` wins and the key covers the badge.
+
+**The envelopes are cloth** (`Maroon.tsx` `Cloth`, `Grain`)
+- The theme is a *mangal sutra* and the reference's envelopes are fabric, but
+  every maroon surface carried the same cloudy paper mottle, which read as
+  card. `Cloth` replaces `Grain` on both envelopes: two turbulences, one
+  stretched flat and one stretched tall, are the weft and the warp, and
+  crossed they are the weave; a slower, rounder mottle under them is the slub.
+- Averaging two fields halves the contrast of both, so a final
+  `feComponentTransfer` (slope 2.8) pulls the range back open about the mid
+  grey `overlay` leaves alone. Without it the sheet came out smoother than
+  before, not woven.
+- `pitch` is the thread spacing in the caller's user units — 7 for the sealed
+  envelope (1400 units at ~570px), 10 for the open one (1000 units at
+  250–480px) — which lands near three screen pixels in both. The washes went
+  from 0.17/0.19 to 0.27/0.29/0.30 to carry the weave.
+- The polaroid mount and the filigree frame keep `Grain`: they are board, not
+  cloth, and the difference now says so.
 
 ### 2026-09-20: flowers held in the envelope, groups centred (branch `real-flower-photos`, merged into `main`)
 
