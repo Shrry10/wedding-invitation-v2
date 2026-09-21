@@ -3,7 +3,6 @@ import '../index.css'
 import {
   OPEN_ENVELOPE_SEAL,
   OpenEnvelope,
-  OrnateFrame,
   Polaroid,
   SEALED_ENVELOPE_SEAL,
   SealedEnvelope,
@@ -36,7 +35,7 @@ function Cell({ x, y, w, children }: { x: number; y: number; w: number; children
 
 function Probe() {
   return (
-    <div style={{ position: 'relative', background: 'var(--color-paper)', height: 900 }}>
+    <div style={{ position: 'relative', background: 'var(--color-paper)', height: 420 }}>
       <Cell x={20} y={20} w={430}>
         <div style={{ position: 'relative' }}>
           <SealedEnvelope />
@@ -75,21 +74,6 @@ function Probe() {
         </Polaroid>
       </Cell>
 
-      <Cell x={20} y={380} w={440}>
-        <OrnateFrame>
-          <div style={{ width: '100%', height: '100%', background: 'var(--color-maroon)' }} />
-        </OrnateFrame>
-      </Cell>
-      <Cell x={490} y={380} w={300}>
-        <OrnateFrame ratio="4 / 3">
-          <div style={{ width: '100%', height: '100%', background: 'var(--color-cream-deep)' }} />
-        </OrnateFrame>
-      </Cell>
-      <Cell x={810} y={380} w={200}>
-        <OrnateFrame ratio={0.8}>
-          <div style={{ width: '100%', height: '100%', background: 'var(--color-cream-deep)' }} />
-        </OrnateFrame>
-      </Cell>
     </div>
   )
 }

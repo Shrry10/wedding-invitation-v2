@@ -254,7 +254,7 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
         <Piece style={at(28.1, 23.0, 19.0)}>
           <FlowerPhoto photo="tray-bouquet" className="flowers--tray" />
         </Piece>
-        <Piece style={at(37.3, 25.6, 32.5)} className="piece--turning">
+        <Piece style={at(37.8, 25.6, 31.5)} className="piece--turning">
           <span className="plate-shadow" aria-hidden="true" />
           <span className="turning">
             <SilverTray />
@@ -290,10 +290,12 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
             <span className="t-label oval__cue">Click here</span>
             <DoveEmblem className="oval__doves" />
           </Cartouche>
+          {/* The key hangs off the badge's shoulder rather than lying loose on
+              the plate, as the reference has it: one object, so it lifts with
+              the badge on hover and a reader who aims at the key still opens
+              the details. */}
+          <AntiqueKey className="badge-key" />
         </button>
-        <Piece style={at(48.3, 25.4, 15.0)}>
-          <AntiqueKey />
-        </Piece>
 
         {/* Door two: the story, on a strip of photographs. */}
         <button

@@ -850,12 +850,13 @@ html:not(.js) .countdown__units {
 .envelope-scene__seal {
   position: absolute;
   /* Matches SEALED_ENVELOPE_SEAL in Maroon.tsx — the envelope states where its
-     own flap point is, so the seal cannot drift off it. */
-  /* Tuned so the visible wax — not the SVG's padded box — lands on the flap
-     point, measured at 67% of the envelope's height in the reference. */
-  left: 50.5%;
-  top: 65%;
-  width: 20.5%;
+     own flap point is, so the seal cannot drift off it. The photograph puts
+     that point at 69.6% of its height, and the wax overlaps it from a little
+     above. The seal is now cut to its own wax, with no padded box round it, so
+     the width is the wax itself. */
+  left: 50%;
+  top: 67%;
+  width: 19.3%;
   height: auto;
   transform: translate(-50%, -50%);
 }
@@ -1616,6 +1617,12 @@ html.js .details__written {
   grid-area: print;
   width: 100%;
   margin: 14px 0 0;
+  /* The mount used to draw its own shadow inside its SVG; the photograph has
+     none baked in, and on this page there is no canvas rule to supply one. The
+     same pair the canvas casts: a tight shadow where the print touches and a
+     soft wide one from the room. */
+  filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--color-ink) 26%, transparent))
+    drop-shadow(0 8px 10px color-mix(in srgb, var(--color-ink) 22%, transparent));
 }
 
 .route__label {
@@ -1879,33 +1886,60 @@ html.js .details__written {
   margin: 0;
 }
 
-/* --- The plate that turns ------------------------------------------------------ */
-.piece.piece--turning {
+/* --- The two things that turn --------------------------------------------------- */
+
+/* The salver under the details badge and the playlist's record. Neither piece
+   takes the canvas's drop-shadow pair: re-filtering a turning element every
+   frame is what made the arrival stutter, and a shadow that sweeps round with
+   the object reads as a sticker. Each of them carries a still shadow of its
+   own instead, in the shape of the disc. */
+.piece.piece--turning,
+.canvas > .playlist {
   filter: none;
 }
 
-/* The plate's own shadow, still, in the plate's exact proportions: its rim is
-   an ellipse from 13.5% to 86.5% of the box across and 13% to 83.4% down. The
-   two layers are the page's two — a tight one where it touches, a soft wide
-   one from the room. */
-.plate-shadow {
+.plate-shadow,
+.record-shadow {
   position: absolute;
-  left: 13.5%;
-  top: 13%;
-  width: 73%;
-  height: 70.4%;
+  inset: 0;
   border-radius: 50%;
   box-shadow:
     0 2px 3px color-mix(in srgb, var(--color-ink) 30%, transparent),
     0 9px 11px color-mix(in srgb, var(--color-ink) 26%, transparent);
 }
 
+.record-slot {
+  display: block;
+  aspect-ratio: 1;
+}
+
+.record {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Every cut-out object photograph is a block that fills whatever box the page
+   gives it, unless a rule below says otherwise. */
+.object-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.silver-plate {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .turning {
   display: block;
   width: 100%;
-  /* The plate's centre in its drawing, (100, 97) of 200 by 196. Anything else
-     and the plate wobbles instead of turning. */
-  transform-origin: 50% 49.49%;
+  /* Both discs are cut to their own alpha bounding box and fill it edge to
+     edge, so each one's centre is its box's and there is no measured centre to
+     drift. */
+  transform-origin: 50% 50%;
   animation: plate-turn 36s linear infinite;
 }
 
@@ -1941,6 +1975,20 @@ html.js .details__written {
   padding: 0;
   cursor: pointer;
   transition: transform 300ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+/* The key hung on the details badge. Its own box is the rotated drawing's
+   bounding box, so these three numbers are the whole placement: the split ring
+   lands on the badge's upper right shoulder and the key falls away past its
+   right edge, which is where the reference puts it. The selector has to be as
+   deep as `.canvas > .door > *` above, or that rule's `width: 100%` wins and
+   the key covers the badge. */
+.canvas > .door > .badge-key {
+  position: absolute;
+  left: 58%;
+  top: -2%;
+  width: 70%;
+  height: auto;
 }
 
 .canvas > .door:hover {
@@ -2191,13 +2239,14 @@ html.js .details__written {
   width: 100%;
   height: 100%;
   /* Clipped to the paper the flowers are lying on: the flap's two edges above
-     its fold, the envelope's full width below it, in this box's coordinates
-     (the box is the card slot, 120–880 across and 110–916 down of the
-     envelope's 1000 × 1120 drawing; the fold is at 44.7% of it and the
-     pocket's notch at 78.8%). Without it a bloom laid near a shoulder floats
-     outside the paper. The bottom is left open, because what runs past it is
-     covered by the pocket drawn after. */
-  clip-path: polygon(50% -6%, 110.5% 44.7%, 110.5% 106%, -10.5% 106%, -10.5% 44.7%);
+     its fold, the envelope's full width below it, in this box's coordinates.
+     The box is the card slot — 12% to 88% across the envelope and 9.8% to
+     81.8% down it — and the photograph puts the flap's apex at 0.3% of its
+     height, the fold at 39.2% and the pocket's notch at 65.1%, which in the
+     slot's own percentages are −13.2%, 40.8% and 76.8%. Without this a bloom
+     laid near a shoulder floats outside the paper. The bottom is left open,
+     because what runs past it is covered by the pocket laid after. */
+  clip-path: polygon(50% -13.2%, 115.8% 40.8%, 115.8% 106%, -15.8% 106%, -15.8% 40.8%);
 }
 
 .envelope-liner__bunch {
@@ -2211,17 +2260,26 @@ html.js .details__written {
 /* Two cut bunches of heads leaning out of the opening either side of the
    bouquet, low enough that the flap shows above them: the arrangement has to
    keep a silhouette of its own, and flowers reaching into the flap's two
-   corners read as a printed lining rather than as stems in a pocket. */
+   corners read as a printed lining rather than as stems in a pocket — which is
+   the very thing the photographed flap's own liner print was painted out to
+   avoid.
+
+   Each is cut straight across, with no fade, and hung so that cut falls behind
+   the pocket's edge: a bunch that fades out instead reads as flowers
+   dissolving in mid-air, where one that disappears behind paper reads as
+   flowers coming out of a pocket. The pocket's edge runs from the fold at the
+   envelope's sides down to the notch at its middle, so it is lowest under the
+   inner end of each bunch, and that end is what sets these tops. */
 .envelope-liner__bunch--left {
   left: 1%;
-  top: 40%;
+  top: 46%;
   width: 38%;
   transform: rotate(-12deg);
 }
 
 .envelope-liner__bunch--right {
   left: 63%;
-  top: 38%;
+  top: 44%;
   width: 38%;
   transform: scaleX(-1) rotate(-14deg);
 }
@@ -2235,7 +2293,7 @@ html.js .details__written {
 
 /* A last bunch of heads across the mouth of the pocket, laid after the
    bouquet. It is what hides the bouquet's lace tie: the tie falls above the
-   notch at 78.8%, and a bouquet sunk far enough for the pocket to cover it
+   notch at 76.8%, and a bouquet sunk far enough for the pocket to cover it
    has its blooms off the flap altogether. */
 .envelope-liner__bunch--front {
   left: 20%;
