@@ -101,7 +101,7 @@ scripts/
   encode-audio.sh          Encodes src/media/*.flac to public/audio/*.m4a with afconvert. src/media/ is
                            gitignored and currently empty: put masters back there to re-encode
 public/                    favicon.png, apple-touch-icon.png, og-image.png (committed rasters)
-public/audio/              The five encoded tracks the site plays (~3.5 MB each, AAC in MP4)
+public/audio/              The four trimmed tracks the site plays (28-69s, 3.4 MB in all, AAC in MP4)
 src/
   main.tsx                 Hydrates prerendered markup, or renders fresh in dev
   entry-server.tsx         render(path) and prerenderTargets() for the prerender step
@@ -135,7 +135,8 @@ src/
                            mount — over an ObjectPhoto, with Metal still drawing the key and the
                            earrings.
                            CONVENTIONS.md = SVG authoring rules
-  hooks/                   useRoute, useCountdown, useReducedMotion, useStagedReveal, useBackgroundMusic
+  hooks/                   useRoute, useCountdown, useReducedMotion, useStagedReveal, useBackgroundMusic,
+                           usePress (buttons that act on pointerdown, not on the click)
   lib/                     isPending/knownValue, formatDate, formatDuration, coupleNames, arrival,
                            photoUrl (gallery path → bundled URL, via import.meta.glob), …
   assets/fonts/            Vendored woff2 + LICENSES.md + OFL.txt
@@ -459,16 +460,20 @@ text of each event palette, measured from the stylesheet).
 
 ### 5.10 The music (`hooks/useBackgroundMusic.ts`, `components/MusicTag.tsx`)
 
-The couple's five records play behind the site. One `Audio` element for the
+The couple's four records play behind the site. One `Audio` element for the
 whole visit, owned by `App` so it survives every navigation: the song does not
 restart when a guest opens the details.
 
-- **Files.** What ships is `public/audio/*.m4a` — AAC in MP4, about 135 kbps
-  and 3.5 MB a track, which every browser in use has decoded for a decade. They
-  were encoded from about 200 MB of FLAC by `sh scripts/encode-audio.sh`, which
-  reads `src/media/` and uses `afconvert`, part of macOS. **The masters are no
-  longer on disk** (deleted in the 2026-09-22 cleanup), so re-encoding at a
-  different bitrate means asking the couple for the files again.
+- **Files.** What ships is `public/audio/*-final.mp4` — the couple's own
+  trimmed cuts, AAC in MP4, 28 to 69 seconds each and 3.4 MB for the four of
+  them, committed to the repository. Every browser in use has decoded this for
+  a decade; the dev server and any static host answer range requests for it and
+  label it `video/mp4`, which an `Audio` element reads as the audio-only track
+  it is. `scripts/encode-audio.sh` (FLAC in `src/media/`, `afconvert`, part of
+  macOS) is still how a full-length track would be made, but **the masters are
+  no longer on disk** (deleted in the 2026-09-22 cleanup), so re-encoding means
+  asking the couple for the files again. The five full-length `*.m4a` were
+  deleted when the trimmed cuts arrived.
 - **Nothing is preloaded.** `preload="none"`, and the element is not even made
   until something asks for sound, so a guest who never presses play downloads
   no audio at all. A track streams as it plays; the dev server and any static
@@ -479,11 +484,32 @@ restart when a guest opens the details.
   later — a `play()` a second after the press is a `play()` with no gesture
   behind it. A guest who lands straight on an inner page gets silence until
   they press the switch.
-- **Volume.** Settles at 0.52, faded over 1.5s at either end. The fade also
-  covers the gap while the next file buffers.
-- **Order.** Shuffled once per visit, in `useState`, so two guests do not hear
-  the same song first. The shuffle is client-only; the prerendered markup
-  carries no track order to disagree with.
+- **Volume.** Settles at 0.52, faded in over 1.4s — the fade also covers the
+  gap while the file buffers — and out over 0.14s, which is a different figure
+  for a different job: see **Pressing** below.
+- **Order.** The list in `playlist.tracks`, top to bottom and then round again:
+  Wildest Dreams, Yellow, Cheap Thrills, Girls Like You. It used to be shuffled
+  once per visit; the couple set a running order instead, and a running order
+  is the point of a playlist.
+- **Pressing.** Both controls answer within a frame of the finger landing,
+  because a music switch that seems to think about it reads as broken.
+  - The action runs on `pointerdown` (`hooks/usePress.ts`), not on the click,
+    which a phone does not deliver until the finger lifts and it has decided
+    the touch was not a scroll. The click that follows is dropped — it carries
+    a click count and a recent `pointerdown`, and a keyboard's does neither, so
+    Enter and Space still work. `touch-action: manipulation` on the doors and
+    the tag clears the browser's own double-tap delay out from under it.
+  - `playing` flips inside the press, before the file has answered. Starting is
+    optimistic and `catch` puts it back if the browser refuses; stopping sets
+    it false and *then* runs the 0.14s ramp, so the tag, the record and the
+    switch are all in their new state while the sound is still getting out of
+    the way. The ramp is there only so the waveform is not cut mid-cycle, which
+    is what makes a hard stop click.
+  - Every press takes a number (`pressRef`). Pointing the element at a new file
+    aborts the `play()` promise for the old one, and that rejection lands after
+    the new press has been accepted — which, unhandled, switched the control
+    off underneath the record it had just skipped to. A promise that settles
+    holding an old number says nothing.
 - **Stopping is remembered.** `localStorage['wedding-invitation:music']`. Set
   to `off`, the envelope no longer starts the music on a later visit — but
   pressing a control still plays, because that is the guest asking.
@@ -498,6 +524,15 @@ restart when a guest opens the details.
 - Empty `playlist.tracks` and all of this disappears: `useBackgroundMusic`
   returns `null`, the tag is not rendered, and the sleeve goes back to being
   scenery or a link to `playlist.url`.
+- **What the tests cover.** Fifteen against a stubbed `Audio`
+  (`useBackgroundMusic.test.ts`): first play, the listed order, advance on
+  `ended`, wrap, the remembered "off", the blocked `play()`, the state flipping
+  inside the press at both ends, the stop being over inside 250ms, a play
+  pressed during a stop's ramp surviving it, and the overtaken abort. Five more
+  (`usePress.test.tsx`) hold the press to one run per tap and one per keyboard
+  press. Real sound cannot be verified from the headless WebKit harness — it
+  has no audio session, so `readyState` stays 0 — so that stays a manual
+  check.
 
 ---
 
@@ -508,7 +543,8 @@ restart when a guest opens the details.
 | Change any wording or fact | Edit `src/data/content.ts`, then rebuild |
 | Send a link with one name first | `https://<site>/bhavnaandsreetam/` or `/sreetamandbhavna/` (any page can follow: `/bhavnaandsreetam/story/`). The plain `/` uses `couple.leadName` |
 | Change the site title or share description | Edit `index.html`. Keep the names in the default order and spelled `Sreetam &amp; Bhavna` / `Sreetam and Bhavna`: the prerender swaps exactly those for the other order |
-| Change the music | Put lossless files in `src/media/` (gitignored, and currently empty), run `sh scripts/encode-audio.sh`, then list the results in `playlist.tracks`. Emptying that list removes the player and its switch, and the sleeve goes back to being scenery or a link |
+| Change the music | Put the files in `public/audio/` and list them in `playlist.tracks`, in the order they should play. For a full-length track from a lossless master: put it in `src/media/` (gitignored, and currently empty) and run `sh scripts/encode-audio.sh` first. Emptying the list removes the player and its switch, and the sleeve goes back to being scenery or a link |
+| Change the order the records play in | Reorder `playlist.tracks`. There is no shuffle |
 | Add the playlist link | Set `playlist.url`. It is used only when `playlist.tracks` is empty; with tracks the sleeve plays them instead of linking out |
 | Change the couple's initials | Change the names in `content.couple`, then run `python3 scripts/extract-cipher.py <initials>` so the seal has outlines for the new letters. Without it the seal falls back to live text |
 | Change the countdown line / emphasised word | `countdown.headingLabel` and `countdown.headingEmphasis`. The last occurrence of the emphasis word is set in script + maroon. If the word is not found, the plain line is shown |
@@ -592,6 +628,66 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-22: the couple's own cuts, a switch that answers, a centred oval (branch `music-instant-switch`, merged into `main`)
+
+**The records are the trimmed ones, in the couple's order** (`content.ts`,
+`useBackgroundMusic.ts`, `public/audio/`, `.gitignore`)
+
+- Four cuts the couple trimmed themselves — Wildest Dreams (28s), Yellow (50s),
+  Cheap Thrills (64s), Girls Like You (69s) — replace the five full-length
+  encodes. 3.4 MB for the set against 18 MB, which is the difference between a
+  guest on hotel wifi hearing music and a guest on hotel wifi waiting for it.
+  They are committed; the old `*.m4a` are deleted, and Wrecking Ball is gone
+  from the site entirely at the couple's word.
+- The shuffle is gone with them. The list plays top to bottom and then round
+  again, because the couple put the records in an order and that order is the
+  point of a playlist. `order` state deleted; the hook reads `tracks` directly.
+
+**The switch answers the finger** (`hooks/usePress.ts` + tests, `MusicTag.tsx`,
+`HomePage.tsx` `PlaylistDoor`, `index.css`)
+
+- Pausing took a second and a half to happen, most of a second of that on a
+  phone before the handler had even run. Three causes, all fixed:
+  - `playing` only went false when the 1.5s fade-out finished, so the tag went
+    on printing "Now playing" and the record went on turning over music that
+    was on its way out. The state now flips inside the press and the ramp runs
+    behind it — and the ramp is 0.14s, long enough not to click and short
+    enough that press and silence are one event. Coming in is still 1.4s.
+  - Both controls acted on `click`, which a phone withholds until the finger
+    lifts and it has ruled out a scroll. They act on `pointerdown` now
+    (`usePress`), with the click that follows dropped and the keyboard's own
+    click — no click count, no recent pointer — still let through.
+    `touch-action: manipulation` clears the browser's double-tap delay too.
+  - Starting waited on the `play()` promise before it would say so. It is
+    optimistic now, and `catch` puts the switch back if the browser refuses.
+- One bug found by testing the skip button in WebKit and fixed with it: giving
+  the element a new file aborts the promise from the old one, and that
+  rejection arrives after the next press has been accepted — switching the
+  control off under the record it had just skipped to. Presses are numbered
+  (`pressRef`) and a promise settling on an old number is ignored.
+
+**The save-the-date oval is centred** (`index.css` `.oval__title`, `.oval__cue`,
+`.oval__date`)
+
+- "Save the Date" and the date sat hard against the left of a card whose every
+  engraved line is symmetrical about its middle. The two badge ovals looked
+  right only because they are the face of a `<button>`, which centres its own
+  text; the save-the-date card is a plain piece and took the page's alignment.
+  Stated on the three oval spans now, so it does not depend on the element the
+  oval happens to sit inside.
+- The date is two lines at every size the card is drawn at, and its natural
+  break left "2026" alone under a full line. `text-wrap: balance` makes it
+  "11 – 13" over "December 2026". Browsers without it keep the plain break.
+
+**Checked**: 148 tests, typecheck, lint and a build. Both switches driven in
+WebKit against the dev server and the built site: state flips 10–24ms after
+`pointerdown`, the tap's own click does not toggle it back, keyboard presses
+work, the skip button walks the four records in order and wraps, and the
+envelope's "Tap to open" starts Wildest Dreams. All four files decode end to
+end through `afconvert` and the server answers range requests for them.
+Screenshots at 1440 and 390 for the oval. Sound itself is still not verifiable
+from the headless harness.
 
 ### 2026-09-22: the cleanup — everything unused deleted (branch `music-and-cleanup`, merged into `main`)
 
@@ -1362,7 +1458,7 @@ pen-write`)
   same posy arranged differently, and a guest meets them on consecutive
   screens. Both are the couple's own flowers, so they stay unless asked.
 - The "hosted by" lines are still pending. The playlist URL is now optional.
-- The five tracks in `public/audio` are commercial recordings. That is fine for
+- The four tracks in `public/audio` are commercial recordings. That is fine for
   a private invitation passed between guests; it is not a licence to index the
   site publicly. Worth a word with the couple before the link goes anywhere
   searchable.
