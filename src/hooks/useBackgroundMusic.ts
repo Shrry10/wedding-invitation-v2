@@ -192,6 +192,10 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
      record being skipped to. Every press takes the next number; a promise that
      settles holding an old one has been overtaken and says nothing. */
   const pressRef = useRef(0)
+  /* Set while the page is out of sight and the music was on when it went, so
+     coming back knows to bring it back. A press of either kind clears it:
+     whatever the guest asks for replaces what was left hanging. */
+  const suspendedRef = useRef(false)
 
   const clearFade = useCallback((deck: Deck) => {
     const id = fadeRef.current[deck]
@@ -435,6 +439,7 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
       /* A context made under an autoplay policy can start out suspended, and
          a press is the one moment it is allowed to be woken. */
       void contextRef.current?.resume()
+      suspendedRef.current = false
       const deck = activeRef.current
       const spare = other(deck)
       /* Whatever the spare was doing belonged to the record being replaced. */
@@ -509,6 +514,7 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
 
   const stop = useCallback(() => {
     writePreference(false)
+    suspendedRef.current = false
     /* Before the ramp, not after it: the tag stops printing "Now playing", the
        record stops turning and the switch reads as off within the frame of the
        press, while the sound itself takes FADE_OUT_MS to get out of the way. */
@@ -548,6 +554,85 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
     writePreference(true)
     play(at)
   }, [index, play, tracks.length])
+
+  /*
+   * Silence while nobody is looking.
+   *
+   * A guest who switches tab, minimises the window, locks the phone or leaves
+   * for another app has walked away from the invitation, and a song carrying on
+   * in a pocket or behind a spreadsheet is a song they have to hunt down to
+   * stop. `visibilitychange` covers all of those; `pagehide` covers the page
+   * being closed or put in the back-forward cache, where some browsers leave
+   * it visible to the very end.
+   *
+   * This is not a stop. The guest did not ask for silence, so nothing is
+   * remembered and the switch keeps saying "on" — coming back picks the record
+   * up where it was left, faded in. Losing focus alone does not count: a guest
+   * with the invitation beside another window can still hear it and still
+   * wants to.
+   */
+  useEffect(() => {
+    if (!playing || typeof document === 'undefined') return
+
+    const suspend = () => {
+      if (suspendedRef.current) return
+      suspendedRef.current = true
+      /* A play() still buffering is aborted by the pause below, and its
+         rejection would switch the control off; this makes it an old press. */
+      pressRef.current += 1
+      handingRef.current = false
+      for (const deck of [0, 1] as Deck[]) {
+        const audio = decksRef.current[deck]
+        if (audio === null || audio === undefined) continue
+        /* No ramp: a hidden page's timers are throttled to a crawl, and
+           nobody is there to hear a click. */
+        clearFade(deck)
+        audio.pause()
+        setLevel(deck, 0)
+      }
+      /* A hand-over caught in the middle is finished here: the tail it was
+         riding down is freed and armed for the next one, as its fade would
+         have done on arrival. */
+      arm(other(activeRef.current), afterRef.current)
+      void contextRef.current?.suspend()
+    }
+
+    const resume = () => {
+      if (!suspendedRef.current) return
+      suspendedRef.current = false
+      const deck = activeRef.current
+      const audio = decksRef.current[deck]
+      if (audio === null || audio === undefined) return
+      void contextRef.current?.resume()
+      setLevel(deck, 0)
+      const press = (pressRef.current += 1)
+      void Promise.resolve(audio.play())
+        .then(() => {
+          if (pressRef.current !== press) return
+          fadeTo(deck, VOLUME, FADE_IN_MS)
+        })
+        .catch(() => {
+          if (pressRef.current !== press) return
+          /* Some phones want a fresh touch after a lock. The switch goes to
+             off, which is the truth, and one press brings it back. */
+          setPlaying(false)
+        })
+    }
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') suspend()
+      else resume()
+    }
+
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('pagehide', suspend)
+    window.addEventListener('pageshow', onVisibility)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('pagehide', suspend)
+      window.removeEventListener('pageshow', onVisibility)
+    }
+  }, [arm, clearFade, fadeTo, playing, setLevel])
 
   useEffect(
     () => () => {

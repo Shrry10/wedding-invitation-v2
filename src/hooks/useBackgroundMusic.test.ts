@@ -112,6 +112,10 @@ class FakeContext {
     this.resumes += 1
     return Promise.resolve()
   }
+
+  suspend() {
+    return Promise.resolve()
+  }
 }
 
 /** The gain node the hook is riding for a deck, in creation order. */
@@ -140,6 +144,18 @@ function element(): FakeAudio {
   return last
 }
 
+/** Send the page out of sight, or bring it back, as a tab switch or a phone
+    lock does. */
+function setVisible(visible: boolean) {
+  Object.defineProperty(document, 'visibilityState', {
+    configurable: true,
+    get: () => (visible ? 'visible' : 'hidden'),
+  })
+  act(() => {
+    document.dispatchEvent(new Event('visibilitychange'))
+  })
+}
+
 /** Let the play() promise settle and a fade in or out finish. */
 async function settle() {
   await act(async () => {
@@ -166,6 +182,8 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  // jsdom's own getter, back from under the stand-in.
+  delete (document as { visibilityState?: unknown }).visibilityState
   vi.useRealTimers()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
@@ -553,5 +571,99 @@ describe('useBackgroundMusic', () => {
 
     expect(result.current?.playing).toBe(false)
     expect(element().volume).toBe(0)
+  })
+
+  it('pauses when the page goes out of sight, without turning the music off', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+
+    setVisible(false)
+
+    expect(deck(0).paused).toBe(true)
+    expect(deck(1).paused).toBe(true)
+    expect(result.current?.playing).toBe(true)
+    expect(window.localStorage.getItem('wedding-invitation:music')).toBe('on')
+  })
+
+  it('picks the record up where it was left when the page comes back, faded in', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+    act(() => deck(0).tick(12))
+
+    setVisible(false)
+    setVisible(true)
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(deck(0).paused).toBe(false)
+    expect(deck(0).currentTime).toBe(12)
+    expect(deck(0).volume).toBeLessThan(0.1)
+    await settle()
+    expect(deck(0).volume).toBeCloseTo(0.52)
+    expect(deck(1).paused).toBe(true)
+  })
+
+  it('pauses when the page is closed or put away', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+
+    act(() => {
+      window.dispatchEvent(new Event('pagehide'))
+    })
+
+    expect(deck(0).paused).toBe(true)
+  })
+
+  it('stays silent on return for a guest who stopped it before leaving', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+    act(() => result.current?.stop())
+    await settle()
+
+    setVisible(false)
+    setVisible(true)
+    await settle()
+
+    expect(deck(0).paused).toBe(true)
+    expect(result.current?.playing).toBe(false)
+  })
+
+  it('silences both decks when the page goes mid hand-over, and brings back one', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+    act(() => deck(0).tick(28))
+    await act(async () => {
+      await Promise.resolve()
+      vi.advanceTimersByTime(600)
+    })
+
+    setVisible(false)
+    expect(deck(0).paused).toBe(true)
+    expect(deck(1).paused).toBe(true)
+
+    setVisible(true)
+    await settle()
+    expect(deck(1).paused).toBe(false)
+    expect(deck(0).paused).toBe(true)
+    expect(result.current?.current.title).toBe('Second')
+  })
+
+  it('says it has stopped when the browser will not resume after the page comes back', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+
+    setVisible(false)
+    vi.spyOn(FakeAudio.prototype, 'play').mockRejectedValue(new Error('blocked'))
+    setVisible(true)
+    await settle()
+
+    expect(result.current?.playing).toBe(false)
   })
 })
