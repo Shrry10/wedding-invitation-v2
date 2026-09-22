@@ -72,7 +72,7 @@ npm install
 npm run dev          # Vite dev server, http://localhost:5173
 npm run typecheck    # tsc for app + node configs
 npm run lint         # eslint .
-npm test             # vitest run (138 tests at time of writing)
+npm test             # vitest run (165 tests at time of writing)
 npm run build        # typecheck → client build → SSR build → prerender 12 addresses into dist/**/index.html
 npm run preview      # serve dist/
 npm run preview:lan  # serve dist/ on the local network (open the printed Network URL on a phone on the same Wi-Fi)
@@ -554,6 +554,19 @@ needs both sounding at once.
 - **A stop silences both decks**, including one landing mid hand-over, over
   the same 0.14s ramp, and a `play()` still buffering when the press landed
   pauses itself the moment it resolves.
+- **Out of sight, out of earshot.** Switching tab, minimising the window,
+  locking the phone or leaving for another app pauses both decks at once
+  (`visibilitychange` to `hidden`, plus `pagehide` for a page being closed or
+  put in the back-forward cache). No ramp: a hidden page's timers are
+  throttled and nobody is listening. It is not a stop — nothing is written to
+  `localStorage` and `playing` stays true — so coming back resumes the same
+  record from the same second, faded in over 1.4s. A hand-over caught mid-way
+  is finished on the spot: the tail is paused and armed for the next one, and
+  only the incoming record comes back. If the browser refuses the resume (a
+  phone wanting a fresh touch after a lock), the switch goes to off and one
+  press brings it back. Losing focus alone does not pause it: the invitation
+  beside another window is still being listened to. A guest who stopped the
+  music before leaving comes back to silence.
 - **Stopping is remembered.** `localStorage['wedding-invitation:music']`. Set
   to `off`, the envelope no longer starts the music on a later visit — but
   pressing a control still plays, because that is the guest asking.
@@ -568,7 +581,7 @@ needs both sounding at once.
 - Empty `playlist.tracks` and all of this disappears: `useBackgroundMusic`
   returns `null`, the tag is not rendered, and the sleeve goes back to being
   scenery or a link to `playlist.url`.
-- **What the tests cover.** Twenty-five against a stubbed `Audio` that carries
+- **What the tests cover.** Thirty-one against a stubbed `Audio` that carries
   a clock and can lock its volume the way an iPhone does
   (`useBackgroundMusic.test.ts`): first play, the listed order, the spare
   woken and left silent, the crossfade with both decks sounding at once, one
@@ -579,7 +592,10 @@ needs both sounding at once.
   over inside 250ms, a stop mid hand-over silencing both decks, a play pressed
   during a stop's ramp surviving it, the overtaken abort, the gain-node route
   for a locked-down volume, the stop still stopping with neither route
-  available, and the stop that lands while the file is still buffering. Five more
+  available, the stop that lands while the file is still buffering, and six for the page
+  going out of sight: the pause, the resume from the same second, `pagehide`,
+  no resume after a stop, both decks silenced mid hand-over, and a refused
+  resume. Five more
   (`usePress.test.tsx`) hold the press to one run per tap and one per keyboard
   press. Real sound cannot be verified from the headless WebKit harness — it
   has no audio session, so `readyState` stays 0 — so that stays a manual
@@ -680,6 +696,25 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-22: the music pauses when the page is out of sight (branch `short-links-track-order`)
+
+**Hidden tab, minimised window or locked phone pauses the records** (`useBackgroundMusic.ts`)
+
+- The music kept playing behind another tab, in a minimised window and in a
+  pocket after the screen locked. Now `visibilitychange` and `pagehide` pause
+  both decks, and returning resumes the same record where it stopped, faded
+  in. It is a pause, not a stop: the remembered preference is untouched. See
+  §5.10, "Out of sight, out of earshot".
+- Six new tests in `useBackgroundMusic.test.ts`; the stub `AudioContext`
+  gained `suspend()`.
+
+**Checked**: 165 tests (31 in `useBackgroundMusic.test.ts`), typecheck, lint,
+a build. In headless Chromium against the real `Audio` elements, by overriding
+`document.visibilityState`: paused at 2.29s and held there while hidden, back
+at 0.11 volume 0.3s after return and at 0.52 by 1.9s, and `pagehide` paused it.
+Playwright keeps every page "visible", so a real tab switch and a real phone
+lock stay a manual check.
 
 ### 2026-09-22: short links, and Girls Like You first (branch `music-crossfade`)
 
