@@ -7,6 +7,7 @@ dist-ssr
 # Per-user Claude Code settings
 .claude/settings.local.json
 
-# Lossless masters for the five tracks, if they are ever put back: about
-# 200 MB of FLAC. What ships is public/audio/*.m4a — see scripts/encode-audio.sh.
+# Lossless masters for the tracks, if they are ever put back: about 200 MB of
+# FLAC. What ships is public/audio/*-final.mp4 — the couple's own trimmed cuts,
+# 3.4 MB for the four of them, and committed.
 src/media/

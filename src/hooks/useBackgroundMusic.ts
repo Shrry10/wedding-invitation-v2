@@ -67,35 +67,16 @@ function writePreference(wanted: boolean): void {
 }
 
 /**
- * The order the records play in, shuffled once per visit.
- *
- * A fixed order means every guest hears the same song first and anyone who
- * opens the invitation twice hears it twice. The shuffle is done in a ref so
- * it survives re-renders, and it is done on the client only — the prerendered
- * markup carries no track order to disagree with.
+ * @param tracks The records, in the order the couple set them. They play down
+ * the list and then round again; there is no shuffle, because the couple chose
+ * the running order and a wedding playlist is a sequence, not a jukebox.
  */
-function shuffle<T>(items: readonly T[]): T[] {
-  const out = [...items]
-  for (let i = out.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[out[i], out[j]] = [out[j]!, out[i]!]
-  }
-  return out
-}
-
 export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | null {
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const fadeRef = useRef<number | null>(null)
-  /* Settled once, on the first render, and then never again: state rather than
-     a ref because the order is read while rendering — every control prints the
-     title of whatever record it picked. */
-  const [order] = useState<Track[]>(() =>
-    typeof window === 'undefined' ? [...tracks] : shuffle(tracks),
-  )
-
   const clearFade = useCallback(() => {
     if (fadeRef.current !== null) {
       window.clearInterval(fadeRef.current)
@@ -140,7 +121,7 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
   const play = useCallback(
     (at: number) => {
       const audio = ensureAudio()
-      const track = order[at]
+      const track = tracks[at]
       if (audio === null || track === undefined) return
       const src = new URL(track.src, window.location.href).href
       if (audio.src !== src) {
@@ -162,7 +143,7 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
           setPlaying(false)
         })
     },
-    [ensureAudio, fadeTo, order],
+    [ensureAudio, fadeTo, tracks],
   )
 
   const start = useCallback(() => {
@@ -195,11 +176,11 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
   }, [index, play, playing, stop])
 
   const next = useCallback(() => {
-    const at = (index + 1) % order.length
+    const at = (index + 1) % tracks.length
     setIndex(at)
     writePreference(true)
     play(at)
-  }, [index, order.length, play])
+  }, [index, play, tracks.length])
 
   /* When a record runs out, the next one drops. The handler is re-bound as the
      index moves, which is what keeps the sleeve in step with the sound. */
@@ -207,13 +188,13 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
     const audio = audioRef.current
     if (audio === null) return
     const onEnded = () => {
-      const at = (index + 1) % order.length
+      const at = (index + 1) % tracks.length
       setIndex(at)
       play(at)
     }
     audio.addEventListener('ended', onEnded)
     return () => audio.removeEventListener('ended', onEnded)
-  }, [index, order.length, play, playing])
+  }, [index, play, playing, tracks.length])
 
   useEffect(
     () => () => {
@@ -223,7 +204,7 @@ export function useBackgroundMusic(tracks: readonly Track[]): BackgroundMusic | 
     [clearFade],
   )
 
-  const current = order[index]
+  const current = tracks[index]
 
   return useMemo(() => {
     if (current === undefined) return null

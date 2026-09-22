@@ -76,8 +76,6 @@ async function settle() {
 beforeEach(() => {
   FakeAudio.made = []
   vi.stubGlobal('Audio', FakeAudio)
-  // One track order, so "next" is a fact rather than a coin toss.
-  vi.spyOn(Math, 'random').mockReturnValue(0)
   vi.useFakeTimers()
   window.localStorage.clear()
 })
@@ -110,6 +108,20 @@ describe('useBackgroundMusic', () => {
     // Background music, and never at full volume.
     expect(element().volume).toBeGreaterThan(0)
     expect(element().volume).toBeLessThan(1)
+  })
+
+  it('plays the records in the order they are listed, not shuffled', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    expect(result.current?.current.title).toBe('First')
+
+    act(() => result.current?.start())
+    await settle()
+    expect(element().src).toContain('/audio/first.m4a')
+
+    act(() => element().end())
+    await settle()
+    expect(result.current?.current.title).toBe('Second')
+    expect(element().src).toContain('/audio/second.m4a')
   })
 
   it('drops the next record when one runs out', async () => {
