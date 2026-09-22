@@ -1,4 +1,5 @@
 import { ObjectPhoto } from './art/Objects'
+import { usePress } from '../hooks/usePress'
 import type { BackgroundMusic } from '../hooks/useBackgroundMusic'
 
 /**
@@ -13,16 +14,22 @@ import type { BackgroundMusic } from '../hooks/useBackgroundMusic'
  * It keeps to itself: pale until it is hovered, focused, or playing, and it
  * prints the title of whatever is on so a guest can see what they are hearing
  * without going back to the sleeve.
+ *
+ * Both buttons act on the way down rather than on the click (`usePress`): this
+ * is the switch someone reaches for when the room has gone quiet, and it has
+ * to answer the finger, not the finger's release.
  */
 export function MusicTag({ music }: { music: BackgroundMusic }) {
   const { playing, current, toggle, next } = music
+  const switchPress = usePress(toggle)
+  const nextPress = usePress(next)
 
   return (
     <div className="music-tag" data-playing={playing ? '' : undefined}>
       <button
         type="button"
         className="music-tag__switch"
-        onClick={toggle}
+        {...switchPress}
         aria-pressed={playing}
         aria-label={playing ? `Pause ${current.title}` : 'Play the music'}
       >
@@ -41,7 +48,7 @@ export function MusicTag({ music }: { music: BackgroundMusic }) {
         <button
           type="button"
           className="music-tag__next"
-          onClick={next}
+          {...nextPress}
           aria-label={`Skip ${current.title}`}
         >
           <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">

@@ -124,6 +124,79 @@ describe('useBackgroundMusic', () => {
     expect(element().src).toContain('/audio/second.m4a')
   })
 
+  it('says it is playing within the press, before the file has answered', () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    // No `settle()`: this is the state the guest sees in the frame of the tap.
+    act(() => result.current?.toggle())
+    expect(result.current?.playing).toBe(true)
+  })
+
+  it('says it has stopped within the press, before the sound has gone', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+
+    act(() => result.current?.toggle())
+    // Again no `settle()`: the switch reads as off while the ramp is still
+    // running, which is the whole point of the ramp being short.
+    expect(result.current?.playing).toBe(false)
+  })
+
+  it('is out of the way in well under a quarter of a second', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+
+    act(() => result.current?.stop())
+    act(() => vi.advanceTimersByTime(250))
+
+    expect(element().paused).toBe(true)
+    expect(element().volume).toBe(0)
+  })
+
+  it('does not let a stop already under way silence a guest who changed their mind', async () => {
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+
+    act(() => result.current?.stop())
+    // Pressed again mid-ramp, before the element has been paused.
+    act(() => result.current?.toggle())
+    await settle()
+
+    expect(result.current?.playing).toBe(true)
+    expect(element().paused).toBe(false)
+    expect(element().volume).toBeGreaterThan(0)
+  })
+
+  it('ignores a play that the press after it aborted', async () => {
+    /* Pointing the element at a new file rejects the promise from the old one,
+       and that rejection arrives after the new press has been accepted. A real
+       WebKit does exactly this on every skip. */
+    const inFlight: { resolve: () => void; reject: () => void }[] = []
+    vi.spyOn(FakeAudio.prototype, 'play').mockImplementation(function (this: FakeAudio) {
+      this.paused = false
+      return new Promise<void>((resolve, reject) => {
+        inFlight.push({ resolve, reject: () => reject(new Error('AbortError')) })
+      })
+    })
+
+    const { result } = renderHook(() => useBackgroundMusic(TRACKS))
+    act(() => result.current?.start())
+    await settle()
+    act(() => result.current?.next())
+
+    await act(async () => {
+      inFlight[0]?.reject()
+      inFlight[1]?.resolve()
+      await Promise.resolve()
+    })
+    await settle()
+
+    expect(result.current?.playing).toBe(true)
+    expect(result.current?.current.title).toBe('Second')
+  })
+
   it('drops the next record when one runs out', async () => {
     const { result } = renderHook(() => useBackgroundMusic(TRACKS))
     act(() => result.current?.start())
