@@ -57,11 +57,17 @@ export const content: InvitationContent = {
 
     // The records the sleeve actually plays, trimmed by the couple to the
     // minute or so each that belongs under a page. They play in this order,
-    // top to bottom, and then round again. Empty this list and the sleeve goes
-    // back to being a link.
+    // top to bottom, and then round again, each one crossfading into the next.
+    // Empty this list and the sleeve goes back to being a link.
     tracks: [
-      { title: 'Wildest Dreams', artist: 'Taylor Swift', src: '/audio/wildest-dreams-final.mp4' },
-      { title: 'Yellow', artist: 'Coldplay', src: '/audio/yellow-final.mp4' },
+      // Half the length of the others, so it goes round twice: the repeat
+      // crossfades into itself and reads as one minute, not as two plays.
+      {
+        title: 'Wildest Dreams',
+        artist: 'Taylor Swift',
+        src: '/audio/wildest-dreams-final.mp4',
+        plays: 2,
+      },
       { title: 'Cheap Thrills', artist: 'Sia', src: '/audio/cheap-thrills-final.mp4' },
       { title: 'Girls Like You', artist: 'Maroon 5', src: '/audio/girls-like-you-final.mp4' },
     ],

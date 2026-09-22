@@ -167,6 +167,12 @@ export interface Track {
   artist: string
   /** Path from the site root, served from `public/audio`. */
   src: string
+  /**
+   * Times through before the sleeve moves on. One unless the cut is too short
+   * to hold a page on its own; the repeat crossfades into itself, so it is
+   * heard as a longer record rather than as the same record twice.
+   */
+  plays?: number
 }
 
 export interface CountdownConfig {
