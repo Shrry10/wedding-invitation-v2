@@ -1,5 +1,5 @@
 import type { Couple, LeadName } from './data/types'
-import { coupleNames } from './lib/coupleNames'
+import { coupleInitials } from './lib/coupleNames'
 
 /**
  * The site is four pages, as the reference is: an envelope, the invitation it
@@ -20,8 +20,8 @@ export const DEFAULT_PAGE: PageId = 'envelope'
  * Where the reader is: which page, and whose name leads.
  *
  * Each side of the family sends its own link, and the name of their own child
- * comes first on it: `/bhavnaandsreetam/home/` shows "Bhavna & Sreetam"
- * everywhere, `/sreetamandbhavna/home/` the reverse. `lead` is `undefined`
+ * comes first on it: `/bs/home/` shows "Bhavna & Sreetam"
+ * everywhere, `/sb/home/` the reverse. `lead` is `undefined`
  * when the address names no order, and the content's `leadName` applies. It is
  * kept apart from an explicit choice so that moving between pages keeps the
  * address the guest was sent.
@@ -34,13 +34,16 @@ export interface Route {
 export const DEFAULT_ROUTE: Route = { page: DEFAULT_PAGE, lead: undefined }
 
 /**
- * The path segment that sets the order: both names, leading name first, joined
- * by "and", lower case, letters and digits only. Taken from the content, so a
- * change of spelling there changes the addresses with it.
+ * The path segment that sets the order: the two initials, leading name first,
+ * lower case. Short enough to be read down a phone line or written on a card,
+ * which the spelt-out form was not. Taken from the content, so a change of
+ * names there changes the addresses with it.
  */
 export function orderSegment(couple: Couple, lead: LeadName): string {
-  const [first, second] = coupleNames(couple, lead)
-  return `${first}and${second}`.toLowerCase().replace(/[^a-z0-9]/g, '')
+  return coupleInitials(couple, lead)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[^a-z0-9]/g, '')
 }
 
 /**

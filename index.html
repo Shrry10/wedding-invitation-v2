@@ -42,7 +42,7 @@
 
       // Every address is a folder with its own prerendered page, which names
       // the couple in that address's order. Not every host sends
-      // `/bhavnaandsreetam/home` to `/bhavnaandsreetam/home/`; some serve the
+      // `/bs/home` to `/bs/home/`; some serve the
       // root page instead, in the wrong order. Adding the slash here fetches
       // the right page before anything is drawn.
       if (!/\/$|\.\w+$/.test(location.pathname)) {

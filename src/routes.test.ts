@@ -18,15 +18,13 @@ const couple: Couple = {
 }
 
 describe('orderSegment', () => {
-  it('joins both names, leading name first, in lower case', () => {
-    expect(orderSegment(couple, 'groom')).toBe('sreetamandbhavna')
-    expect(orderSegment(couple, 'bride')).toBe('bhavnaandsreetam')
+  it('takes both initials, leading name first, in lower case', () => {
+    expect(orderSegment(couple, 'groom')).toBe('sb')
+    expect(orderSegment(couple, 'bride')).toBe('bs')
   })
 
-  it('drops anything that is not a letter or digit', () => {
-    expect(orderSegment({ ...couple, brideName: 'Anne-Marie Ó' }, 'bride')).toBe(
-      'annemarieandsreetam',
-    )
+  it('keeps an accented initial as its plain letter', () => {
+    expect(orderSegment({ ...couple, brideName: 'Óskar' }, 'bride')).toBe('os')
   })
 })
 
@@ -40,22 +38,22 @@ describe('routeFromPath', () => {
   })
 
   it('reads the order segment and the page after it', () => {
-    expect(routeFromPath('/bhavnaandsreetam/home', couple)).toEqual({ page: 'home', lead: 'bride' })
-    expect(routeFromPath('/sreetamandbhavna/story/', couple)).toEqual({
+    expect(routeFromPath('/bs/home', couple)).toEqual({ page: 'home', lead: 'bride' })
+    expect(routeFromPath('/sb/story/', couple)).toEqual({
       page: 'story',
       lead: 'groom',
     })
   })
 
   it('reads an order segment on its own as that order’s envelope', () => {
-    expect(routeFromPath('/bhavnaandsreetam/', couple)).toEqual({
+    expect(routeFromPath('/bs/', couple)).toEqual({
       page: 'envelope',
       lead: 'bride',
     })
   })
 
   it('ignores case', () => {
-    expect(routeFromPath('/BhavnaAndSreetam/Details/', couple)).toEqual({
+    expect(routeFromPath('/BS/Details/', couple)).toEqual({
       page: 'details',
       lead: 'bride',
     })
@@ -63,7 +61,7 @@ describe('routeFromPath', () => {
 
   it('falls back to the default for anything it does not understand', () => {
     expect(routeFromPath('/nobody/home/', couple)).toEqual({ page: 'envelope', lead: undefined })
-    expect(routeFromPath('/bhavnaandsreetam/nowhere/', couple)).toEqual({
+    expect(routeFromPath('/bs/nowhere/', couple)).toEqual({
       page: 'envelope',
       lead: 'bride',
     })
@@ -73,12 +71,12 @@ describe('routeFromPath', () => {
 describe('pathForRoute', () => {
   it('puts the envelope at the root of its order', () => {
     expect(pathForRoute({ page: 'envelope', lead: undefined }, couple)).toBe('/')
-    expect(pathForRoute({ page: 'envelope', lead: 'bride' }, couple)).toBe('/bhavnaandsreetam/')
+    expect(pathForRoute({ page: 'envelope', lead: 'bride' }, couple)).toBe('/bs/')
   })
 
   it('ends every page in a slash', () => {
     expect(pathForRoute({ page: 'home', lead: undefined }, couple)).toBe('/home/')
-    expect(pathForRoute({ page: 'story', lead: 'groom' }, couple)).toBe('/sreetamandbhavna/story/')
+    expect(pathForRoute({ page: 'story', lead: 'groom' }, couple)).toBe('/sb/story/')
   })
 
   it('reads back every route it writes', () => {

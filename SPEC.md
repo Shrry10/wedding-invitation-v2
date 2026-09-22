@@ -180,17 +180,17 @@ Four pages, addressed by path. Every address is prerendered to its own
 | Prefix | Order everywhere | Share with |
 |---|---|---|
 | none (`/`, `/home/`, …) | the content's `couple.leadName` (groom: Sreetam & Bhavna) | anyone |
-| `/sreetamandbhavna/` | Sreetam & Bhavna | the groom's side |
-| `/bhavnaandsreetam/` | Bhavna & Sreetam | the bride's side |
+| `/sb/` | Sreetam & Bhavna | the groom's side |
+| `/bs/` | Bhavna & Sreetam | the bride's side |
 
-So `/bhavnaandsreetam/home/` is the home page with Bhavna first. "Everywhere"
+So `/bs/home/` is the home page with Bhavna first. "Everywhere"
 means: the envelope heading and its button label, the invitation card, the
 card in the small envelope, the countdown sign-off and its spoken subject, the
 story page's "With love", the wax-seal initials (BS / SB), and the page's
 `<title>`, `og:title`, `twitter:title` and descriptions, so a WhatsApp preview
 shows the same order. The segment is built from the names in `content.ts`
-(`orderSegment`: both names joined by "and", lower case, letters and digits
-only), so it follows any change of spelling there. Case and a missing
+(`orderSegment`: the two initials, leading name first, lower case), so it
+follows any change of names there. Case and a missing
 trailing slash are accepted; an unknown segment falls back to the default.
 
 `useRoute` reads `location` through `useSyncExternalStore` and navigates with
@@ -200,7 +200,7 @@ is given (`<App path>`), and the client's server snapshot is its own pathname,
 so hydration always matches the file served. Old `#/home`-style links still
 open the page they name. `index.html` adds a missing trailing slash before
 anything draws, because some hosts would otherwise serve the root page (in the
-default order) for `/bhavnaandsreetam/home`. No page imports another page.
+default order) for `/bs/home`. No page imports another page.
 
 ### 5.2 Home: the absolute canvas
 
@@ -506,7 +506,7 @@ needs both sounding at once.
   arrived on an iPhone, so the `pause()` waiting at the end of the ramp never
   ran and the music could not be stopped from the tag. Fixed 2026-09-22.
 - **Order.** The list in `playlist.tracks`, top to bottom and then round again:
-  Wildest Dreams (twice), Cheap Thrills, Girls Like You. It used to be shuffled
+  Girls Like You, Wildest Dreams (twice), Cheap Thrills. It used to be shuffled
   once per visit; the couple set a running order instead, and a running order
   is the point of a playlist.
 - **Records are heard twice when the cut is short.** `plays` on a track, 1 by
@@ -592,7 +592,7 @@ needs both sounding at once.
 | Want to… | Do this |
 |---|---|
 | Change any wording or fact | Edit `src/data/content.ts`, then rebuild |
-| Send a link with one name first | `https://<site>/bhavnaandsreetam/` or `/sreetamandbhavna/` (any page can follow: `/bhavnaandsreetam/story/`). The plain `/` uses `couple.leadName` |
+| Send a link with one name first | `https://<site>/bs/` or `/sb/` (any page can follow: `/bs/story/`). The plain `/` uses `couple.leadName` |
 | Change the site title or share description | Edit `index.html`. Keep the names in the default order and spelled `Sreetam &amp; Bhavna` / `Sreetam and Bhavna`: the prerender swaps exactly those for the other order |
 | Change the music | Put the files in `public/audio/` and list them in `playlist.tracks`, in the order they should play. For a full-length track from a lossless master: put it in `src/media/` (gitignored, and currently empty) and run `sh scripts/encode-audio.sh` first. Emptying the list removes the player and its switch, and the sleeve goes back to being scenery or a link |
 | Change the order the records play in | Reorder `playlist.tracks`. There is no shuffle |
@@ -680,6 +680,32 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-22: short links, and Girls Like You first (branch `music-crossfade`)
+
+**The order prefix is two letters** (`routes.ts`, `types.ts`, `index.html`)
+
+- `/bhavnaandsreetam/` and `/sreetamandbhavna/` are now `/bs/` and `/sb/`.
+  `orderSegment` takes the initials from `coupleInitials` rather than joining
+  the spelt-out names, so it still follows `content.ts`. An accented initial is
+  normalised to its plain letter (`Óskar` gives `o`), so the segment stays a
+  letter per name.
+- The addresses a guest is sent are read aloud and typed by hand; twenty
+  characters of prefix were being dropped or mistyped. Nothing else about
+  routing changed: the same 12 files are prerendered, case and a missing
+  trailing slash are still accepted, and an unknown prefix still falls back to
+  the default order.
+- The old long prefixes are gone rather than kept as aliases. On a static host
+  the path is resolved before any script runs, so an alias would need its own
+  prerendered files; no link has been sent yet.
+
+**Girls Like You opens the sleeve** (`content.ts`)
+
+- The couple's order: Girls Like You, Wildest Dreams, Cheap Thrills. Only the
+  list moved — Wildest Dreams keeps its `plays: 2`, and the crossfade is
+  unchanged.
+
+**Checked**: 159 tests, typecheck, lint, a build.
 
 ### 2026-09-22: three records, two decks, no silence between them (branch `music-crossfade`)
 
@@ -1570,11 +1596,11 @@ pen-write`)
   searchable.
 - `public/og-image.png` (the WhatsApp preview picture) has "Sreetam & Bhavna"
   drawn into it, and it is from the earlier design. Links from
-  `/bhavnaandsreetam/` get the right title but this same picture. The
+  `/bs/` get the right title but this same picture. The
   `raster-og.html` page that `npm run rasters` expects no longer exists.
   Options: a new picture with no names in it, or one picture per order.
 - Hosting is not chosen yet. Whichever host is used, check that
-  `/bhavnaandsreetam/home/` serves `dist/bhavnaandsreetam/home/index.html`.
+  `/bs/home/` serves `dist/bs/home/index.html`.
   There is no 404 page: an unknown path is a host 404.
 - Replace the venue map searches with exact pins.
 - Optional: subset the Cinzel file to digits only.

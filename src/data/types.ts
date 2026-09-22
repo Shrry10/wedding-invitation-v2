@@ -242,8 +242,8 @@ export interface Couple {
    *
    * Stored rather than baked into a component, so the order is a content
    * decision and the two names stay semantically labelled. This is the order
-   * at the root address; `/bhavnaandsreetam/` and `/sreetamandbhavna/` choose
-   * one explicitly (see `routes.ts`).
+   * at the root address; `/bs/` and `/sb/` choose one explicitly (see
+   * `routes.ts`).
    */
   leadName: LeadName
   hashtag: string
