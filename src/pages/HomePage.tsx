@@ -6,6 +6,7 @@ import { Cartouche, DoveEmblem, InviteCard } from '../components/art/Ornament'
 import { OPEN_ENVELOPE_SEAL, OpenEnvelope, Polaroid } from '../components/art/Maroon'
 import { PrintFill } from '../components/PrintFill'
 import { PlaylistSleeve } from '../components/art/Vinyl'
+import type { BackgroundMusic } from '../hooks/useBackgroundMusic'
 import { AntiqueKey, PearlEarrings, SilverTray, WaxSeal } from '../components/art/Metal'
 import { FactValue } from '../components/a11y/FactValue'
 import { knownValue } from '../lib/isPending'
@@ -18,7 +19,7 @@ import type { GalleryImage, HomePhotoSlot, InvitationContent, PlaylistConfig } f
 /**
  * The invitation is an absolute canvas, as the reference is.
  *
- * Every object's left, top and width were measured off `resc/website-ss/page-1.png`
+ * Every object's left, top and width were measured off the client's reference screenshot of page 1
  * and are stored here as percentages of that canvas. A stack of flow-laid
  * sections cannot reproduce this page: the objects overlap, tilt and sit at
  * unrelated heights, and only a shared coordinate space keeps them in register.
@@ -110,26 +111,55 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 }
 
 /**
- * The playlist sleeve, and the way to it.
+ * The playlist sleeve, and what it does.
  *
- * A link only once there is somewhere to go: an anchor with no href is not a
- * link to a screen reader and a cue reading "click here" that does nothing is
- * worse than none. Until the songs are chosen the sleeve carries only its
- * title.
+ * Three states, in the order they were built: a plain piece of scenery when
+ * there is nothing to play and nowhere to send anyone; a link out, once a
+ * streaming URL is filled in; and — now that the couple's own records are on
+ * the site — the switch that plays them. The records win when both are set,
+ * because a sleeve that plays when you press it is the honest reading of a
+ * sleeve.
+ *
+ * An anchor with no href is not a link to a screen reader, and a cue reading
+ * "click here" that does nothing is worse than no cue, so neither is rendered
+ * until it means something.
  */
-function PlaylistDoor({ playlist }: { playlist: PlaylistConfig }) {
+function PlaylistDoor({
+  playlist,
+  music,
+}: {
+  playlist: PlaylistConfig
+  music: BackgroundMusic | null
+}) {
   const url = knownValue(playlist.url)
-  const face = (
+
+  const face = (cue: string | undefined) => (
     <PlaylistSleeve>
       <span className="t-script sleeve__title">{playlist.heading}</span>
-      {url !== undefined && <span className="t-label sleeve__cue">{playlist.cue}</span>}
+      {cue !== undefined && <span className="t-label sleeve__cue">{cue}</span>}
     </PlaylistSleeve>
   )
+
+  if (music !== null) {
+    return (
+      <button
+        type="button"
+        className="door playlist"
+        data-piece
+        style={at(51.1, 0.6, 22.6)}
+        onClick={music.toggle}
+        aria-pressed={music.playing}
+        aria-label={music.playing ? `Pause ${music.current.title}` : 'Play the playlist'}
+      >
+        {face(music.playing ? music.current.title : 'Press to play')}
+      </button>
+    )
+  }
 
   if (url === undefined) {
     return (
       <Piece style={at(51.1, 0.6, 22.6)} className="playlist">
-        {face}
+        {face(undefined)}
       </Piece>
     )
   }
@@ -142,7 +172,7 @@ function PlaylistDoor({ playlist }: { playlist: PlaylistConfig }) {
       target="_blank"
       rel="noreferrer noopener"
     >
-      {face}
+      {face(playlist.cue)}
       <span className="visually-hidden"> (opens in a new tab)</span>
     </a>
   )
@@ -156,9 +186,11 @@ interface HomePageProps {
   nameOrder: readonly [string, string]
   monogram: string
   navigate: (page: PageId) => void
+  /** The site's one player, or null when no records are listed. */
+  music: BackgroundMusic | null
 }
 
-export function HomePage({ content, names, nameOrder, monogram, navigate }: HomePageProps) {
+export function HomePage({ content, names, nameOrder, monogram, navigate, music }: HomePageProps) {
   const { hero, countdown, footer, playlist } = content
   const gallery = new Map(content.gallery.map((image) => [image.id, image]))
   const photo = (slot: HomePhotoSlot): GalleryImage | undefined => {
@@ -183,7 +215,7 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
             shoulder covers the corner where the two meet. A decorative piece
             takes no pointer events, so nothing laid over it can swallow the
             link. */}
-        <PlaylistDoor playlist={playlist} />
+        <PlaylistDoor playlist={playlist} music={music} />
 
         {/* The envelope it arrived in, opened, with the flowers still inside. */}
         <Piece style={at(26.1, 0.6, 28.8)}>
@@ -196,23 +228,39 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
               to fill the paper either side of it. Every bottom edge falls
               behind the pocket's V. */}
           <span className="sealed-object">
-          <OpenEnvelope>
-            <span className="envelope-liner">
-              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--left" />
-              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--right" />
-              <FlowerPhoto photo="tray-bouquet" eager className="envelope-liner__bunch envelope-liner__bunch--middle" />
-              <FlowerPhoto photo="liner-roses" eager className="envelope-liner__bunch envelope-liner__bunch--front" />
-            </span>
-          </OpenEnvelope>
-          <WaxSeal
-            monogram={monogram}
-            className="sealed-object__seal"
-            style={{
-              left: `${(OPEN_ENVELOPE_SEAL.left * 100).toFixed(2)}%`,
-              top: `${(OPEN_ENVELOPE_SEAL.top * 100).toFixed(2)}%`,
-              width: `${(OPEN_ENVELOPE_SEAL.diameter * 100).toFixed(2)}%`,
-            }}
-          />
+            <OpenEnvelope>
+              <span className="envelope-liner">
+                <FlowerPhoto
+                  photo="liner-roses"
+                  eager
+                  className="envelope-liner__bunch envelope-liner__bunch--left"
+                />
+                <FlowerPhoto
+                  photo="liner-roses"
+                  eager
+                  className="envelope-liner__bunch envelope-liner__bunch--right"
+                />
+                <FlowerPhoto
+                  photo="tray-bouquet"
+                  eager
+                  className="envelope-liner__bunch envelope-liner__bunch--middle"
+                />
+                <FlowerPhoto
+                  photo="liner-roses"
+                  eager
+                  className="envelope-liner__bunch envelope-liner__bunch--front"
+                />
+              </span>
+            </OpenEnvelope>
+            <WaxSeal
+              monogram={monogram}
+              className="sealed-object__seal"
+              style={{
+                left: `${(OPEN_ENVELOPE_SEAL.left * 100).toFixed(2)}%`,
+                top: `${(OPEN_ENVELOPE_SEAL.top * 100).toFixed(2)}%`,
+                width: `${(OPEN_ENVELOPE_SEAL.diameter * 100).toFixed(2)}%`,
+              }}
+            />
           </span>
         </Piece>
         <Piece style={at(52.2, 5.2, 17.5)}>
@@ -375,26 +423,29 @@ export function HomePage({ content, names, nameOrder, monogram, navigate }: Home
         <Piece style={at(25.5, 78.6, 49.0)} className="countdown-slot">
           <EmbossedCard className="countdown-plate">
             <div className="countdown-card">
-            <h2 className="t-script countdown__title">Countdown</h2>
-            <Countdown
-              countdown={countdown}
-              fallbackLabel={hero.dateLabel}
-              subject={`the wedding of ${names}`}
-            />
-            <p className="countdown__sub">
-              <EmphasisedLine text={countdown.headingLabel} emphasis={countdown.headingEmphasis} />
-            </p>
-            <p className="t-script countdown__gratitude">With love and gratitude</p>
-            <p className="countdown__signoff">{names}</p>
-            <p className="countdown__contact">
-              <FactValue value={footer.message} label="A closing word" />
-            </p>
-            <span className="countdown__seal" aria-hidden="true">
-              <WaxSeal monogram={monogram} />
-            </span>
-            <button type="button" className="back-link" onClick={() => navigate('envelope')}>
-              ← Back to envelope
-            </button>
+              <h2 className="t-script countdown__title">Countdown</h2>
+              <Countdown
+                countdown={countdown}
+                fallbackLabel={hero.dateLabel}
+                subject={`the wedding of ${names}`}
+              />
+              <p className="countdown__sub">
+                <EmphasisedLine
+                  text={countdown.headingLabel}
+                  emphasis={countdown.headingEmphasis}
+                />
+              </p>
+              <p className="t-script countdown__gratitude">With love and gratitude</p>
+              <p className="countdown__signoff">{names}</p>
+              <p className="countdown__contact">
+                <FactValue value={footer.message} label="A closing word" />
+              </p>
+              <span className="countdown__seal" aria-hidden="true">
+                <WaxSeal monogram={monogram} />
+              </span>
+              <button type="button" className="back-link" onClick={() => navigate('envelope')}>
+                ← Back to envelope
+              </button>
             </div>
           </EmbossedCard>
         </Piece>

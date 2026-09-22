@@ -27,11 +27,18 @@ describe('the order of the names', () => {
   })
 
   it('strikes the seal’s initials in the same order', () => {
-    // The seal engraves each initial as its own text elements (a shadow and a face).
-    const seal = (markup: string) =>
-      [...markup.matchAll(/>([BS])<\/text>/g)].map((match) => match[1]).join('')
-    expect(seal(renderToString(<App path="/bhavnaandsreetam/" />))).toMatch(/^B+S+$/)
-    expect(seal(renderToString(<App path="/" />))).toMatch(/^S+B+$/)
+    // The seal strikes the pair as outlines, and strikes the pair twice over:
+    // a shadow copy and a lit one. So the letters come out of the markup in
+    // repeating pairs, and it is the pair that carries the order.
+    const seal = (markup: string) => {
+      const letters = [...markup.matchAll(/data-letter="([BS])"/g)].map((match) => match[1])
+      expect(letters.length % 2).toBe(0)
+      const pairs = new Set<string>()
+      for (let i = 0; i < letters.length; i += 2) pairs.add(`${letters[i]}${letters[i + 1]}`)
+      return [...pairs]
+    }
+    expect(seal(renderToString(<App path="/bhavnaandsreetam/" />))).toEqual(['BS'])
+    expect(seal(renderToString(<App path="/" />))).toEqual(['SB'])
   })
 
   it('shows the pair on the home page’s invitation card in the chosen order', () => {

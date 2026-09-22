@@ -54,6 +54,18 @@ export const content: InvitationContent = {
     // Add the link here when the songs are chosen — Spotify, YouTube Music,
     // anything with a public URL. Nothing else needs to change.
     url: PENDING,
+
+    // The records the sleeve actually plays, encoded from the couple's own
+    // files by scripts/encode-audio.sh. Order does not matter: the site
+    // shuffles them once per visit. Empty this list and the sleeve goes back
+    // to being a link.
+    tracks: [
+      { title: 'Girls Like You', artist: 'Maroon 5', src: '/audio/girls-like-you.m4a' },
+      { title: 'Cheap Thrills', artist: 'Sia', src: '/audio/cheap-thrills.m4a' },
+      { title: 'Wildest Dreams', artist: 'Taylor Swift', src: '/audio/wildest-dreams.m4a' },
+      { title: 'Wrecking Ball', artist: 'Miley Cyrus', src: '/audio/wrecking-ball.m4a' },
+      { title: 'Yellow', artist: 'Coldplay', src: '/audio/yellow.m4a' },
+    ],
   },
 
   // Map links are Google Maps *searches* by name and locality, not pinned

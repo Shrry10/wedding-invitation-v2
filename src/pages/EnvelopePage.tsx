@@ -13,6 +13,11 @@ interface EnvelopePageProps {
   /** Both names, already in the order they are shown. */
   names: string
   monogram: string
+  /** Run the instant the seal is pressed, while the browser still counts the
+      press as a gesture. The music starts here, not on the handover: a call to
+      play() a second later is a call with no gesture behind it. */
+  onPress?: (() => void) | undefined
+  /** Run once the envelope has finished handing over to the invitation. */
   onOpened: () => void
 }
 
@@ -23,11 +28,14 @@ interface EnvelopePageProps {
  * On the reference this is a plain link to the invitation, so the transition
  * stays modest: the envelope lifts and fades rather than performing.
  */
-export function EnvelopePage({ names, monogram, onOpened }: EnvelopePageProps) {
+export function EnvelopePage({ names, monogram, onPress, onOpened }: EnvelopePageProps) {
   const reducedMotion = useReducedMotion()
   const [leaving, setLeaving] = useState(false)
 
-  const handleOpen = useCallback(() => setLeaving(true), [])
+  const handleOpen = useCallback(() => {
+    onPress?.()
+    setLeaving(true)
+  }, [onPress])
 
   useEffect(() => {
     if (!leaving) return

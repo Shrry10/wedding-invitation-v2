@@ -1,12 +1,12 @@
 # Vendored typefaces
 
-All three faces are licensed under the **SIL Open Font License, Version 1.1**.
-The full licence text is in `OFL.txt` in this directory and applies to all three.
+All five faces are licensed under the **SIL Open Font License, Version 1.1**.
+The full licence text is in `OFL.txt` in this directory and applies to all five.
 
 | File | Family | Copyright |
 |---|---|---|
-| `marcellus-400-latin.woff2` | Marcellus | Copyright (c) Brian J. Bonislawski |
 | `cormorant-garamond-variable-latin.woff2` | Cormorant Garamond | Copyright (c) The Cormorant Project Authors |
+| `great-vibes-400-latin.woff2` | Great Vibes | Copyright (c) TypeSETit, LLC |
 | `tiro-devanagari-hindi-400-latin-subset.woff2` | Tiro Devanagari Hindi | Copyright (c) The Tiro Devanagari Project Authors |
 
 ## Notes

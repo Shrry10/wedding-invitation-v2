@@ -1,5 +1,3 @@
-@import 'tailwindcss';
-
 /* ---------------------------------------------------------------------------
    Typefaces. Five open-licence faces, vendored into the repository and served
    from this origin. No font CDN. See src/assets/fonts/LICENSES.md.
@@ -7,17 +5,6 @@
    Fonts are a progressive enhancement: if these files are absent the fallback
    stacks below still render the page correctly, Devanagari included.
    --------------------------------------------------------------------------- */
-@font-face {
-  font-family: 'Marcellus';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('./assets/fonts/marcellus-400-latin.woff2') format('woff2');
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
 @font-face {
   font-family: 'Cormorant Garamond';
   font-style: normal;
@@ -67,15 +54,6 @@
    Each fallback is tuned so that swapping from it to the real face changes no
    line box. Without this the swap reflows the page and costs layout stability.
    --------------------------------------------------------------------------- */
-@font-face {
-  font-family: 'Marcellus Fallback';
-  src: local('Hoefler Text'), local('Baskerville'), local('Times New Roman'), local('Georgia');
-  size-adjust: 102%;
-  ascent-override: 92%;
-  descent-override: 24%;
-  line-gap-override: 0%;
-}
-
 /* Digits only. Cormorant's figures are old-style — the 4 and 9 drop below
    the line, the 1 and 0 shrink to x-height — which reads as uneven in the
    countdown and the dates. Cinzel's are even-height and engraved, and sit
@@ -120,7 +98,7 @@
    --------------------------------------------------------------------------- */
 :root {
   /* ---------------------------------------------------------------------
-     Palette, taken from the reference screenshots in resc/website-ss.
+     Palette, taken from the client's reference screenshots of the template.
      White page, black type, maroon paper, gold wax, silver plate, white
      flowers on green. Everything else in the project references these.
      --------------------------------------------------------------------- */
@@ -133,11 +111,9 @@
   /* Maroon: envelopes, polaroid borders, ornate frames. */
   --color-maroon: #5b1a22;
   --color-maroon-deep: #3f1016;
-  --color-maroon-light: #7b2d35;
 
   /* Gold: wax seals and struck detail. */
   --color-gold: #c19a3f;
-  --color-gold-light: #e7cf92;
   --color-gold-deep: #8d6a1e;
 
   /* Cream: cards, labels, stamps, embossed paper. */
@@ -150,10 +126,7 @@
   --color-silver-light: #f2f2ef;
   --color-silver-deep: #a6a6a1;
 
-  /* Foliage and blooms: white ranunculus, eucalyptus, astilbe. */
-  --color-leaf: #7d9068;
-  --color-leaf-deep: #55684a;
-  --color-leaf-light: #a8bb95;
+  /* Blooms: white ranunculus and astilbe. */
   --color-bloom: #fbfaf4;
   --color-bloom-shade: #e4dfd0;
   --color-bloom-core: #efe6c8;
@@ -195,7 +168,6 @@
      paper lamps, rose-gold chains, cream sofas, black table covers. */
   --color-sangeet-night: #0d2114; /* the velvet after dark, a hair greener than the black it measures as */
   --color-sangeet-forest: #0b431a; /* the cover's velvet, measured */
-  --color-sangeet-peach: #dbaa93; /* the lamp glow on the seating, measured */
   --color-sangeet-cream: #ebdbc3; /* the sofas, measured; type on the night */
   --color-sangeet-rose-gold: #c99a7c; /* the chains and piping, between two measured bins */
   --color-sangeet-bulb: #f3ac5b; /* an old warm bulb, measured */
@@ -257,17 +229,6 @@
      0.25. Contrast against the ink at each: 14.4, 11.9, 10.6 to one. */
   --backdrop-opacity: 0.25;
 
-  /* Illustration: three stroke weights, and nothing between them. */
-  --stroke-hairline: 0.75px;
-  --stroke-standard: 1.5px;
-  --stroke-emphasis: 3px;
-
-  /* Illustration: four opacity steps, and nothing between them. */
-  --opacity-background: 0.12;
-  --opacity-mid: 0.34;
-  --opacity-foreground: 0.6;
-  --opacity-focal: 1;
-
   /* Font stacks. Each ends in a real system serif so nothing depends on a
      downloaded file arriving. */
   --font-display:
@@ -284,16 +245,8 @@
   --font-script:
     'Great Vibes', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', 'Brush Script MT', cursive,
     var(--font-body);
-  --font-script-alt:
-    'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive, var(--font-body);
 
   /* Layout. */
-  --content-max-width: 1120px;
-  --gutter-compact: 20px;
-  --gutter-regular: 32px;
-  --gutter-wide: 48px;
-  --rhythm-compact: 72px;
-  --rhythm-regular: 120px;
   --radius-card: 4px;
 
   /* Safe areas: content clears the notch and the home indicator. */
@@ -304,75 +257,74 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Tailwind theme: points at the custom properties above rather than
-   restating any value.
-   --------------------------------------------------------------------------- */
-@theme inline {
-  --color-paper: var(--color-paper);
-  --color-ink: var(--color-ink);
-  --color-ink-soft: var(--color-ink-soft);
-  --color-maroon: var(--color-maroon);
-  --color-maroon-deep: var(--color-maroon-deep);
-  --color-maroon-light: var(--color-maroon-light);
-  --color-gold: var(--color-gold);
-  --color-gold-light: var(--color-gold-light);
-  --color-gold-deep: var(--color-gold-deep);
-  --color-cream: var(--color-cream);
-  --color-cream-deep: var(--color-cream-deep);
-  --color-cream-shade: var(--color-cream-shade);
-  --color-silver: var(--color-silver);
-  --color-silver-light: var(--color-silver-light);
-  --color-silver-deep: var(--color-silver-deep);
-  --color-leaf: var(--color-leaf);
-  --color-leaf-deep: var(--color-leaf-deep);
-  --color-leaf-light: var(--color-leaf-light);
-  --color-bloom: var(--color-bloom);
-  --color-bloom-shade: var(--color-bloom-shade);
-  --color-bloom-core: var(--color-bloom-core);
-  --color-sky: var(--color-sky);
-  --color-sky-deep: var(--color-sky-deep);
-  --color-meadow: var(--color-meadow);
-  --color-mehndi-canopy: var(--color-mehndi-canopy);
-  --color-mehndi-foliage: var(--color-mehndi-foliage);
-  --color-mehndi-marigold: var(--color-mehndi-marigold);
-  --color-mehndi-rose: var(--color-mehndi-rose);
-  --color-mehndi-cream: var(--color-mehndi-cream);
-  --color-haldi-turmeric: var(--color-haldi-turmeric);
-  --color-haldi-sunflower: var(--color-haldi-sunflower);
-  --color-haldi-marigold: var(--color-haldi-marigold);
-  --color-haldi-rouge: var(--color-haldi-rouge);
-  --color-haldi-orchid: var(--color-haldi-orchid);
-  --color-haldi-ink: var(--color-haldi-ink);
-  --color-sangeet-night: var(--color-sangeet-night);
-  --color-sangeet-forest: var(--color-sangeet-forest);
-  --color-sangeet-peach: var(--color-sangeet-peach);
-  --color-sangeet-cream: var(--color-sangeet-cream);
-  --color-sangeet-rose-gold: var(--color-sangeet-rose-gold);
-  --color-sangeet-bulb: var(--color-sangeet-bulb);
-  --color-marriage-maroon: var(--color-marriage-maroon);
-  --color-deep-red: var(--color-deep-red);
-  --color-mauli-orange: var(--color-mauli-orange);
-  --color-antique-gold: var(--color-antique-gold);
-  --color-ivory: var(--color-ivory);
-  --color-sand-beige: var(--color-sand-beige);
-
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-}
-
-/* ---------------------------------------------------------------------------
    Reset.
    --------------------------------------------------------------------------- */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  border: 0 solid;
+}
+
+/* The element defaults the rest of this stylesheet is written against. They
+   used to arrive with Tailwind's Preflight; no utility class was ever used, so
+   the defaults are kept here and the framework is not.
+
+   The document font is the stack Preflight set, kept so that the inline struts
+   it sizes stay where they were — every visible run of text names its own
+   family through a `t-*` or component class, so this stack draws nothing. */
+html {
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ol,
+ul,
+menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  background-image: none;
 }
 
 body {
   margin: 0;
+  line-height: inherit;
   background-color: var(--color-paper);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
@@ -402,27 +354,10 @@ button {
    bound; nothing steps at a breakpoint.
    --------------------------------------------------------------------------- */
 :root {
-  --text-display: clamp(2.5rem, 1.55rem + 4.75vw, 4.5rem);
   --text-countdown: clamp(2rem, 1.4rem + 3vw, 3.5rem);
   --text-countdown-label: clamp(0.6875rem, 0.66rem + 0.12vw, 0.75rem);
-  --text-section: clamp(1.75rem, 1.39rem + 1.8vw, 2.5rem);
-  --text-card-title: clamp(1.25rem, 1.13rem + 0.6vw, 1.5rem);
   --text-eyebrow: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
-  --text-body: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
   --text-meta: clamp(0.9375rem, 0.91rem + 0.12vw, 1rem);
-}
-
-.type-display {
-  font-family: var(--font-display);
-  font-size: var(--text-display);
-  font-weight: 400;
-  line-height: 1.08;
-}
-
-.type-devanagari {
-  font-family: var(--font-devanagari);
-  font-weight: 400;
-  line-height: 1.5;
 }
 
 .type-countdown {
@@ -443,20 +378,6 @@ button {
   line-height: 1.2;
 }
 
-.type-section {
-  font-family: var(--font-display);
-  font-size: var(--text-section);
-  font-weight: 400;
-  line-height: 1.15;
-}
-
-.type-card-title {
-  font-family: var(--font-display);
-  font-size: var(--text-card-title);
-  font-weight: 400;
-  line-height: 1.2;
-}
-
 .type-eyebrow {
   font-family: var(--font-body);
   font-size: var(--text-eyebrow);
@@ -466,51 +387,11 @@ button {
   line-height: 1.4;
 }
 
-.type-body {
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  font-weight: 400;
-  line-height: 1.65;
-  max-width: 68ch;
-}
-
 .type-meta {
   font-family: var(--font-body);
   font-size: var(--text-meta);
   font-weight: 500;
   line-height: 1.5;
-}
-
-/* ---------------------------------------------------------------------------
-   Layout primitives.
-   --------------------------------------------------------------------------- */
-.site-container {
-  width: 100%;
-  max-width: var(--content-max-width);
-  margin-inline: auto;
-  padding-inline: var(--gutter-compact);
-}
-
-@media (min-width: 640px) {
-  .site-container {
-    padding-inline: var(--gutter-regular);
-  }
-}
-
-@media (min-width: 1024px) {
-  .site-container {
-    padding-inline: var(--gutter-wide);
-  }
-}
-
-.site-section {
-  padding-block: var(--rhythm-compact);
-}
-
-@media (min-width: 768px) {
-  .site-section {
-    padding-block: var(--rhythm-regular);
-  }
 }
 
 .visually-hidden {
@@ -913,12 +794,6 @@ html:not(.js) .countdown__units {
 .section__script {
   margin: clamp(38px, 7vw, 72px) 0 clamp(14px, 3vw, 24px);
   font-size: clamp(1.9rem, 1.2rem + 3vw, 3rem);
-}
-
-.section__icon {
-  display: block;
-  margin: 0 auto 10px;
-  color: var(--color-ink);
 }
 
 .section__flourish {
@@ -1369,7 +1244,9 @@ html.js .details__written {
     transform: translateX(calc(-1 * var(--chip-size) - var(--i, 0) * var(--chip-pitch)));
   }
   to {
-    transform: translateX(calc(4 * var(--chip-pitch) + var(--chip-size) - var(--i, 0) * var(--chip-pitch)));
+    transform: translateX(
+      calc(4 * var(--chip-pitch) + var(--chip-size) - var(--i, 0) * var(--chip-pitch))
+    );
   }
 }
 
@@ -1776,57 +1653,6 @@ html.js .details__written {
 }
 
 /* ---------------------------------------------------------------------------
-   Paper objects. The drawn plate sits behind, the words sit on top, and the
-   height comes from the words — so a longer label grows its own label.
-   --------------------------------------------------------------------------- */
-.paper {
-  position: relative;
-  display: block;
-  isolation: isolate;
-}
-
-.paper__plate {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-}
-
-.paper__content {
-  display: block;
-  position: relative;
-}
-
-.paper--stamp {
-  display: inline-grid;
-  place-items: center;
-  padding: 13px 22px;
-}
-
-.paper--oval {
-  display: inline-grid;
-  place-items: center;
-  padding: 22px 30px;
-  text-align: center;
-}
-
-.paper--card .paper__content {
-  padding: clamp(34px, 8vw, 54px) clamp(20px, 6vw, 38px) clamp(24px, 6vw, 38px);
-  text-align: center;
-}
-
-.paper--box .paper__content {
-  padding: clamp(24px, 5vw, 40px) clamp(22px, 5vw, 44px);
-  text-align: center;
-}
-
-.paper--invitation .paper__content {
-  padding: clamp(18px, 4vw, 32px) clamp(14px, 3vw, 24px);
-  text-align: center;
-}
-
-/* ---------------------------------------------------------------------------
    The invitation page: an absolute canvas.
 
    Objects overlap, tilt and sit at unrelated heights, so they share one
@@ -2181,17 +2007,6 @@ html.js .details__written {
   text-indent: 0.14em;
 }
 
-/* The bouquet sitting inside the opened envelope. */
-.envelope__filling {
-  display: block;
-}
-
-.envelope__filling > * {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 /* "Save the Date" is four words where the other labels are two, so it takes a
    smaller setting to stay on one line in the same oval. */
 .oval__title--wide {
@@ -2469,14 +2284,6 @@ html.js [data-piece][data-settled] {
   pointer-events: none;
 }
 
-/* Straddling the lower-left corner of the last photograph, as the reference
-   has it — mostly off the print rather than sitting on the picture. */
-.sealed-object__seal--corner {
-  left: 5%;
-  top: 92%;
-  width: 23%;
-}
-
 /* The countdown card's drawn edge reaches its own border box, so its bleed had
    nowhere to go and was being clipped. The slot is larger than the card and
    holds it clear of the edges. */
@@ -2519,5 +2326,151 @@ html.js :is(.canvas [data-piece], .details__envelope[data-piece]):not([data-sett
   html.js :is(.canvas [data-piece], .details__envelope[data-piece]):not([data-settled]) {
     filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--color-ink) 30%, transparent))
       drop-shadow(0 9px 11px color-mix(in srgb, var(--color-ink) 26%, transparent));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The music switch.
+
+   Background music a guest cannot stop is rude, and the playlist sleeve is
+   only on one of the four pages, so the switch is also a small fixed thing in
+   the corner. It is a paper tag with a record threaded on it: a media bar in
+   browser chrome would be the one object on this site that is not stationery
+   lying on a table.
+
+   It stays quiet. Pale and half the way off the edge until it is hovered,
+   focused or playing, at which point it slides out and prints what is on.
+   --------------------------------------------------------------------------- */
+.music-tag {
+  position: fixed;
+  right: 0;
+  bottom: clamp(0.9rem, 3vw, 2rem);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.55rem;
+  border: 1px solid var(--color-cream-shade);
+  border-right: 0;
+  border-radius: 999px 0 0 999px;
+  background: color-mix(in srgb, var(--color-cream) 94%, transparent);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--color-ink) 14%, transparent);
+  /* Backed off the edge so the tag reads as tucked under it rather than stuck
+     on. The transition is on transform and opacity alone: both are composited,
+     and this element sits over a page whose every other layer is expensive. */
+  transform: translateX(calc(100% - 2.9rem));
+  opacity: 0.72;
+  transition:
+    transform 320ms cubic-bezier(0.2, 0.8, 0.3, 1),
+    opacity 320ms ease;
+}
+
+.music-tag:hover,
+.music-tag:focus-within,
+.music-tag[data-playing] {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.music-tag__switch,
+.music-tag__next {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--color-maroon);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.music-tag__switch {
+  gap: 0.5rem;
+}
+
+.music-tag__switch:focus-visible,
+.music-tag__next:focus-visible {
+  outline: 2px solid var(--color-maroon);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* The record itself, small enough to read as a hole punched in the tag. */
+.music-tag__disc {
+  display: block;
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 18%, transparent);
+}
+
+.music-tag__record {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 50%;
+}
+
+/* It turns only while something is playing, and it never stops mid-turn: the
+   animation is paused rather than removed, so pressing play again picks the
+   disc up where it was left instead of snapping it back to top dead centre. */
+.music-tag__record {
+  animation: plate-turn 8s linear infinite;
+  animation-play-state: paused;
+}
+
+.music-tag[data-playing] .music-tag__record {
+  animation-play-state: running;
+}
+
+.music-tag__words {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+  /* The words are what the tag hides off the edge; the record stays visible. */
+  padding-right: 0.15rem;
+}
+
+.music-tag__state {
+  font-size: 0.56rem;
+  color: var(--color-ink-soft);
+}
+
+.music-tag__title {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-maroon);
+  /* A long title cannot be allowed to push the tag across the page. */
+  max-width: 9.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-tag__next {
+  padding: 0.35rem 0.3rem 0.35rem 0.45rem;
+  opacity: 0.55;
+}
+
+.music-tag__next:hover {
+  opacity: 1;
+}
+
+.music-tag__next svg {
+  display: block;
+  width: 0.72rem;
+  height: 0.72rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-tag {
+    transition: none;
+  }
+
+  .music-tag__record {
+    animation: none;
   }
 }

@@ -1,18 +1,12 @@
 node_modules
 dist
+dist-ssr
 .DS_Store
 *.local
 
-# Large reference material and local captures: kept on disk, out of history.
-# resc/docs (the original brief, spec, plan and handover) is committed.
-recording/
-resc/support/
-resc/website-ss/
-resc/flower/
-resc/background-hand.jpg
-resc/.obsidian/
-# The client's original photographs. The cropped copies in src/assets/images/photos ship.
-website-pics/
-
 # Per-user Claude Code settings
 .claude/settings.local.json
+
+# Lossless masters for the five tracks, if they are ever put back: about
+# 200 MB of FLAC. What ships is public/audio/*.m4a — see scripts/encode-audio.sh.
+src/media/

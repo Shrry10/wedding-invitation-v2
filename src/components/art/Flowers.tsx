@@ -10,7 +10,7 @@ import wildRosesOnFrameUrl from '../../assets/images/flowers/wild-roses-on-frame
 /**
  * The white flowers that are photographs.
  *
- * The drawn sprays (`Florals.tsx`) all showed the same rose with drawn leaves;
+ * The drawn sprays these replaced all showed the same rose with drawn leaves;
  * every spray on the site is now a real arrangement, cut out of a photograph
  * with its own stems and foliage. A file may be used in more than one place —
  * the two story prints carry the same pair, mirrored, and the supplied posy

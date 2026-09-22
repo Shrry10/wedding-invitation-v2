@@ -28,34 +28,8 @@ const LAYER: CSSProperties = {
    Sealed envelope — page 0
    -------------------------------------------------------------------------- */
 
-const SEALED_VIEW = { w: 950, h: 681 } as const
-/**
- * The flap point sits at seven tenths of the height, not at the middle — in
- * the photograph as in the drawing before it. It is the single strongest cue
- * that the envelope is a real one: a flap that stops at the middle reads as an
- * icon of an envelope.
- */
-const SEALED_FLAP_POINT: readonly [number, number] = [0.5, 0.696]
-
-/**
- * Where the wax seal belongs on `<SealedEnvelope />`.
- *
- * The seal is a separate object pressed over the flap point, overlapping it
- * rather than balancing on it, and its centre sits a little above the point.
- * `left`, `top` and `diameter` are fractions of the rendered box, so a page can
- * place an absolutely positioned seal without knowing the file.
- */
-export const SEALED_ENVELOPE_SEAL = {
-  viewBox: { width: SEALED_VIEW.w, height: SEALED_VIEW.h },
-  left: SEALED_FLAP_POINT[0],
-  top: SEALED_FLAP_POINT[1] - 0.026,
-  diameter: 0.193,
-} as const
-
 export function SealedEnvelope({ className }: { className?: string | undefined }) {
-  return (
-    <ObjectPhoto photo="envelope-sealed" eager className={className} />
-  )
+  return <ObjectPhoto photo="envelope-sealed" eager className={className} />
 }
 
 /* --------------------------------------------------------------------------

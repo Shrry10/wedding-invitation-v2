@@ -2,6 +2,7 @@ import { useId, type CSSProperties, type ReactNode } from 'react'
 import type { Point } from './geometry'
 import waxSealUrl from '../../assets/images/objects/wax-seal.webp'
 import { ObjectPhoto } from './Objects'
+import { CIPHER_GLYPHS, type CipherGlyph } from './cipherGlyphs'
 
 /**
  * The metal objects photographed in the reference: the gold wax seal, the
@@ -96,8 +97,98 @@ const SEAL_VIEW = { w: 212, h: 207 } as const
 const SEAL_DIE_X = 105.7
 const SEAL_DIE_Y = 104.5
 const SEAL_DIE_R = 67.7
+
+/**
+ * How much of the struck face the cipher is allowed to fill, measured to the
+ * far corner of the pair's own bounding box. The die leaves a plain border
+ * inside the rim groove and the reference keeps the letters well off it.
+ */
+const CIPHER_FILL = 0.94
+
+/** How far each letter is thrown off centre, as a fraction of its own size.
+    The pair is a diagonal cipher, first initial high and left. */
+const CIPHER_THROW = 0.19
+
+/** Used only when a letter has no outline checked in; see cipherGlyphs.ts. */
 const SEAL_SCRIPT =
-  "'Pinyon Script','Snell Roundhand','Apple Chancery','Segoe Script',cursive,Georgia,serif"
+  "'Great Vibes','Snell Roundhand','Apple Chancery','Segoe Script',cursive,Georgia,serif"
+
+/** A placed glyph: its outline, and the offset in font units that puts it
+    where the cipher wants it once the group is scaled and flipped. */
+interface PlacedGlyph {
+  /** The initial this outline is, so the markup says which is struck first. */
+  letter: string
+  d: string
+  x: number
+  y: number
+}
+
+/**
+ * Lay the initials out as a diagonal cipher and fit the pair to the struck
+ * face.
+ *
+ * Both letters are set at one common scale, so they keep the size relationship
+ * the punchcutter gave them. The pair is then measured as a single shape and
+ * that shape — not either letter on its own — is what gets fitted to the die.
+ * Sizing each letter by a multiple of the die's radius is what ran the swashes
+ * off the wax: a script B is half again as wide as its advance, and no font
+ * size holds for both letters.
+ */
+function layOutCipher(letters: readonly string[]): { glyphs: PlacedGlyph[]; scale: number } | null {
+  const cut: CipherGlyph[] = []
+  for (const ch of letters) {
+    const glyph = CIPHER_GLYPHS[ch]
+    if (glyph === undefined) return null
+    cut.push(glyph)
+  }
+
+  /* The throw is measured against the largest letter, so a wide initial does
+     not end up sitting on top of its partner. */
+  const span = Math.max(
+    ...cut.map(({ bounds: [x0, y0, x1, y1] }) => Math.max(x1 - x0, y1 - y0)),
+  )
+  const throwBy = cut.length > 1 ? span * CIPHER_THROW : 0
+
+  /* Each letter centred on the origin, then thrown along the diagonal. Font
+     units run y up, so the first initial is thrown towards +y to sit high. */
+  const placed = cut.map((glyph, i) => {
+    const [x0, y0, x1, y1] = glyph.bounds
+    const away = (i === 0 ? -1 : 1) * throwBy
+    const x = away - (x0 + x1) / 2
+    const y = -away - (y0 + y1) / 2
+    return {
+      letter: letters[i]!,
+      d: glyph.d,
+      x,
+      y,
+      box: [x0 + x, y0 + y, x1 + x, y1 + y] as const,
+    }
+  })
+
+  /* The pair as one shape. Centring on the union rather than on either letter
+     is what stops a tall initial from pushing the other off the wax. */
+  const minX = Math.min(...placed.map((p) => p.box[0]))
+  const minY = Math.min(...placed.map((p) => p.box[1]))
+  const maxX = Math.max(...placed.map((p) => p.box[2]))
+  const maxY = Math.max(...placed.map((p) => p.box[3]))
+  const shiftX = -(minX + maxX) / 2
+  const shiftY = -(minY + maxY) / 2
+
+  /* Scaled so the union's far corner lands on the fitted circle. Fitting by
+     the corner is what guarantees no swash crosses the struck border, whatever
+     initials the content carries. */
+  const scale = (SEAL_DIE_R * CIPHER_FILL) / Math.hypot((maxX - minX) / 2, (maxY - minY) / 2)
+
+  return {
+    glyphs: placed.map((p) => ({
+      letter: p.letter,
+      d: p.d,
+      x: r2(p.x + shiftX),
+      y: r2(p.y + shiftY),
+    })),
+    scale,
+  }
+}
 
 /**
  * The gold wax seal, repeated on every page of the reference.
@@ -110,56 +201,47 @@ const SEAL_SCRIPT =
  */
 export function WaxSeal({ monogram, size = 96, className, style }: WaxSealProps) {
   const letters = [...monogram].filter((ch) => ch.trim() !== '')
-  const first = letters[0]
-  const second = letters[1]
+  const cipher = layOutCipher(letters)
 
   /* The die is cut in intaglio, so the initials stand proud of the struck face:
      their tops catch the same light as the rim and each stroke drops a short
-     shadow to the lower right. Two offset copies of the glyph are cheaper and
+     shadow to the lower right. Two offset copies of the cipher are cheaper and
      more convincing than any filter. An earlier pass had the layers the other
      way round, which sank the letters into the wax and lost them entirely at
      the sizes the pages use.
 
      Each copy is stroked as well as filled: the die was cut with a broad
      graver and the photographed hand is heavier than this script's hairlines,
-     which otherwise vanish before the seal reaches the size a page uses it at. */
-  const engrave = (ch: string, x: number, y: number, fontSize: number) => (
-    <g>
-      <text
-        x={r2(x + fontSize * 0.026)}
-        y={r2(y + fontSize * 0.03)}
-        fontSize={fontSize}
-        fontFamily={SEAL_SCRIPT}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill={WAX_CREVICE}
-        stroke={WAX_CREVICE}
-        strokeWidth={r2(fontSize * 0.02)}
-        opacity="0.5"
+     which otherwise vanish before the seal reaches the size a page uses it at.
+     The stroke is in the flipped glyph space, so its width is divided back out
+     of the scale to keep it even at every size the pages ask for. */
+  const strike = (fill: string, opacity: number, dx: number, dy: number) => {
+    if (cipher === null) return null
+    const weight = r2(0.02 / cipher.scale)
+    return (
+      <g
+        transform={`translate(${r2(SEAL_DIE_X + dx)} ${r2(SEAL_DIE_Y + dy)}) scale(${r2(cipher.scale)} ${r2(-cipher.scale)})`}
+        fill={fill}
+        stroke={fill}
+        strokeWidth={weight}
+        opacity={opacity}
       >
-        {ch}
-      </text>
-      <text
-        x={r2(x)}
-        y={r2(y)}
-        fontSize={fontSize}
-        fontFamily={SEAL_SCRIPT}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill="var(--color-cream)"
-        stroke="var(--color-cream)"
-        strokeWidth={r2(fontSize * 0.02)}
-        opacity="0.8"
-      >
-        {ch}
-      </text>
-    </g>
-  )
+        {cipher.glyphs.map((glyph) => (
+          <path
+            key={glyph.letter}
+            data-letter={glyph.letter}
+            d={glyph.d}
+            transform={`translate(${glyph.x} ${glyph.y})`}
+          />
+        ))}
+      </g>
+    )
+  }
 
-  /* Measured against the photograph: the cap of the first initial is a little
-     over two thirds of the die's radius, which in this script means a font size
-     of about 1.2 radii. Set any larger and the swashes cross the struck border. */
-  const cipherSize = r2(SEAL_DIE_R * 1.2)
+  /* The fallback, for initials with no outline checked in: the same script as
+     live text, sized by the die alone. It cannot fit a swash the way the
+     outlines do, so keep it well inside the border. */
+  const fallbackSize = r2(SEAL_DIE_R * (letters.length > 1 ? 0.9 : 1.3))
 
   return (
     <svg
@@ -172,23 +254,24 @@ export function WaxSeal({ monogram, size = 96, className, style }: WaxSealProps)
     >
       <image href={waxSealUrl} x="0" y="0" width={SEAL_VIEW.w} height={SEAL_VIEW.h} />
 
-      {first !== undefined && second !== undefined ? (
-        <>
-          {engrave(
-            first,
-            SEAL_DIE_X - SEAL_DIE_R * 0.25,
-            SEAL_DIE_Y - SEAL_DIE_R * 0.33,
-            cipherSize,
-          )}
-          {engrave(
-            second,
-            SEAL_DIE_X + SEAL_DIE_R * 0.33,
-            SEAL_DIE_Y + SEAL_DIE_R * 0.32,
-            cipherSize,
-          )}
-        </>
+      {cipher === null ? (
+        <text
+          x={SEAL_DIE_X}
+          y={SEAL_DIE_Y}
+          fontSize={fallbackSize}
+          fontFamily={SEAL_SCRIPT}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill="var(--color-cream)"
+          opacity="0.8"
+        >
+          {letters.join('')}
+        </text>
       ) : (
-        engrave(monogram, SEAL_DIE_X, SEAL_DIE_Y, r2(SEAL_DIE_R * 1.3))
+        <>
+          {strike(WAX_CREVICE, 0.5, SEAL_DIE_R * 0.026, SEAL_DIE_R * 0.03)}
+          {strike('var(--color-cream)', 0.82, 0, 0)}
+        </>
       )}
     </svg>
   )

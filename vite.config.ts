@@ -1,10 +1,9 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 import { validateContentPlugin } from './scripts/validate-content'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), validateContentPlugin(), absoluteSocialUrls()],
+  plugins: [react(), validateContentPlugin(), absoluteSocialUrls()],
   base: process.env.VITE_BASE_PATH ?? '/',
 })
 
