@@ -593,7 +593,7 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 
 ## 10. Change log
 
-### 2026-09-22: the cleanup — everything unused deleted (uncommitted)
+### 2026-09-22: the cleanup — everything unused deleted (branch `music-and-cleanup`, merged into `main`)
 
 A sweep for anything the site no longer uses: dead modules, dead CSS, dev-only
 scaffolding, the historical documents and every local reference file. The rule
@@ -681,7 +681,7 @@ regular/wide`, `--rhythm-compact/regular`), `--font-script-alt` (the polaroid
 `npm run build` (12 addresses prerendered, CSS 30.4 KB, 7.7 KB gzipped), and
 the pixel comparison above. `dist/` carries no reference to anything deleted.
 
-### 2026-09-21: the seal's cipher, and the records play (uncommitted)
+### 2026-09-21: the seal's cipher, and the records play (branch `music-and-cleanup`, merged into `main`)
 
 Two notes from the couple: the initials on the wax seal were being cut off by
 the struck border, and the S was a weak letter; and they had put five of their
@@ -724,7 +724,7 @@ own songs in `src/media/` to play behind the site.
   from the headless WebKit harness — it has no audio session — so that is a
   real-device check.
 
-### 2026-09-21: the stationery photographed (uncommitted)
+### 2026-09-21: the stationery photographed (branch `photographed-stationery`, merged into `main`)
 
 The couple sent six more cut-outs from the Canva template, and every drawn
 object they cover is now the photograph instead. The drawings could carry a
