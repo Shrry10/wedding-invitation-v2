@@ -12,6 +12,7 @@ import { FactValue } from '../components/a11y/FactValue'
 import { knownValue } from '../lib/isPending'
 import { arrivalThrow } from '../lib/arrival'
 import { useReducedMotion } from '../hooks/useReducedMotion'
+import { usePress } from '../hooks/usePress'
 import { useStagedReveal } from '../hooks/useStagedReveal'
 import type { PageId } from '../routes'
 import type { GalleryImage, HomePhotoSlot, InvitationContent, PlaylistConfig } from '../data/types'
@@ -110,6 +111,10 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
   )
 }
 
+/** Stands in for the sleeve's toggle when there is nothing to play, so its
+    press hook is called on every render, as a hook must be. */
+const NOTHING = () => {}
+
 /**
  * The playlist sleeve, and what it does.
  *
@@ -132,6 +137,8 @@ function PlaylistDoor({
   music: BackgroundMusic | null
 }) {
   const url = knownValue(playlist.url)
+  /* Acts on the way down, like the corner tag: the two are the same switch. */
+  const press = usePress(music?.toggle ?? NOTHING)
 
   const face = (cue: string | undefined) => (
     <PlaylistSleeve>
@@ -147,7 +154,7 @@ function PlaylistDoor({
         className="door playlist"
         data-piece
         style={at(51.1, 0.6, 22.6)}
-        onClick={music.toggle}
+        {...press}
         aria-pressed={music.playing}
         aria-label={music.playing ? `Pause ${music.current.title}` : 'Play the playlist'}
       >

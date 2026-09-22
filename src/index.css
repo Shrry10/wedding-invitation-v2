@@ -1710,6 +1710,11 @@ html.js .details__written {
 .canvas > .door {
   position: absolute;
   margin: 0;
+  /* The doors are pressed, never double-tapped, so a phone has no reason to
+     hold the press back while it waits for a second tap. It matters most on
+     the playlist sleeve, which is the music switch. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* --- The two things that turn --------------------------------------------------- */
@@ -1904,6 +1909,17 @@ html.js .details__written {
   color: var(--color-maroon);
 }
 
+/* The three lines on an oval sit centred on its axis, like the engraving
+   around them. The two badges get that free from the <button> they are the
+   face of; the save-the-date oval is a plain piece on the canvas and inherits
+   the page's left-aligned text, which is why the alignment is stated here
+   rather than left to the element it happens to be inside. */
+.oval__title,
+.oval__cue,
+.oval__date {
+  text-align: center;
+}
+
 .oval__title {
   display: block;
   font-size: 2.9cqw;
@@ -1923,6 +1939,11 @@ html.js .details__written {
   display: block;
   margin-top: 0.4cqw;
   font-size: 1.15cqw;
+  /* The date is two lines in the oval at every size the card is drawn at, and
+     the break it takes on its own leaves "2026" alone under a full line. Asking
+     for balance turns that into "11 – 13" over "December 2026", which is the
+     break a stationer would have set. Browsers without it keep the plain one. */
+  text-wrap: balance;
 }
 
 /* --- The countdown card --------------------------------------------------------- */
@@ -2382,6 +2403,12 @@ html.js :is(.canvas [data-piece], .details__envelope[data-piece]):not([data-sett
   cursor: pointer;
   display: flex;
   align-items: center;
+  /* No double-tap zoom on the switch, so a phone has no reason to sit on the
+     press waiting to find out whether a second tap is coming. The handler
+     itself runs on pointerdown (`usePress`); this clears the browser's own
+     delay out from under it. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .music-tag__switch {
