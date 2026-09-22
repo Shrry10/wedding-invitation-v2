@@ -11,8 +11,8 @@ function namesIn(markup: string): string[] {
 describe('the order of the names', () => {
   it.each([
     ['/', 'Sreetam'],
-    ['/sreetamandbhavna/', 'Sreetam'],
-    ['/bhavnaandsreetam/', 'Bhavna'],
+    ['/sb/', 'Sreetam'],
+    ['/bs/', 'Bhavna'],
   ])('%s leads with %s on every page', (prefix, leader) => {
     for (const page of ['', 'home/', 'details/', 'story/']) {
       const markup = renderToString(<App path={`${prefix}${page}`} />)
@@ -37,12 +37,12 @@ describe('the order of the names', () => {
       for (let i = 0; i < letters.length; i += 2) pairs.add(`${letters[i]}${letters[i + 1]}`)
       return [...pairs]
     }
-    expect(seal(renderToString(<App path="/bhavnaandsreetam/" />))).toEqual(['BS'])
+    expect(seal(renderToString(<App path="/bs/" />))).toEqual(['BS'])
     expect(seal(renderToString(<App path="/" />))).toEqual(['SB'])
   })
 
   it('shows the pair on the home page’s invitation card in the chosen order', () => {
-    const markup = renderToString(<App path="/bhavnaandsreetam/home/" />)
+    const markup = renderToString(<App path="/bs/home/" />)
     expect(markup).toMatch(/card__name">Bhavna<.*card__name">Sreetam</s)
   })
 })
@@ -55,7 +55,7 @@ describe('navigation', () => {
 
   it('keeps the order in the address when the envelope is opened', () => {
     vi.useFakeTimers()
-    window.history.replaceState(null, '', '/bhavnaandsreetam/')
+    window.history.replaceState(null, '', '/bs/')
     vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
     render(<App />)
 
@@ -64,12 +64,12 @@ describe('navigation', () => {
       vi.advanceTimersByTime(1000)
     })
 
-    expect(window.location.pathname).toBe('/bhavnaandsreetam/home/')
+    expect(window.location.pathname).toBe('/bs/home/')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^Bhavna.*Sreetam$/)
   })
 
   it('follows the back button', () => {
-    window.history.replaceState(null, '', '/bhavnaandsreetam/story/')
+    window.history.replaceState(null, '', '/bs/story/')
     render(<App />)
     expect(screen.getByText('Bhavna & Sreetam')).toBeInTheDocument()
 

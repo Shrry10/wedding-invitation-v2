@@ -60,6 +60,7 @@ export const content: InvitationContent = {
     // top to bottom, and then round again, each one crossfading into the next.
     // Empty this list and the sleeve goes back to being a link.
     tracks: [
+      { title: 'Girls Like You', artist: 'Maroon 5', src: '/audio/girls-like-you-final.mp4' },
       // Half the length of the others, so it goes round twice: the repeat
       // crossfades into itself and reads as one minute, not as two plays.
       {
@@ -69,7 +70,6 @@ export const content: InvitationContent = {
         plays: 2,
       },
       { title: 'Cheap Thrills', artist: 'Sia', src: '/audio/cheap-thrills-final.mp4' },
-      { title: 'Girls Like You', artist: 'Maroon 5', src: '/audio/girls-like-you-final.mp4' },
     ],
   },
 
