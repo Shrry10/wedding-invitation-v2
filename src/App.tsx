@@ -1,12 +1,14 @@
 import { useCallback, useMemo } from 'react'
 import { SkipLink } from './components/a11y/SkipLink'
 import { Backdrop } from './components/Backdrop'
+import { MusicTag } from './components/MusicTag'
 import { EnvelopePage } from './pages/EnvelopePage'
 import { HomePage } from './pages/HomePage'
 import { DetailsPage } from './pages/DetailsPage'
 import { StoryPage } from './pages/StoryPage'
 import { content } from './data/content'
 import { useRoute } from './hooks/useRoute'
+import { useBackgroundMusic } from './hooks/useBackgroundMusic'
 import { coupleInitials, coupleNames } from './lib/coupleNames'
 
 /**
@@ -30,6 +32,14 @@ export function App({ path }: { path?: string | undefined }) {
   // The seal strikes the two initials as one cipher, so no ampersand.
   const monogram = useMemo(() => coupleInitials(content.couple, lead), [lead])
 
+  /* One player for the whole site: the pages swap inside this tree, so the
+     record keeps turning across a navigation instead of starting again. */
+  const music = useBackgroundMusic(content.playlist.tracks)
+
+  /* Opening the envelope is the gesture the browser wants before it will let
+     anything sound, so the music starts on the same press that opens the
+     invitation — unless the guest has turned it off before. */
+  const startMusic = music?.start
   const goHome = useCallback(() => navigate('home'), [navigate])
 
   return (
@@ -38,8 +48,17 @@ export function App({ path }: { path?: string | undefined }) {
       <SkipLink targetId="main" />
 
       {page === 'envelope' && (
-        <EnvelopePage names={names} monogram={monogram} onOpened={goHome} />
+        <EnvelopePage
+          names={names}
+          monogram={monogram}
+          onPress={startMusic}
+          onOpened={goHome}
+        />
       )}
+
+      {/* Every page but the envelope, which is a single press and should not
+          be cluttered by a second thing to press. */}
+      {music !== null && page !== 'envelope' && <MusicTag music={music} />}
 
       {page === 'home' && (
         <HomePage
@@ -48,6 +67,7 @@ export function App({ path }: { path?: string | undefined }) {
           nameOrder={nameOrder}
           monogram={monogram}
           navigate={navigate}
+          music={music}
         />
       )}
 

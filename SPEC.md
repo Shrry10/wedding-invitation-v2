@@ -4,13 +4,12 @@ The current reference for this codebase: what the site is, how it is built,
 where everything lives, the rules it follows, and a log of changes. Read this
 before changing anything.
 
-`resc/docs/` has the original project documents: `1-details.md` (brief),
-`2-spec.md` (first spec), `3-plan.md`, `4-exec.md` and `5-handover.md`. They
-describe an **earlier design**, a single scrolling page with an "event journey"
-and animated panels, which was later replaced by the four-page design below.
-Their principles (self-sufficiency, dependency policy, contrast, accessibility)
-still apply. Their page layouts and section lists do not. Where they disagree
-with this file, this file wins.
+The original project documents (brief, first spec, plan, execution log,
+handover) described an **earlier design** — a single scrolling page with an
+"event journey" and animated panels — that was replaced by the four-page design
+below. They were removed in the 2026-09-22 cleanup; their principles
+(self-sufficiency, dependency policy, contrast, accessibility) are carried in
+this file, which is now the only reference for the codebase.
 
 ---
 
@@ -37,8 +36,8 @@ everywhere on the site (§5.1).
   velvet envelope, gold wax seal with the couple's monogram, embossed ivory
   cards, a silver tray, polaroids, a vinyl record, white roses. Behind every
   page is a faint black-and-white photograph of two hands reaching for each
-  other. The design copies a reference website (screenshots in
-  `resc/website-ss/`, not committed).
+  other. The design copies a reference website, from screenshots the client
+  supplied (not kept in the repository).
 
 ### Success criteria (standing)
 
@@ -60,7 +59,7 @@ everywhere on the site (§5.1).
 | UI | React 19 (`react`, `react-dom`: the **only** runtime dependencies) |
 | Build | Vite, with a client build, an SSR build and a prerender step |
 | Language | TypeScript, `strict` |
-| Styling | One hand-written stylesheet, `src/index.css`. Tailwind 4 is wired in (`@theme inline` mirrors the tokens) but the pages use plain class names |
+| Styling | One hand-written stylesheet, `src/index.css`. No CSS framework: every class is written here (Tailwind was removed in the 2026-09-22 cleanup — no utility class was ever used) |
 | Tests | Vitest + Testing Library (jsdom) |
 | Lint / format | ESLint 9 (flat config), Prettier |
 | Routing | Path routes, no router library (`src/routes.ts`, `useRoute`); each address is a prerendered `index.html` |
@@ -73,7 +72,7 @@ npm install
 npm run dev          # Vite dev server, http://localhost:5173
 npm run typecheck    # tsc for app + node configs
 npm run lint         # eslint .
-npm test             # vitest run (167 tests at time of writing)
+npm test             # vitest run (138 tests at time of writing)
 npm run build        # typecheck → client build → SSR build → prerender 12 addresses into dist/**/index.html
 npm run preview      # serve dist/
 npm run preview:lan  # serve dist/ on the local network (open the printed Network URL on a phone on the same Wi-Fi)
@@ -91,16 +90,18 @@ Deploy: `cp .env.example .env.production`, then set `VITE_SITE_URL` (so the
 
 ```
 index.html                 Document shell, meta/OG tags, sets html.js and adds a missing trailing slash before the bundle loads
-vite.config.ts             React + Tailwind + content-validation plugin + absolute OG URLs
+vite.config.ts             React + content-validation plugin + absolute OG URLs
 scripts/
   validate-content.ts      Vite plugin: runs validateContent() at build start and fails the build on errors
   prerender.mjs            Writes one prerendered index.html per address (page × name order), reorders the
                            names in each head, deletes dist-ssr/
   render-rasters.swift     Renders og-image.png / favicon.png / apple-touch-icon.png (macOS WebKit)
   shoot.swift              Screenshot helper (URL, width, height, out, scrollY)
+  extract-cipher.py        Cuts the seal's initials out of Great Vibes as outlines -> src/components/art/cipherGlyphs.ts
+  encode-audio.sh          Encodes src/media/*.flac to public/audio/*.m4a with afconvert. src/media/ is
+                           gitignored and currently empty: put masters back there to re-encode
 public/                    favicon.png, apple-touch-icon.png, og-image.png (committed rasters)
-probe-*.html               Dev-only pages that mount src/probes/* for inspecting artwork in isolation
-resc/docs/                 Original brief, spec, plan, execution log, handover (historical)
+public/audio/              The five encoded tracks the site plays (~3.5 MB each, AAC in MP4)
 src/
   main.tsx                 Hydrates prerendered markup, or renders fresh in dev
   entry-server.tsx         render(path) and prerenderTargets() for the prerender step
@@ -119,6 +120,7 @@ src/
     StoryPage.tsx          Our Story: photo route of beats, closing message
   components/
     Backdrop.tsx           The fixed background photograph (hands), focal-point anchored
+    MusicTag.tsx           The fixed corner switch for the background music (§5.10)
     PrintFill.tsx          What fills a polaroid's well: a gallery photograph, or PhotoStandIn until there is one
     a11y/                  FactValue (pending-value renderer), SkipLink, VisuallyHidden
     countdown/             Countdown, CountdownUnit, CountdownLiveText (screen-reader text, coarse updates)
@@ -131,14 +133,13 @@ src/
                            PhotoStandIn, geometry.ts. Maroon, Metal and Vinyl are now mostly
                            placement — where a seal sits on an envelope, where a print sits in a
                            mount — over an ObjectPhoto, with Metal still drawing the key and the
-                           earrings. Florals holds the superseded drawn sprays (probe only).
+                           earrings.
                            CONVENTIONS.md = SVG authoring rules
-  hooks/                   useRoute, useCountdown, useReducedMotion, useStagedReveal (+ dormant, see §9)
+  hooks/                   useRoute, useCountdown, useReducedMotion, useStagedReveal, useBackgroundMusic
   lib/                     isPending/knownValue, formatDate, formatDuration, coupleNames, arrival,
                            photoUrl (gallery path → bundled URL, via import.meta.glob), …
-  probes/                  Isolated artwork viewers used by probe-*.html
   assets/fonts/            Vendored woff2 + LICENSES.md + OFL.txt
-  assets/images/           background-hands.jpg, white-rose.png (the drawn sprays' rose)
+  assets/images/           background-hands.jpg (the photograph behind every page)
   assets/images/flowers/   Nine cut-out flower arrangements (WebP with alpha); several are built from
                            two or more photographs + SOURCES.md (Pexels and Pixabay ids, what went
                            into each file, how they were cut out and composited)
@@ -150,12 +151,12 @@ src/
   test/                    Vitest setup + smoke test
 ```
 
-Not committed (see `.gitignore`): `node_modules`, `dist`, `website-pics/` (the
-client's original photographs, ~145 MB; the cropped copies in
-`src/assets/images/photos/` are what ships), `recording/`
-(screen recording), `resc/support` (decor decks and reference video),
-`resc/website-ss`, `resc/flower`, `resc/background-hand.jpg`, `resc/.obsidian`
-(editor state), `.claude/settings.local.json`.
+Not committed (see `.gitignore`): `node_modules`, `dist`, `dist-ssr`,
+`src/media/` (the lossless audio masters, if they are put back) and
+`.claude/settings.local.json`. The client's original photographs, the decor
+decks, the reference screenshots and the audio masters were all deleted in the
+2026-09-22 cleanup: everything the site needs is now in `src/assets/` and
+`public/`, and the build output depends on nothing outside the repository.
 
 ---
 
@@ -352,14 +353,16 @@ which is the order the wide layout (700px and up) shows.
   `couple.hashtag`; `theme.*`. The title and tagline in `index.html`'s meta
   tags are hand-written there, not read from `content.ts`.
 
-Things still pending on the live site (as of 2026-09-19): `playlist.url`,
-`footer.hostedByLines`. The venue `mapsUrl`s are Google
+Things still pending on the live site (as of 2026-09-21): `footer.hostedByLines`.
+`playlist.url` is unset and now optional — the sleeve plays `playlist.tracks`
+instead of linking out. The venue `mapsUrl`s are Google
 Maps *searches* and should be replaced with exact pins.
 
 ### 5.6 Styling system (`src/index.css`)
 
 - **The only file with colour literals.** Tokens live in the top `:root` block.
-  `@theme inline` mirrors most of them for Tailwind.
+  Every token declared there is used; the cleanup removed the ones that were
+  not (see §10).
 - **Palette groups:** paper/ink/maroon/gold/silver; the reference site's colours;
   per-function *decor* tokens measured from the decks (`--color-mehndi-*`,
   `--color-haldi-*`, `--color-sangeet-*`, marriage `--color-marriage-maroon`,
@@ -372,13 +375,13 @@ Maps *searches* and should be replaced with exact pins.
 |---|---|
 | Cormorant Garamond (variable 300–700) | Display + body: every letter of text |
 | **Cinzel Figures** (Cinzel variable 400–900, `unicode-range: U+0030-0039`) | **Every digit 0–9** on the site: countdown, dates, times. Listed first in `--font-display` and `--font-body`. `size-adjust: 94%` |
-| Great Vibes | Script headings (`.t-script`), plus the emphasised "yes" |
-| Pinyon Script | Defined as `--font-script-alt`, not currently referenced |
+| Great Vibes | Script headings (`.t-script`), the emphasised "yes", and the wax seal's cipher — the last as outlines cut by `scripts/extract-cipher.py`, not as live text |
+| Pinyon Script | The polaroid captions ("Once", "Upon", "A time"), set as an SVG `font-family` in `Maroon.tsx`. A presentation attribute cannot read a custom property, so the stack is written out there rather than tokenised |
 | Tiro Devanagari Hindi (subset) | Devanagari names (मेहंदी etc.) |
-| Marcellus | Vendored, not currently used |
 
   The vendored Cormorant has **no italic** file. `font-style: italic` gives a
   synthesised slant, so avoid it.
+
 - **Type classes:** `.t-title` (big caps), `.t-script`, `.t-label` (small caps
   label), `.t-date`, `.t-prose`. Component classes use BEM-ish names
   (`.countdown__value`, `.palette__chip`, `.functions__item`).
@@ -454,6 +457,48 @@ real gallery image, countdown matches the marriage event, story beats
 (emblem required, no empty year), and **panel contrast ≥ 4.5:1** (ground vs
 text of each event palette, measured from the stylesheet).
 
+### 5.10 The music (`hooks/useBackgroundMusic.ts`, `components/MusicTag.tsx`)
+
+The couple's five records play behind the site. One `Audio` element for the
+whole visit, owned by `App` so it survives every navigation: the song does not
+restart when a guest opens the details.
+
+- **Files.** What ships is `public/audio/*.m4a` — AAC in MP4, about 135 kbps
+  and 3.5 MB a track, which every browser in use has decoded for a decade. They
+  were encoded from about 200 MB of FLAC by `sh scripts/encode-audio.sh`, which
+  reads `src/media/` and uses `afconvert`, part of macOS. **The masters are no
+  longer on disk** (deleted in the 2026-09-22 cleanup), so re-encoding at a
+  different bitrate means asking the couple for the files again.
+- **Nothing is preloaded.** `preload="none"`, and the element is not even made
+  until something asks for sound, so a guest who never presses play downloads
+  no audio at all. A track streams as it plays; the dev server and any static
+  host answer range requests for it.
+- **Starting.** No browser will start sound without a gesture, so nothing here
+  tries. The envelope's "Tap to open" is the gesture, and `EnvelopePage` calls
+  `onPress` inside the click handler rather than on the handover a second
+  later — a `play()` a second after the press is a `play()` with no gesture
+  behind it. A guest who lands straight on an inner page gets silence until
+  they press the switch.
+- **Volume.** Settles at 0.52, faded over 1.5s at either end. The fade also
+  covers the gap while the next file buffers.
+- **Order.** Shuffled once per visit, in `useState`, so two guests do not hear
+  the same song first. The shuffle is client-only; the prerendered markup
+  carries no track order to disagree with.
+- **Stopping is remembered.** `localStorage['wedding-invitation:music']`. Set
+  to `off`, the envelope no longer starts the music on a later visit — but
+  pressing a control still plays, because that is the guest asking.
+- **Two controls, one state.** The playlist sleeve on the home canvas is the
+  main one: it now presses to play instead of linking out, and its cue prints
+  the title of whatever is on. `MusicTag` is the small fixed one in the
+  corner, on every page but the envelope, so the music is always stoppable. It
+  sits tucked half off the right edge until hovered, focused or playing.
+- **The tag's record turns only while something is playing**, and it is paused
+  rather than un-animated, so pressing play picks the disc up where it was
+  left instead of snapping it back to top dead centre.
+- Empty `playlist.tracks` and all of this disappears: `useBackgroundMusic`
+  returns `null`, the tag is not rendered, and the sleeve goes back to being
+  scenery or a link to `playlist.url`.
+
 ---
 
 ## 6. Common edits
@@ -463,7 +508,9 @@ text of each event palette, measured from the stylesheet).
 | Change any wording or fact | Edit `src/data/content.ts`, then rebuild |
 | Send a link with one name first | `https://<site>/bhavnaandsreetam/` or `/sreetamandbhavna/` (any page can follow: `/bhavnaandsreetam/story/`). The plain `/` uses `couple.leadName` |
 | Change the site title or share description | Edit `index.html`. Keep the names in the default order and spelled `Sreetam &amp; Bhavna` / `Sreetam and Bhavna`: the prerender swaps exactly those for the other order |
-| Add the playlist link | Set `playlist.url`. The record becomes a link with "Click here" (maroon, like every cue) |
+| Change the music | Put lossless files in `src/media/` (gitignored, and currently empty), run `sh scripts/encode-audio.sh`, then list the results in `playlist.tracks`. Emptying that list removes the player and its switch, and the sleeve goes back to being scenery or a link |
+| Add the playlist link | Set `playlist.url`. It is used only when `playlist.tracks` is empty; with tracks the sleeve plays them instead of linking out |
+| Change the couple's initials | Change the names in `content.couple`, then run `python3 scripts/extract-cipher.py <initials>` so the seal has outlines for the new letters. Without it the seal falls back to live text |
 | Change the countdown line / emphasised word | `countdown.headingLabel` and `countdown.headingEmphasis`. The last occurrence of the emphasis word is set in script + maroon. If the word is not found, the plain line is shown |
 | Change a dress-code colour | Edit the hex of `--color-dress-<event>-<hue>` in `src/index.css` |
 | Change the glaze speed | `animation` duration on `.palette__chip::after` (3.2s = one sweep of the row) |
@@ -534,12 +581,10 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
   typecheck, lint and tests before committing; check visual changes at the four
   widths above; keep the site working without scripting.
 - **Ask first:** adding any runtime dependency (the policy is react + react-dom
-  only); loading anything from a third-party origin at runtime; deleting the
-  dormant modules left from the old panel design (`usePanelState`,
-  `usePanelSlot`, `useScrollReveal`, `useActiveSection`, `useBodyScrollLock`,
-  `useFocusTrap`, `lib/scrollToSection`, `lib/groupEventsByDate`); committing
-  large binaries or the client decks; changing event facts that conflict with
-  the brief (the decks disagree on Mehndi/Haldi times, and the brief wins).
+  only); loading anything from a third-party origin at runtime; committing
+  large binaries; changing event facts that conflict with the brief (the decks
+  disagreed on Mehndi/Haldi times, and the brief wins). The dormant modules
+  left from the old panel design were deleted in the 2026-09-22 cleanup.
 - **Never:** hotlink images or fonts; hide a pending fact instead of rendering
   it through `FactValue`; lower the palette contrast check; commit `.env*`
   files with real values.
@@ -547,6 +592,137 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-22: the cleanup — everything unused deleted (uncommitted)
+
+A sweep for anything the site no longer uses: dead modules, dead CSS, dev-only
+scaffolding, the historical documents and every local reference file. The rule
+applied was *does the live site need it* — local or hosted, it must render the
+same.
+
+**Tailwind removed** (`index.css`, `vite.config.ts`, `package.json`)
+
+- Tailwind 4 was wired in, but no utility class was ever written: the
+  stylesheet does all the work under its own names. The `@import 'tailwindcss'`,
+  the Vite plugin, both packages and the `@theme inline` block (which only
+  pointed the tokens back at themselves) are gone.
+- What Tailwind *did* supply was **Preflight**, and the stylesheet was written
+  against it. Its element defaults are now written out in the Reset block:
+  `margin: 0` and inherited size and weight on the headings, `margin: 0` on
+  `p`, list styling off on `ol`/`ul`, colour and decoration inherited on `a`,
+  a flat `button`, `border: 0 solid` on everything, and `line-height: 1.5`
+  with `-webkit-text-size-adjust: 100%` on `html`.
+- The document `font-family` is kept as Preflight's own sans stack. It draws
+  nothing — every visible run of text names its own family — but it sizes the
+  inline struts, and dropping it moved the envelope's "Tap to open" down by a
+  pixel. Every page was screenshotted at 430 × 932 and 1440 × 900 before and
+  after and compared pixel by pixel: **identical, every page, both widths.**
+
+**Deleted, not used anywhere**
+
+- Hooks and helpers with no caller: `useBodyScrollLock`, `useScrollReveal`,
+  `lib/scrollToSection`, and the dormant modules left from the old panel design
+  — `usePanelState`, `usePanelSlot`, `useActiveSection`, `useFocusTrap`,
+  `lib/groupEventsByDate` — which only their own tests still reached. The test
+  count falls from 176 to 138 with them; nothing else changed.
+- `components/art/Florals.tsx` (the superseded drawn sprays) and its rose,
+  `assets/images/white-rose.png`.
+- Inside `Paths.tsx`, the washing line and the winding path: two earlier
+  generations of the dashed line, about 370 lines, replaced by the route
+  machinery that draws both pages now. The doodle heart traced off the
+  photograph stays — the route still ties itself into it.
+- Dead exports: `SEALED_ENVELOPE_SEAL`, `cuspedArchPath`, `pointsAlongQuad`,
+  `scallopedRect`, `CIPHER_UPM`.
+- Dead CSS: the `.type-display`, `.type-section`, `.type-card-title`,
+  `.type-body` and `.type-devanagari` roles; `.site-container` and
+  `.site-section` with their media blocks; `.section__icon`; the whole
+  `.paper` block (`.paper__plate`, `.paper__content`, and the `--stamp`,
+  `--oval`, `--card`, `--box` and `--invitation` modifiers) — the components
+  never emitted those class names; `.envelope__filling`;
+  `.sealed-object__seal--corner`.
+- Dead tokens. The three `--stroke-*` weights, the four `--opacity-*` steps,
+  the four `--text-*` sizes the deleted type roles used, the layout tokens the
+  deleted layout primitives used (`--content-max-width`, `--gutter-compact/
+regular/wide`, `--rhythm-compact/regular`), `--font-script-alt` (the polaroid
+  captions write the Pinyon stack out inline, because an SVG presentation
+  attribute cannot read a custom property), and six unused colours, recorded
+  here so the values are not lost: `--color-maroon-light: #7b2d35`,
+  `--color-gold-light: #e7cf92`, `--color-leaf: #7d9068`,
+  `--color-leaf-deep: #55684a`, `--color-leaf-light: #a8bb95`,
+  `--color-sangeet-peach: #dbaa93` (the lamp glow on the sangeet seating).
+- The Marcellus font: the woff2, both its `@font-face` blocks and its metric
+  fallback. It was vendored and never put in a stack. `OFL.txt` was its
+  licence copy; its header now names the five faces that remain, all under the
+  same licence.
+- `@testing-library/user-event`, a dev dependency nothing imported.
+
+**The probe pages and the historical documents**
+
+- All seven `probe-*.html` pages and `src/probes/` are gone. They were dev-only
+  viewers for the artwork, never part of the build — Vite's only entry is
+  `index.html`, so they never reached `dist/`.
+- `resc/docs/` (brief, first spec, plan, execution log, handover) described the
+  design this one replaced. This file carries what still applies.
+
+**Local media, ~672 MB, deleted from the working copy**
+
+- `website-pics/` (the client's original photographs), `resc/support` (decor
+  decks and reference video), `resc/website-ss` (the reference screenshots),
+  `resc/flower`, `resc/background-hand.jpg`, `recording/`, and `src/media/`
+  (the FLAC masters). None of them was committed, and none is read by the
+  build: the cropped photographs in `src/assets/images/`, the encoded tracks in
+  `public/audio/` and the committed rasters in `public/` are what ships.
+- The cost is stated plainly: a new crop of a photograph, or a re-encode of a
+  track at another bitrate, now needs the originals from the couple again. The
+  comments that pointed at those folders were rewritten to say what the
+  reference *was* rather than where the file sat.
+
+**Verified**: `npm run typecheck`, `npm run lint`, `npm test` (138 passing),
+`npm run build` (12 addresses prerendered, CSS 30.4 KB, 7.7 KB gzipped), and
+the pixel comparison above. `dist/` carries no reference to anything deleted.
+
+### 2026-09-21: the seal's cipher, and the records play (uncommitted)
+
+Two notes from the couple: the initials on the wax seal were being cut off by
+the struck border, and the S was a weak letter; and they had put five of their
+own songs in `src/media/` to play behind the site.
+
+**The cipher fits, and it is Great Vibes**
+(`components/art/cipherGlyphs.ts`, `scripts/extract-cipher.py`, `Metal.tsx`)
+
+- The seal used to set its initials as SVG `<text>`, sized at 1.2 die radii.
+  That guess cannot hold. A script capital carries swashes well outside its
+  advance width, so one font size fits a narrow letter and runs a wide one off
+  the wax — which is exactly what the B was doing.
+- The letters are now **outlines**, cut from the font file once by
+  `scripts/extract-cipher.py` (fonttools) and checked in as
+  `cipherGlyphs.ts` with their tight contour bounds. The component lays the
+  pair out as one shape and scales *that shape* — not either letter — so its
+  far corner lands on 94% of the die's radius. No swash can cross the border,
+  whatever initials the content carries. A letter with no outline checked in
+  falls back to live text, set small enough to be safe.
+- The script is **Great Vibes**, which the site already sets the couple's names
+  in, rather than Pinyon Script. Pinyon's capitals are spindly at this size and
+  its S barely reads; Great Vibes has the fuller cap and the stroke contrast a
+  die would actually cut. Every seal on the site goes through `WaxSeal`, so all
+  of them changed together. Pinyon is now referenced only by the type probe.
+- Each struck outline carries `data-letter`, so the name order is still
+  readable from the markup — which is what `App.test.tsx` asserts.
+- `probe-metal.html` now shows the couple's real initials instead of "MA".
+
+**The records play** (`hooks/useBackgroundMusic.ts`, `components/MusicTag.tsx`,
+`scripts/encode-audio.sh`, `public/audio/`, `index.css` `.music-tag`)
+
+- Five FLACs (~200 MB) encoded to AAC (~3.5 MB a track). The masters stay out
+  of the repository; the encoded copies ship. Full behaviour in §5.10.
+- The playlist sleeve, which had been waiting on a URL that never arrived, is
+  now the thing that plays them. A small fixed tag in the corner carries the
+  same switch onto every other page, because music a guest cannot stop is rude.
+- Nine tests cover the hook against a stubbed `Audio`: first play, advance on
+  end, wrap round, stop-and-remember, the remembered "off", an explicit press
+  overruling it, and a browser that refuses. Sound itself could not be checked
+  from the headless WebKit harness — it has no audio session — so that is a
+  real-device check.
 
 ### 2026-09-21: the stationery photographed (uncommitted)
 
@@ -560,6 +736,7 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
 
 **Both envelopes** (`Maroon.tsx`; `envelope-sealed`, `envelope-open-back`,
 `envelope-open-front`)
+
 - The open envelope is one object published as two halves, already in register
   on one canvas, so they are cropped to one shared box and written at one size.
   `OpenEnvelope` lays back, then children, then front — the same sandwich the
@@ -587,6 +764,7 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
 
 **The liner bunches cut hard** (`Flowers.tsx`; `index.css`
 `.envelope-liner__bunch--left`/`--right`; `assets/images/flowers/liner-roses.webp`)
+
 - `liner-roses` was published with its alpha faded over the last 70px, so the
   cut would disappear into the envelope's shadow. On the photographed envelope
   that fade read as blur — flowers dissolving in mid-air. The faded rows are
@@ -596,6 +774,7 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
   out of a pocket, which is what the fade was standing in for.
 
 **The photo mount** (`Maroon.tsx` `Polaroid`; `photo-mount`)
+
 - Its aperture is published as white board, not a hole, so the opening is cut
   out of the alpha and the print goes *under* the mount. The mount's edge then
   falls over the print, as a window mount does, instead of the print's edge
@@ -609,15 +788,18 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
   the drawn version carried its shadow inside its own SVG.
 
 **The wax seal** (`Metal.tsx` `WaxSeal`; `wax-seal`)
+
 - The seal is the photograph, struck blank; only the cipher is drawn into it,
   with the same two-copy intaglio treatment as before. The die's face was
   measured off the file — the groove where the rim wall drops runs from 0.179
   to 0.818 across the blob — and the letters are placed against that.
+- The cipher is **outlines, not text** (see the entry below).
 - The pour's edge, the rim's lit arcs, the creases and the bubbles all went:
   about 380 lines. The wax's satin is a property of the wax, and the gradient
   standing in for it is what gave the drawn pass away.
 
 **The record turns** (`Vinyl.tsx`; `index.css` `.record-slot`, `.record-shadow`)
+
 - The drawn disc inside `PlaylistSleeve` is now the photographed pressing, and
   it turns: the same `.turning` rule and the same 36-second revolution as the
   silver plate, so the two things on the canvas with any business turning turn
@@ -640,6 +822,7 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
 **The silver plate is a photograph** (`Metal.tsx` `SilverTray`;
 `assets/images/objects/silver-plate.webp` + `SOURCES.md`; `index.css`
 `.silver-plate`, `.plate-shadow`, `.turning`)
+
 - The drawn salver was replaced by the plate the couple supplied, from the
   same Canva template the flowers came from. Its character is the acanthus
   engraving filling the well and the gadrooned rope round the lip, and both
@@ -657,6 +840,7 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
 
 **The key hangs from the badge** (`Metal.tsx` `AntiqueKey`; `HomePage.tsx`;
 `index.css` `.canvas > .door > .badge-key`)
+
 - It was a loose object lying across the plate. In the reference it is on a
   split ring through the badge's shoulder, so it is now drawn inside the
   badge's own button: the two lift together on hover, and a reader who aims
@@ -678,6 +862,7 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
   that rule's `width: 100%` wins and the key covers the badge.
 
 **The envelopes are cloth** (`Maroon.tsx` `Cloth`, `Grain`)
+
 - The theme is a *mangal sutra* and the reference's envelopes are fabric, but
   every maroon surface carried the same cloudy paper mottle, which read as
   card. `Cloth` replaces `Grain` on both envelopes: two turbulences, one
@@ -698,6 +883,7 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
 
 **The opened envelope holds bouquets** (`HomePage.tsx`; `index.css`
 `.envelope-liner`, `.envelope-liner__bunch--*`)
+
 - The five copies of `liner-roses` that packed the opening read as a printed
   lining, because they filled the whole diamond between the flap and the
   pocket and stopped exactly on its edges. In their place: the hand-tied
@@ -716,6 +902,7 @@ hole in the page. `src/components/art/Objects.tsx` is the registry, built like
 
 **Every group on the home canvas is centred** (`HomePage.tsx`, the lefts in
 `at()`; `index.css` `.canvas`)
+
 - Measured against the canvas, the groups' ink centred at 50.3, 53.3, 52.4,
   52.4 and 52.0%: the envelope group sat on the middle and everything below
   it sat right of it, which is what reading down the page showed. The lefts
@@ -781,6 +968,7 @@ afterwards.
 rose stamped into drawn sprays), and none had real leaves.
 
 **What changed** (after four review passes)
+
 - New `components/art/Flowers.tsx`: `<FlowerPhoto photo="…">` renders one
   cut-out flower arrangement from `assets/images/flowers/`. Nine files, from
   Pexels and Pixabay (free licences, no attribution needed; what went into
@@ -876,6 +1064,7 @@ entry above.)
 
 **Story page, below 700px** (`index.css` `.route__stop`, `.route__print`,
 `.route__label`)
+
 - Each stop now shows its label, place and sentence first, then the
   photograph. The heart stays in the photograph's row. Before, the photograph
   came first.
@@ -892,6 +1081,7 @@ entry above.)
 
 **Home on a phone is zoomed in, with the record in frame** (`index.css`
 `.canvas`, `.canvas > .playlist`; `HomePage.tsx` `PlaylistDoor`)
+
 - The phone zoom went from 165% to 180% of the screen width (the ramp's
   multiplier from 1.3 to 1.6, so it still reaches full zoom at 600px). The
   shift went from −2.3% to −2.2%.
@@ -909,6 +1099,7 @@ invitation card is `var(--color-maroon)`, measured equal to the countdown's
 "yes": `rgb(91, 26, 34)`. It was ink-soft.
 
 **No white line round the photographs** (`Maroon.tsx` `Polaroid`)
+
 - The SVG well under each photograph was a pale silver-to-cream gradient.
   The photograph is HTML laid over it, and where the two antialias, on a
   tilted print especially, the pale well showed as a hairline. The well is
@@ -928,6 +1119,7 @@ in both Date and Location and the timeline.
 **Dress code: smaller chips with a moving glaze** (`index.css`
 `.palette__swatches`, `.palette__chip`, `@keyframes swatch-glaze`;
 `DetailsPage.tsx` sets `--i` on each chip)
+
 - Chips are 40px, down from 48px (`--chip-size`).
 - A diagonal band of light (118°, paper at 62% at its centre) crosses each
   row from the first colour to the last, in all four rows together, at a
@@ -944,6 +1136,7 @@ story, including `/bhavnaandsreetam/`. Screenshots deleted afterwards.
 ### 2026-09-20: cue colour and name order by address (branch `name-order`, merged into `main`)
 
 **Every cue in the maroon of "yes"** (`index.css`, `EnvelopePage.tsx`)
+
 - "Click here" (`.oval__cue`, `.sleeve__cue`), "Tap to open" (new
   `.envelope-scene__cue`) and "← Back to …" (`.back-link`) are now
   `var(--color-maroon)` (`#5b1a22`), the colour of the countdown's "yes"
@@ -956,6 +1149,7 @@ story, including `/bhavnaandsreetam/`. Screenshots deleted afterwards.
 **Name order chosen by the address** (`routes.ts`, `hooks/useRoute.ts`,
 `App.tsx`, `HomePage.tsx`, `lib/coupleNames.ts`, `types.ts`,
 `entry-server.tsx`, `scripts/prerender.mjs`, `index.html`)
+
 - Pages moved from hash addresses (`#/home`) to paths (`/home/`), with an
   optional order prefix: `/bhavnaandsreetam/…` or `/sreetamandbhavna/…`
   (§5.1). Paths were chosen over a hash prefix (`#/bhavnaandsreetam/home`)
@@ -988,6 +1182,7 @@ story, including `/bhavnaandsreetam/`. Screenshots deleted afterwards.
 **Every polaroid now holds a real photograph** (`content.ts`, `types.ts`,
 `HomePage.tsx`, `StoryPage.tsx`, `PrintFill.tsx`, `lib/photoUrl.ts`,
 `validate.ts`)
+
 - The client's files in `website-pics/` are named after their placeholders.
   They were matched as: `home_invitation` → the polaroid beside the invitation
   card; `home_details_1–3` → the three under the tray, top to bottom;
@@ -1008,6 +1203,7 @@ story, including `/bhavnaandsreetam/`. Screenshots deleted afterwards.
   alt text was rewritten to match.
 
 **Story page: "Message for you"** (`content.ts`, `.story__message-text`)
+
 - `story.closingMessage` changed from pending to the client's message: "As
   our beautiful journey turns the page to forever, we couldn't imagine taking
   this next big step without you. Please gather with us to celebrate this new
@@ -1033,6 +1229,7 @@ from the label weight of 500.
 
 **Details page: the fold falls under the caption** (`DetailsPage.tsx`,
 `.details__opening`, `.details__envelope`)
+
 - The title, the script line, the envelope and "Unfolding the celebrations" are
   wrapped in `.details__opening`, which is at least `100svh` tall. The column's
   top padding moved into it. The envelope container is `flex: 1` and
@@ -1046,6 +1243,7 @@ from the label weight of 500.
 
 **"You are invited" written out on load** (`.details__written`, `@keyframes
 pen-write`)
+
 - A left-to-right mask with a short soft edge, in one steady stroke over 2.2s,
   starting 380ms after load. It is not a letter-by-letter typing effect,
   because Great Vibes joins its letters and splitting it into spans would
@@ -1056,6 +1254,7 @@ pen-write`)
 
 **Timeline: the winding route on phones too** (`Paths.tsx`, `DetailsPage.tsx`,
 `.schedule*`)
+
 - New `SCHEDULE_NARROW` route spec with heavier marks in box units, wider cards
   (0.42), and a longer drop (470). `scheduleRouteNodes`,
   `scheduleRouteViewBox`, `ScheduleRoute` and `SCHEDULE_ROUTE_LAYOUT` now take
@@ -1072,6 +1271,7 @@ pen-write`)
 ### 2026-09-19: review round 1 (copy, dress code, typography)
 
 **Copy**
+
 - Playlist sleeve: removed the "To be confirmed" caption under "Playlist". While
   `playlist.url` is pending, the sleeve shows only its title. Once a URL exists
   it becomes a link with the "Click here" cue. (`HomePage.tsx`, `PlaylistDoor`)
@@ -1082,6 +1282,7 @@ pen-write`)
   celebrations"**. (`content.ts`)
 
 **"Unfolding the celebrations" styling** (`.details__message` in `index.css`)
+
 - Moved up from prose size to `clamp(1.1rem, 0.62rem + 2.4vw, 2.2rem)`, in full
   ink colour, with a 1px gold-deep hairline on each side
   (`::before`/`::after`, fading outward).
@@ -1092,6 +1293,7 @@ pen-write`)
 
 **Dress-code colours** (`index.css` tokens `--color-dress-*`,
 `eventPalettes.ts` swatches)
+
 - The swatches now show the couple's chosen dress code instead of the colours
   measured from the decor. They have their own token block. The decor tokens
   still drive each palette's `ground`/`text` (contrast check) and are
@@ -1114,6 +1316,7 @@ pen-write`)
 
 **Date and Location names on one line** (`.functions__item`,
 `.functions__item .function-name__title`)
+
 - `.functions__item` is now an `inline-size` container. The title is `nowrap` at
   `min(clamp(0.92rem, 0.84rem + 0.35vw, 1.08rem), 11.5cqi)`. "Touched by
   Turmeric" is about 9.2× its font size wide, so at 11.5cqi it can run a few
@@ -1121,11 +1324,13 @@ pen-write`)
   neighbour. On desktop the size is unchanged (~17px).
 
 **Countdown "yes"** (`types.ts`, `content.ts`, `HomePage.tsx`, `index.css`)
+
 - New optional content field `countdown.headingEmphasis` (`'yes'`).
   `EmphasisedLine` sets that word in Great Vibes, maroon, `1.9em`,
   `line-height: 0` (`.countdown__emphasis`).
 
 **Numerals: Cinzel for every digit** (`index.css`, `assets/fonts`)
+
 - Cormorant's old-style figures (a descending 4 and 9, 1 and 0 at x-height)
   looked uneven in the countdown and dates. Six candidates were compared
   (Cormorant, Marcellus, Playfair Display, Bodoni Moda, Cinzel, Gilda Display,
@@ -1140,6 +1345,7 @@ pen-write`)
   `pyftsubset --unicodes=U+0030-0039` would shrink it further.)
 
 **Repository**
+
 - First commit. The stray root files `100` and `270` (tiny PNGs from a shell
   redirect) were deleted. Large reference binaries are git-ignored (§4).
 
@@ -1155,7 +1361,11 @@ pen-write`)
 - `standing-posy` (envelope page) and `tied-posy` (home and details) are the
   same posy arranged differently, and a guest meets them on consecutive
   screens. Both are the couple's own flowers, so they stay unless asked.
-- Playlist URL and "hosted by" lines are still pending.
+- The "hosted by" lines are still pending. The playlist URL is now optional.
+- The five tracks in `public/audio` are commercial recordings. That is fine for
+  a private invitation passed between guests; it is not a licence to index the
+  site publicly. Worth a word with the couple before the link goes anywhere
+  searchable.
 - `public/og-image.png` (the WhatsApp preview picture) has "Sreetam & Bhavna"
   drawn into it, and it is from the earlier design. Links from
   `/bhavnaandsreetam/` get the right title but this same picture. The
@@ -1164,11 +1374,7 @@ pen-write`)
 - Hosting is not chosen yet. Whichever host is used, check that
   `/bhavnaandsreetam/home/` serves `dist/bhavnaandsreetam/home/index.html`.
   There is no 404 page: an unknown path is a host 404.
-- `website-pics/IMG_6590.HEIC` (a selfie in the cold) matches no placeholder
-  and is unused. `home_details_2.PNG` (the mehndi lounge) was replaced by
-  `home_details_2_alt` and is also unused.
 - Replace the venue map searches with exact pins.
-- Optional: subset the Cinzel file to digits only. Remove the unused Marcellus
-  font and the dormant hooks (ask first).
+- Optional: subset the Cinzel file to digits only.
 - On-device checks from the handover (screen readers, Lighthouse, WhatsApp
   preview, Android Devanagari) are still to do after deploy.

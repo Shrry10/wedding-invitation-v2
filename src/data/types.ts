@@ -152,6 +152,21 @@ export interface PlaylistConfig {
   cue: string
   /** Absolute HTTPS URL to the playlist, or pending. */
   url: MaybePending<string>
+  /**
+   * The records the site plays behind itself. An empty list is a site with no
+   * sound and no control for it — nothing else has to change.
+   */
+  tracks: Track[]
+}
+
+/** One record in the sleeve. */
+export interface Track {
+  /** As it is printed on the sleeve while it plays. */
+  title: string
+  /** Who recorded it. */
+  artist: string
+  /** Path from the site root, served from `public/audio`. */
+  src: string
 }
 
 export interface CountdownConfig {

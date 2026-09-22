@@ -19,7 +19,7 @@ function baseContent(): InvitationContent {
       headingLabel: 'Until we say yes',
       completedMessage: 'Today is the day',
     },
-    playlist: { heading: 'Playlist', cue: 'Click here', url: PENDING },
+    playlist: { heading: 'Playlist', cue: 'Click here', url: PENDING, tracks: [] },
     venues: [
       {
         id: 'suraj-palace',
