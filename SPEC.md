@@ -101,7 +101,7 @@ scripts/
   encode-audio.sh          Encodes src/media/*.flac to public/audio/*.m4a with afconvert. src/media/ is
                            gitignored and currently empty: put masters back there to re-encode
 public/                    favicon.png, apple-touch-icon.png, og-image.png (committed rasters)
-public/audio/              The four trimmed tracks the site plays (28-69s, 3.4 MB in all, AAC in MP4)
+public/audio/              The three trimmed tracks the site plays (28-69s, 2.6 MB in all, AAC in MP4)
 src/
   main.tsx                 Hydrates prerendered markup, or renders fresh in dev
   entry-server.tsx         render(path) and prerenderTargets() for the prerender step
@@ -460,13 +460,16 @@ text of each event palette, measured from the stylesheet).
 
 ### 5.10 The music (`hooks/useBackgroundMusic.ts`, `components/MusicTag.tsx`)
 
-The couple's four records play behind the site. One `Audio` element for the
-whole visit, owned by `App` so it survives every navigation: the song does not
-restart when a guest opens the details.
+The couple's three records play behind the site. Two `Audio` elements — two
+decks — for the whole visit, owned by `App` so they survive every navigation:
+the song does not restart when a guest opens the details. Two rather than one
+because a record hands over to the next under its own tail, and a crossfade
+needs both sounding at once.
 
 - **Files.** What ships is `public/audio/*-final.mp4` — the couple's own
-  trimmed cuts, AAC in MP4, 28 to 69 seconds each and 3.4 MB for the four of
-  them, committed to the repository. Every browser in use has decoded this for
+  trimmed cuts, AAC in MP4, 28 to 69 seconds each and 2.6 MB for the three of
+  them, committed to the repository. Yellow was dropped from the sleeve on
+  2026-09-22 and its file deleted. Every browser in use has decoded this for
   a decade; the dev server and any static host answer range requests for it and
   label it `video/mp4`, which an `Audio` element reads as the audio-only track
   it is. `scripts/encode-audio.sh` (FLAC in `src/media/`, `afconvert`, part of
@@ -474,10 +477,12 @@ restart when a guest opens the details.
   no longer on disk** (deleted in the 2026-09-22 cleanup), so re-encoding means
   asking the couple for the files again. The five full-length `*.m4a` were
   deleted when the trimmed cuts arrived.
-- **Nothing is preloaded.** `preload="none"`, and the element is not even made
-  until something asks for sound, so a guest who never presses play downloads
-  no audio at all. A track streams as it plays; the dev server and any static
-  host answer range requests for it.
+- **Nothing is preloaded.** Neither element is made until something asks for
+  sound, and neither is pointed at a file before then, so a guest who never
+  presses play downloads no audio at all. Once the music is on, `preload`
+  is `auto`: the record sounding streams as it plays, and the spare deck is
+  armed with whatever comes next so its head is buffered before the overlap
+  starts. The dev server and any static host answer range requests.
 - **Starting.** No browser will start sound without a gesture, so nothing here
   tries. The envelope's "Tap to open" is the gesture, and `EnvelopePage` calls
   `onPress` inside the click handler rather than on the handover a second
@@ -487,10 +492,46 @@ restart when a guest opens the details.
 - **Volume.** Settles at 0.52, faded in over 1.4s — the fade also covers the
   gap while the file buffers — and out over 0.14s, which is a different figure
   for a different job: see **Pressing** below.
+- **The level is not always the element's to give.** On iPhone and iPad the
+  volume belongs to the hardware buttons: `audio.volume` is read-only, an
+  assignment is ignored and a read always answers 1. So the first deck probes
+  it, and the hook takes one of three routes, in order: `audio.volume` where it
+  is writable (desktop, Android); a Web Audio gain node the decks are routed
+  through where it is not (iOS), the context being made inside the gesture and
+  resumed on every press; and, if there is no Web Audio either, no fade at all
+  — a cut, which is ugly but honest.
+- **A fade is driven by the clock, never by reading the level back.** The hook
+  keeps its own record of where each deck sits. This is not tidiness: a fade
+  that ramped until the element reported the level it had been given never
+  arrived on an iPhone, so the `pause()` waiting at the end of the ramp never
+  ran and the music could not be stopped from the tag. Fixed 2026-09-22.
 - **Order.** The list in `playlist.tracks`, top to bottom and then round again:
-  Wildest Dreams, Yellow, Cheap Thrills, Girls Like You. It used to be shuffled
+  Wildest Dreams (twice), Cheap Thrills, Girls Like You. It used to be shuffled
   once per visit; the couple set a running order instead, and a running order
   is the point of a playlist.
+- **Records are heard twice when the cut is short.** `plays` on a track, 1 by
+  default. Wildest Dreams is 28s against the others' 64 and 69, so it carries
+  `plays: 2` and holds a page for about 53s. The repeat is a hand-over like any
+  other — the tail of the pass mixes into the head of the next one on the other
+  deck — so it reads as a longer record rather than as the same record twice.
+- **Hand-over.** A `timeupdate` on the deck that is sounding watches for the
+  last 2.6s of the file. There the tail rides down to silence over 2.6s while
+  the next record comes up from silence over the same 2.6s on the other deck,
+  and the two ramps cross in the middle: the sound never reaches zero between
+  records. The tag's title changes when the incoming record starts, not when
+  the outgoing one stops. Guards, in order: only the deck that is on the air
+  may hand over; only one hand-over at a time, however many `timeupdate`s the
+  tail reports; and nothing hands over in its first 0.5s, which covers a file
+  whose `duration` the browser has not worked out and one shorter than the
+  overlap. `ended` is still listened for, and hands over from silence over the
+  1.4s fade-in — it is what runs if the duration never arrives.
+- **The spare deck is woken inside the gesture.** Safari lets an element play
+  for the first time only in answer to a touch, and the hand-over happens
+  seconds later on a media event — so the press that starts the music also
+  starts and immediately pauses the spare, which is enough to make it playable
+  later. If it is refused anyway, the hand-over falls back to the deck already
+  sounding: the record moves there and comes up from silence, a dip rather than
+  a mix, but never a silence that stays.
 - **Pressing.** Both controls answer within a frame of the finger landing,
   because a music switch that seems to think about it reads as broken.
   - The action runs on `pointerdown` (`hooks/usePress.ts`), not on the click,
@@ -505,11 +546,14 @@ restart when a guest opens the details.
     switch are all in their new state while the sound is still getting out of
     the way. The ramp is there only so the waveform is not cut mid-cycle, which
     is what makes a hard stop click.
-  - Every press takes a number (`pressRef`). Pointing the element at a new file
+  - Every press takes a number (`pressRef`). Pointing an element at a new file
     aborts the `play()` promise for the old one, and that rejection lands after
     the new press has been accepted — which, unhandled, switched the control
     off underneath the record it had just skipped to. A promise that settles
     holding an old number says nothing.
+- **A stop silences both decks**, including one landing mid hand-over, over
+  the same 0.14s ramp, and a `play()` still buffering when the press landed
+  pauses itself the moment it resolves.
 - **Stopping is remembered.** `localStorage['wedding-invitation:music']`. Set
   to `off`, the envelope no longer starts the music on a later visit — but
   pressing a control still plays, because that is the guest asking.
@@ -524,11 +568,18 @@ restart when a guest opens the details.
 - Empty `playlist.tracks` and all of this disappears: `useBackgroundMusic`
   returns `null`, the tag is not rendered, and the sleeve goes back to being
   scenery or a link to `playlist.url`.
-- **What the tests cover.** Fifteen against a stubbed `Audio`
-  (`useBackgroundMusic.test.ts`): first play, the listed order, advance on
-  `ended`, wrap, the remembered "off", the blocked `play()`, the state flipping
-  inside the press at both ends, the stop being over inside 250ms, a play
-  pressed during a stop's ramp surviving it, and the overtaken abort. Five more
+- **What the tests cover.** Twenty-five against a stubbed `Audio` that carries
+  a clock and can lock its volume the way an iPhone does
+  (`useBackgroundMusic.test.ts`): first play, the listed order, the spare
+  woken and left silent, the crossfade with both decks sounding at once, one
+  hand-over however many `timeupdate`s arrive, no hand-over in the opening
+  moments, the short record heard twice, the fallback when the spare is
+  refused, advance on `ended`, wrap, the remembered "off", the blocked
+  `play()`, the state flipping inside the press at both ends, the stop being
+  over inside 250ms, a stop mid hand-over silencing both decks, a play pressed
+  during a stop's ramp surviving it, the overtaken abort, the gain-node route
+  for a locked-down volume, the stop still stopping with neither route
+  available, and the stop that lands while the file is still buffering. Five more
   (`usePress.test.tsx`) hold the press to one run per tap and one per keyboard
   press. Real sound cannot be verified from the headless WebKit harness — it
   has no audio session, so `readyState` stays 0 — so that stays a manual
@@ -545,6 +596,7 @@ restart when a guest opens the details.
 | Change the site title or share description | Edit `index.html`. Keep the names in the default order and spelled `Sreetam &amp; Bhavna` / `Sreetam and Bhavna`: the prerender swaps exactly those for the other order |
 | Change the music | Put the files in `public/audio/` and list them in `playlist.tracks`, in the order they should play. For a full-length track from a lossless master: put it in `src/media/` (gitignored, and currently empty) and run `sh scripts/encode-audio.sh` first. Emptying the list removes the player and its switch, and the sleeve goes back to being scenery or a link |
 | Change the order the records play in | Reorder `playlist.tracks`. There is no shuffle |
+| Play a short cut more than once before the next record | Set `plays` on that track, e.g. `plays: 2`. The repeat crossfades into itself |
 | Add the playlist link | Set `playlist.url`. It is used only when `playlist.tracks` is empty; with tracks the sleeve plays them instead of linking out |
 | Change the couple's initials | Change the names in `content.couple`, then run `python3 scripts/extract-cipher.py <initials>` so the seal has outlines for the new letters. Without it the seal falls back to live text |
 | Change the countdown line / emphasised word | `countdown.headingLabel` and `countdown.headingEmphasis`. The last occurrence of the emphasis word is set in script + maroon. If the word is not found, the plain line is shown |
@@ -628,6 +680,60 @@ function EmphasisedLine({ text, emphasis }: { text: string; emphasis: string | u
 ---
 
 ## 10. Change log
+
+### 2026-09-22: three records, two decks, no silence between them (branch `music-crossfade`)
+
+**Yellow is off the sleeve** (`content.ts`, `public/audio/`)
+
+- Removed from `playlist.tracks` at the couple's word, and the file deleted:
+  three records now, 2.6 MB against 3.4.
+
+**Wildest Dreams is heard twice** (`types.ts` `Track.plays`, `content.ts`)
+
+- The cut is 28s against the others' 64 and 69 — half a page rather than a
+  page. `plays: 2` holds it for about 53s. The repeat is a hand-over like any
+  other, so the seam is a mix and not a restart.
+
+**One record now comes up under the tail of the last** (`useBackgroundMusic.ts`)
+
+- The hook works two `Audio` elements instead of one, because a crossfade needs
+  both records sounding at once. A `timeupdate` watches for the last 2.6s of
+  the file; there the tail rides down over 2.6s while the next head rides up
+  over the same 2.6s on the other deck. The sound never reaches silence
+  between records, which is what the couple asked for and what the short cuts
+  need — they end where the editor cut them, not where the song finishes.
+- The spare deck is started and paused inside the press that starts the music,
+  because Safari will not let an element play for the first time on a timer. If
+  it is refused anyway, the record moves to the deck already sounding and comes
+  up from silence: a dip, not a dead sleeve.
+- `preload` is `auto` now rather than `none`, but nothing is fetched until the
+  first press: an element is made, and pointed at a file, only inside a
+  gesture. The spare is armed with the next record while the current one plays,
+  so the overlap does not start on an empty buffer.
+- Guards: only the deck on the air hands over, only once per pass, and never in
+  a record's first 0.5s. `ended` still advances, from silence, for a file whose
+  duration never arrives. A stop silences both decks.
+
+**The music stops on a phone** (`useBackgroundMusic.ts`)
+
+- Reported from an iPhone: the tag's pause did nothing, the record played on.
+  The cause was older than the crossfade. Every fade ramped until the element
+  reported the level it had been given, and on iOS `volume` is read-only —
+  the buttons on the side of the phone own it — so the ramp never arrived and
+  the `pause()` at the end of it never ran.
+- Fades are now driven by the clock against the hook's own record of the level,
+  so they always arrive and a stop always stops. Where `volume` cannot be
+  written the decks are routed through Web Audio gain nodes instead, which can,
+  so iPhones get the fades and the crossfade rather than cuts. With neither
+  route available a fade becomes a cut and the music still stops.
+- A `play()` still buffering when the guest pressed pause now pauses itself on
+  arrival instead of starting a record nobody asked for.
+
+**Checked**: 159 tests (25 in `useBackgroundMusic.test.ts`, the stub now
+carrying a clock and able to lock its volume the way an iPhone does),
+typecheck, lint, a build, and a screenshot of the envelope. Sound itself is
+still not verifiable from the headless harness — the crossfade, the double pass
+and the iPhone pause need an ear on a real device.
 
 ### 2026-09-22: the couple's own cuts, a switch that answers, a centred oval (branch `music-instant-switch`, merged into `main`)
 
