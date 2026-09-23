@@ -771,6 +771,20 @@ html:not(.js) .countdown__units {
   width: min(39%, max(145px, 12.1vw));
 }
 
+/* The social preview (raster-og.html): the envelope alone, sized for a
+   1200 x 630 card and lifted a little so the posy's stem stays in frame. */
+.og-scene {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 6vh;
+}
+
+.og-scene__paper {
+  width: 52%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .envelope-scene {
     transition: opacity 140ms linear;

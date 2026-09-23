@@ -77,6 +77,7 @@ npm run build        # typecheck → client build → SSR build → prerender 12
 npm run preview      # serve dist/
 npm run preview:lan  # serve dist/ on the local network (open the printed Network URL on a phone on the same Wi-Fi)
 npm run rasters      # macOS only: re-render og-image / favicons from the live dev server (swift)
+                     # RASTER_ONLY=og renders the preview alone; RASTER_ORIGIN=http://localhost:5173 if 127.0.0.1 is refused
 ```
 
 Deploy: `cp .env.example .env.production`, then set `VITE_SITE_URL` (so the
@@ -188,7 +189,10 @@ means: the envelope heading and its button label, the invitation card, the
 card in the small envelope, the countdown sign-off and its spoken subject, the
 story page's "With love", the wax-seal initials (BS / SB), and the page's
 `<title>`, `og:title`, `twitter:title` and descriptions, so a WhatsApp preview
-shows the same order. The segment is built from the names in `content.ts`
+shows the same order. The title reads "<names> — The Invitation". The preview
+picture (`public/og-image.png`, from `raster-og.html` / `src/raster-og.tsx`) is
+the landing envelope with its posy over the hands photograph, with no words and a
+blank seal, so the one picture suits every order. The segment is built from the names in `content.ts`
 (`orderSegment`: the two initials, leading name first, lower case), so it
 follows any change of names there. Case and a missing
 trailing slash are accepted; an unknown segment falls back to the default.
@@ -1629,11 +1633,6 @@ pen-write`)
   a private invitation passed between guests; it is not a licence to index the
   site publicly. Worth a word with the couple before the link goes anywhere
   searchable.
-- `public/og-image.png` (the WhatsApp preview picture) has "Sreetam & Bhavna"
-  drawn into it, and it is from the earlier design. Links from
-  `/bs/` get the right title but this same picture. The
-  `raster-og.html` page that `npm run rasters` expects no longer exists.
-  Options: a new picture with no names in it, or one picture per order.
 - Hosting is not chosen yet. Whichever host is used, check that
   `/bs/home/` serves `dist/bs/home/index.html`.
   There is no 404 page: an unknown path is a host 404.
