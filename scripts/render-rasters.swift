@@ -17,6 +17,7 @@ import AppKit
 //
 //   npm run dev          # in one terminal
 //   npm run rasters      # in another
+//   RASTER_ONLY=og npm run rasters   # the social preview alone
 // -----------------------------------------------------------------------------
 
 struct RasterTarget {
@@ -28,11 +29,16 @@ struct RasterTarget {
 
 let origin = ProcessInfo.processInfo.environment["RASTER_ORIGIN"] ?? "http://127.0.0.1:5173"
 
-let targets = [
+let allTargets = [
     RasterTarget(path: "/raster-og.html", width: 1200, height: 630, output: "public/og-image.png"),
     RasterTarget(path: "/raster-icon.html", width: 180, height: 180, output: "public/apple-touch-icon.png"),
     RasterTarget(path: "/raster-icon.html", width: 32, height: 32, output: "public/favicon.png"),
 ]
+
+// RASTER_ONLY=og (or icon) renders just the files whose name contains it, so
+// the preview can be refreshed without touching the icons.
+let only = ProcessInfo.processInfo.environment["RASTER_ONLY"]
+let targets = allTargets.filter { only == nil || $0.output.contains(only!) }
 
 final class Renderer: NSObject, WKNavigationDelegate {
     private let webView: WKWebView
